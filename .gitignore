@@ -11,3 +11,7 @@ next-env.d.ts
 # local-only tooling
 /.claude/settings.local.json
 /.preview-tmp
+
+# dev server logs
+dev-server.log
+dev-server.err.log
