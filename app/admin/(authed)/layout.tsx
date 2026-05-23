@@ -14,6 +14,8 @@ const nav = [
   { href: "/admin/users", label: "Users" },
 ];
 
+export const dynamic = "force-dynamic";
+
 export default async function AuthedAdminLayout({ children }: { children: ReactNode }) {
   await requireUser();
   const profile = await getCurrentProfile();

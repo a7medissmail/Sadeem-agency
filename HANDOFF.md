@@ -64,8 +64,10 @@ Vercel needs the same env vars under **Project → Settings → Environment Vari
 - ✅ Admin shell: dark sidebar, role-aware nav, sign-out, dashboard live counts (Leads/Bookings/Active courses/Applications).
 - ✅ Users CRUD (admin-only): invite via service-role, inline name/role edit, delete (self-protected).
 - ✅ Full DB schema applied (`supabase/migrations/0001_init.sql`) with enums + RLS + auto-create-profile trigger.
+- ✅ Homepage lead/contact form + admin CRM leads list.
+- ✅ Courses/Workshops public pages + admin CRUD/toggle/image upload.
 
-**Not yet built**: lead form on homepage, CRM list/board, courses/team/careers/applications public + admin, booking UI + Google Calendar, marketing email campaigns.
+**Not yet built**: team/careers/applications public + admin, booking UI + Google Calendar, marketing email campaigns.
 
 ---
 
@@ -266,6 +268,16 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 
 ---
 
+### [2026-05-23] Post-P2 fixes
+
+- Course validation no longer rejects create submissions when `image_url` is missing; blank optional fields normalize to `null`.
+- Course schema now returns field-specific messages for title, slug, dates, capacity, price, image URL, and start/end ordering instead of the generic "Invalid input".
+- Admin course form now shows field-level errors and red invalid borders, normalizes slug input on blur, and limits uploads to PNG/JPG/WebP under 5 MB.
+- Protected admin layout is explicitly dynamic (`force-dynamic`) so `npm run build` does not emit cookie/static-render noise for admin routes.
+- Verified with `npx tsc --noEmit`, direct schema parsing for the screenshot-style payload, and `npm run build`.
+
+---
+
 ### [2026-05-23] Post-P1 fixes
 
 - **`supabase/migrations/0002_grants.sql`** — added explicit GRANTs on `public.*` for `anon` + `authenticated` (plus default privileges on future tables). Without this, the project's "Automatically expose new tables" being disabled meant RLS policies were correct but the role had no table-level privilege → lead inserts and profile reads silently failed (form said "Could not save", admin pages ping-ponged through the login redirect).
@@ -284,6 +296,5 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 ## 11. Open / parked items
 
 - **Slide-1 faint foreground wisp** in front of the figure for extra depth (backlog).
-- **Industries / Insights** marketing routes — nav links currently point to `#industries` / `#insights` which don't exist yet. Decide content + route or remove links.
 - **Stale `.next/types/app/page.ts`** may need clearing once after the marketing route group move; `tsc` is clean now.
-- **Admin UI primitives** to extract from inline Tailwind into `components/admin/ui/` during P1.
+- **P3 Team page** — public team route + admin CRUD/photo upload is next.

@@ -24,21 +24,37 @@ type CourseFormValues = {
   is_active?: boolean;
 };
 
-// Convert an ISO timestamp to the value <input type="datetime-local"> expects.
 function toLocalDatetime(iso: string | null | undefined): string {
   if (!iso) return "";
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(
-    d.getMinutes(),
-  )}`;
+  const date = new Date(iso);
+  const pad = (value: number) => String(value).padStart(2, "0");
+
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(
+    date.getHours(),
+  )}:${pad(date.getMinutes())}`;
+}
+
+function toSlug(value: string): string {
+  return value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
+function FieldError({ messages }: { messages?: string[] }) {
+  if (!messages?.length) return null;
+  return <p className="text-[12.5px] leading-snug text-red-300">{messages[0]}</p>;
 }
 
 function SaveButton({ mode }: { mode: "create" | "edit" }) {
   const { pending } = useFormStatus();
+
   return (
     <Button type="submit" disabled={pending}>
-      {pending ? "Saving…" : mode === "create" ? "Create course" : "Save changes"}
+      {pending ? "Saving..." : mode === "create" ? "Create course" : "Save changes"}
     </Button>
   );
 }
@@ -54,23 +70,16 @@ export default function CourseForm({
   const [state, formAction] = useFormState(action, initial);
   const [slug, setSlug] = useState(course?.slug ?? "");
   const [title, setTitle] = useState(course?.title ?? "");
-
-  // Auto-derive slug from title until the user edits the slug manually.
   const [slugTouched, setSlugTouched] = useState(Boolean(course?.slug));
+  const errors = state.fieldErrors ?? {};
+
   function onTitleChange(value: string) {
     setTitle(value);
-    if (!slugTouched) {
-      const auto = value
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "")
-        .slice(0, 80);
-      setSlug(auto);
-    }
+    if (!slugTouched) setSlug(toSlug(value));
   }
 
   return (
-    <form action={formAction} encType="multipart/form-data" className="flex flex-col gap-6 max-w-[760px]">
+    <form action={formAction} encType="multipart/form-data" className="flex max-w-[760px] flex-col gap-6">
       {course?.id ? <input type="hidden" name="id" value={course.id} /> : null}
       {course?.image_url ? <input type="hidden" name="image_url" value={course.image_url} /> : null}
 
@@ -80,65 +89,128 @@ export default function CourseForm({
             name="title"
             required
             value={title}
-            onChange={(e) => onTitleChange(e.target.value)}
-            placeholder="Sales Ops Workshop — Riyadh"
+            onChange={(event) => onTitleChange(event.target.value)}
+            aria-invalid={Boolean(errors.title)}
+            placeholder="Sales Ops Workshop - Riyadh"
           />
+          <FieldError messages={errors.title} />
         </FieldRow>
+
         <FieldRow label="Slug">
           <Input
             name="slug"
             required
             value={slug}
-            onChange={(e) => {
-              setSlug(e.target.value);
+            onChange={(event) => {
+              setSlug(event.target.value);
               setSlugTouched(true);
             }}
+            onBlur={(event) => setSlug(toSlug(event.target.value) || event.target.value.trim())}
+            aria-invalid={Boolean(errors.slug)}
             placeholder="sales-ops-workshop-riyadh"
           />
+          <FieldError messages={errors.slug} />
         </FieldRow>
       </div>
 
-      <FieldRow label="Summary (1–2 sentences)">
-        <Textarea name="summary" rows={2} defaultValue={course?.summary ?? ""} maxLength={280} />
+      <FieldRow label="Summary (1-2 sentences)">
+        <Textarea
+          name="summary"
+          rows={2}
+          defaultValue={course?.summary ?? ""}
+          maxLength={280}
+          aria-invalid={Boolean(errors.summary)}
+        />
+        <FieldError messages={errors.summary} />
       </FieldRow>
 
       <FieldRow label="Body (full description)">
-        <Textarea name="body" rows={8} defaultValue={course?.body ?? ""} />
+        <Textarea
+          name="body"
+          rows={8}
+          defaultValue={course?.body ?? ""}
+          maxLength={12000}
+          aria-invalid={Boolean(errors.body)}
+        />
+        <FieldError messages={errors.body} />
       </FieldRow>
 
       <div className="grid grid-cols-2 gap-4">
         <FieldRow label="Location">
-          <Input name="location" defaultValue={course?.location ?? ""} placeholder="Riyadh, Saudi Arabia" />
+          <Input
+            name="location"
+            defaultValue={course?.location ?? ""}
+            maxLength={180}
+            aria-invalid={Boolean(errors.location)}
+            placeholder="Riyadh, Saudi Arabia"
+          />
+          <FieldError messages={errors.location} />
         </FieldRow>
+
         <FieldRow label="Capacity">
-          <Input name="capacity" type="number" min={1} defaultValue={course?.capacity ?? ""} />
+          <Input
+            name="capacity"
+            type="number"
+            min={1}
+            step={1}
+            inputMode="numeric"
+            defaultValue={course?.capacity ?? ""}
+            aria-invalid={Boolean(errors.capacity)}
+          />
+          <FieldError messages={errors.capacity} />
         </FieldRow>
+
         <FieldRow label="Starts">
-          <Input name="starts_at" type="datetime-local" defaultValue={toLocalDatetime(course?.starts_at)} />
+          <Input
+            name="starts_at"
+            type="datetime-local"
+            defaultValue={toLocalDatetime(course?.starts_at)}
+            aria-invalid={Boolean(errors.starts_at)}
+          />
+          <FieldError messages={errors.starts_at} />
         </FieldRow>
+
         <FieldRow label="Ends">
-          <Input name="ends_at" type="datetime-local" defaultValue={toLocalDatetime(course?.ends_at)} />
+          <Input
+            name="ends_at"
+            type="datetime-local"
+            defaultValue={toLocalDatetime(course?.ends_at)}
+            aria-invalid={Boolean(errors.ends_at)}
+          />
+          <FieldError messages={errors.ends_at} />
         </FieldRow>
+
         <FieldRow label="Price (SAR)">
-          <Input name="price" type="number" step="0.01" min={0} defaultValue={course?.price ?? ""} />
+          <Input
+            name="price"
+            type="number"
+            step="0.01"
+            min={0}
+            inputMode="decimal"
+            defaultValue={course?.price ?? ""}
+            aria-invalid={Boolean(errors.price)}
+          />
+          <FieldError messages={errors.price} />
         </FieldRow>
+
         <FieldRow label="Active (visible on the public site)">
-          <label className="inline-flex items-center gap-3 mt-1 cursor-pointer select-none">
+          <span className="inline-flex items-center gap-3 mt-1 cursor-pointer select-none">
             <input
               type="checkbox"
               name="is_active"
               defaultChecked={course?.is_active ?? false}
-              className="accent-[#ff6a00] w-4 h-4"
+              className="h-4 w-4 accent-[#ff6a00]"
             />
-            <span className="text-white/80 text-[13.5px]">Publish</span>
-          </label>
+            <span className="text-[13.5px] text-white/80">Publish</span>
+          </span>
         </FieldRow>
       </div>
 
-      <div className="border-t border-white/10 pt-6 flex flex-col gap-3">
+      <div className="flex flex-col gap-3 border-t border-white/10 pt-6">
         <FieldRow label="Cover image (PNG / JPG / WebP, < 5 MB)">
-          <Input name="image_file" type="file" accept="image/png,image/jpeg,image/webp,image/gif" />
+          <Input name="image_file" type="file" accept="image/png,image/jpeg,image/webp" />
         </FieldRow>
+
         {course?.image_url ? (
           <p className="text-[12.5px] text-white/50">
             Currently using{" "}
@@ -151,12 +223,17 @@ export default function CourseForm({
       </div>
 
       {state.error ? (
-        <p className="text-[13px] text-red-400" role="alert">{state.error}</p>
+        <div className="border border-red-400/25 bg-red-500/[0.08] px-4 py-3 text-[13px] text-red-200" role="alert">
+          {state.error}
+        </div>
       ) : null}
 
       <div className="flex items-center gap-4 pt-2">
         <SaveButton mode={mode} />
-        <Link href="/admin/courses" className="font-mono text-[10.5px] tracking-[0.2em] uppercase text-white/55 hover:text-white">
+        <Link
+          href="/admin/courses"
+          className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-white/55 hover:text-white"
+        >
           Cancel
         </Link>
       </div>

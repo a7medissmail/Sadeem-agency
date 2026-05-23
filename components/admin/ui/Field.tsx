@@ -7,7 +7,7 @@ export function Label({ children }: { children: ReactNode }) {
 }
 
 const fieldBase =
-  "bg-transparent border border-white/15 px-3 py-2 outline-none focus:border-[#ff6a00] text-white/95 placeholder:text-white/30 transition-colors";
+  "bg-transparent border border-white/15 px-3 py-2 outline-none focus:border-[#ff6a00] aria-[invalid=true]:border-red-400/70 text-white/95 placeholder:text-white/30 transition-colors";
 
 export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   const { className, ...rest } = props;

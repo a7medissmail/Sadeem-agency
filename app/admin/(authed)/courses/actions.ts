@@ -4,41 +4,79 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { requireRole } from "@/lib/auth";
-import { courseSchema, slugify } from "@/lib/validation/course";
+import {
+  courseSchema,
+  formatCourseValidationError,
+  slugify,
+  type CourseFieldErrors,
+} from "@/lib/validation/course";
 
-export type CourseFormState = { error?: string; ok?: boolean };
+export type CourseFormState = {
+  error?: string;
+  fieldErrors?: CourseFieldErrors;
+  ok?: boolean;
+};
 
 const COURSE_BUCKET = "course-images";
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const IMAGE_TYPES = new Map([
+  ["png", "image/png"],
+  ["jpg", "image/jpeg"],
+  ["jpeg", "image/jpeg"],
+  ["webp", "image/webp"],
+]);
+
+function imageMetadata(file: File): { extension: string; contentType: string } {
+  const rawExtension = file.name.split(".").pop()?.toLowerCase() ?? "";
+  const extension = IMAGE_TYPES.has(rawExtension) ? rawExtension : "";
+  const typeExtension = [...IMAGE_TYPES.entries()].find(([, contentType]) => contentType === file.type)?.[0] ?? "";
+  if (file.type && !typeExtension) {
+    throw new Error("Cover image must be PNG, JPG, or WebP");
+  }
+
+  const finalExtension = typeExtension || extension;
+  const contentType = IMAGE_TYPES.get(finalExtension);
+
+  if (!finalExtension || !contentType) {
+    throw new Error("Cover image must be PNG, JPG, or WebP");
+  }
+
+  return {
+    extension: finalExtension === "jpeg" ? "jpg" : finalExtension,
+    contentType,
+  };
+}
 
 async function uploadCourseImage(file: File): Promise<string | null> {
   if (!file || file.size === 0) return null;
-  if (file.size > 5 * 1024 * 1024) throw new Error("Image must be under 5 MB");
-  if (!/^image\/(png|jpe?g|webp|gif)$/.test(file.type)) {
-    throw new Error("Image must be PNG / JPG / WebP / GIF");
-  }
-  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-  const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  if (file.size > MAX_IMAGE_BYTES) throw new Error("Cover image must be under 5 MB");
+
+  const { extension, contentType } = imageMetadata(file);
+  const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extension}`;
   const admin = getSupabaseAdmin();
   const { error } = await admin.storage
     .from(COURSE_BUCKET)
-    .upload(path, file, { contentType: file.type, upsert: false });
+    .upload(path, file, { contentType, upsert: false });
   if (error) throw new Error(error.message);
   const { data } = admin.storage.from(COURSE_BUCKET).getPublicUrl(path);
   return data.publicUrl;
 }
 
 function readForm(formData: FormData) {
+  const title = String(formData.get("title") ?? "");
+  const slug = String(formData.get("slug") ?? "").trim() || slugify(title);
+
   return {
-    title: formData.get("title"),
-    slug: (formData.get("slug") as string) || slugify((formData.get("title") as string) || ""),
-    summary: formData.get("summary"),
-    body: formData.get("body"),
-    location: formData.get("location"),
-    starts_at: formData.get("starts_at"),
-    ends_at: formData.get("ends_at"),
-    capacity: formData.get("capacity"),
-    price: formData.get("price"),
-    image_url: formData.get("image_url"),
+    title,
+    slug,
+    summary: formData.get("summary") ?? "",
+    body: formData.get("body") ?? "",
+    location: formData.get("location") ?? "",
+    starts_at: formData.get("starts_at") ?? "",
+    ends_at: formData.get("ends_at") ?? "",
+    capacity: formData.get("capacity") ?? "",
+    price: formData.get("price") ?? "",
+    image_url: formData.get("image_url") ?? "",
     is_active: formData.get("is_active") || false,
   };
 }
@@ -50,7 +88,7 @@ export async function createCourseAction(
   await requireRole(["admin", "editor"]);
 
   const parsed = courseSchema.safeParse(readForm(formData));
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  if (!parsed.success) return formatCourseValidationError(parsed.error);
 
   let image_url = parsed.data.image_url;
   try {
@@ -78,7 +116,7 @@ export async function updateCourseAction(
   if (!id) return { error: "Missing course id" };
 
   const parsed = courseSchema.safeParse(readForm(formData));
-  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
+  if (!parsed.success) return formatCourseValidationError(parsed.error);
 
   let image_url = parsed.data.image_url;
   try {
