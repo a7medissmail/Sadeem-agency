@@ -144,7 +144,7 @@ HANDOFF.md                       # this file
 |---|---|---|
 | **P0** | TS migration, Supabase wiring, auth, admin shell, Users CRUD | ✅ Done |
 | **P1** | Homepage lead form, CRM list/board, Resend transactional email | ✅ Done |
-| **P2** | Courses/Workshops (public + admin toggle/CRUD + image upload) | Planned |
+| **P2** | Courses/Workshops (public + admin toggle/CRUD + image upload) | ✅ Done |
 | **P3** | Team page + admin CRUD + photo upload | Planned |
 | **P4** | Careers + applications (resume upload, pipeline) | Planned |
 | **P5** | Consultation booking (custom UI + Google Calendar API) | Planned |
@@ -228,6 +228,41 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 - `lib/email/{resend,templates}.ts`
 - `lib/actions/leads.ts`
 - `app/admin/(authed)/leads/{page.tsx,actions.ts}`
+
+---
+
+### [2026-05-23] P2 — Courses / Workshops ✅
+
+**Storage**
+- `supabase/migrations/0004_storage.sql` — creates the public `course-images` bucket with policies (public select; staff insert/update/delete via `is_staff`). Uploads from server actions go through the service-role client so RLS is bypassed safely.
+
+**Validation**
+- `lib/validation/course.ts` — zod schema covering title/slug/summary/body/location/dates/capacity/price/image_url/is_active, with `optionalString/optionalNumber/optionalIsoDate` coercers and a `slugify(title)` helper.
+
+**Admin CRUD** (`app/admin/(authed)/courses/`)
+- `page.tsx` — list with title + slug, location, starts date, capacity, status badge (`Live` / `Off`), inline **on/off toggle**, delete (admin-only). Uses the P1 primitives + a fixed-column grid that matches the leads page pattern.
+- `new/page.tsx` + `[id]/page.tsx` — both wrap one `CourseForm` client component with `mode="create"` or `mode="edit"`.
+- `CourseForm.tsx` — full form: title with auto-slug, slug override, summary/body, location, capacity, starts/ends (`datetime-local`), price, active checkbox, **image upload** (PNG/JPG/WebP, < 5 MB) with current-image hint when editing. Submits via server action, redirects back to the list on success.
+- `actions.ts` — `createCourseAction`, `updateCourseAction`, `toggleCourseActiveAction`, `deleteCourseAction`. Uploads route through `getSupabaseAdmin().storage.from('course-images')` and store the resulting public URL on the row.
+- Removed `soon` from the Courses sidebar item.
+
+**Public**
+- `app/(marketing)/courses/page.tsx` — cinematic listing: hero header ("Sharpen the operating system."), responsive card grid (cover image + location/date meta + title + summary + "View details →"), graceful empty state that links to `/#contact`.
+- `app/(marketing)/courses/[slug]/page.tsx` — detail page: two-column hero (copy + cover), meta list (when / where / cohort / investment), body paragraphs, then a "Register interest" section reusing `<LeadForm source="course" />` so submissions land in the CRM tagged as the course channel.
+- New CSS block under `/* ========== COURSES (public) ========== */` in `globals.css`: hero, card grid, course-card hover lift, detail two-column, meta list, etc. Responsive at ≤1100.
+
+**Marketing nav update**
+- Replaced the dead `#industries` / `#insights` items with **Workshops → /courses**. All anchors now use `/#…` so they work from any route.
+- `LET'S TALK` CTA now points to `/#contact` (cross-route safe).
+
+**Files added**
+- `supabase/migrations/0004_storage.sql`
+- `lib/validation/course.ts`
+- `app/admin/(authed)/courses/{page,CourseForm,actions}.tsx, /new/page.tsx, /[id]/page.tsx`
+- `app/(marketing)/courses/{page,[slug]/page}.tsx`
+
+**One-time provisioning**
+- Run `0004_storage.sql` in the Supabase SQL Editor (creates the bucket + policies).
 
 ---
 

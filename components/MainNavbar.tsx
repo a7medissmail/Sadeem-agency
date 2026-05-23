@@ -5,13 +5,12 @@ import { Icon } from "./Icons";
 import { SadeemMark } from "./marks";
 
 const links = [
-  { label: "About", href: "#about" },
-  { label: "Services", href: "#services" },
-  { label: "Our approach", href: "#approach" },
-  { label: "Industries", href: "#industries" },
-  { label: "Success stories", href: "#cases" },
-  { label: "Insights", href: "#insights" },
-  { label: "Contact", href: "#contact" },
+  { label: "About", href: "/#about" },
+  { label: "Services", href: "/#services" },
+  { label: "Our approach", href: "/#approach" },
+  { label: "Workshops", href: "/courses" },
+  { label: "Success stories", href: "/#cases" },
+  { label: "Contact", href: "/#contact" },
 ];
 
 export default function MainNavbar({ overDark }: { overDark: boolean }) {
@@ -35,7 +34,7 @@ export default function MainNavbar({ overDark }: { overDark: boolean }) {
             </a>
           ))}
         </nav>
-        <a className="mainnav-cta" href="#contact">
+        <a className="mainnav-cta" href="/#contact">
           <span>LET&apos;S TALK</span>
           <Icon.Arrow />
         </a>

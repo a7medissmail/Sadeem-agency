@@ -7,7 +7,7 @@ const nav = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/leads", label: "Leads" },
   { href: "/admin/bookings", label: "Bookings", soon: true },
-  { href: "/admin/courses", label: "Courses", soon: true },
+  { href: "/admin/courses", label: "Courses" },
   { href: "/admin/team", label: "Team", soon: true },
   { href: "/admin/jobs", label: "Careers", soon: true },
   { href: "/admin/applications", label: "Applications", soon: true },
