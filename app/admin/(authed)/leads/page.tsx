@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { requireRole } from "@/lib/auth";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
-import { TableShell, TableHeader, TableRow, EmptyState } from "@/components/admin/ui/Table";
+import { TableShell, EmptyState } from "@/components/admin/ui/Table";
 import { Badge } from "@/components/admin/ui/Badge";
 import { Select } from "@/components/admin/ui/Field";
 import { Button } from "@/components/admin/ui/Button";
@@ -122,17 +122,18 @@ export default async function LeadsPage({
       </form>
 
       <TableShell>
-        <TableHeader>
-          <div style={{ gridTemplateColumns: "1.5fr 1.6fr 0.8fr 1fr 1fr 1fr 0.5fr" }} className="grid gap-4 contents">
-            <div>Name</div>
-            <div>Email · Company</div>
-            <div>Source</div>
-            <div>Status</div>
-            <div>Owner</div>
-            <div>Received</div>
-            <div></div>
-          </div>
-        </TableHeader>
+        <div
+          style={{ gridTemplateColumns: "1.5fr 1.6fr 0.8fr 1fr 1fr 1fr 0.5fr" }}
+          className="grid gap-4 px-5 py-3 border-b border-white/10 font-mono text-[10px] tracking-[0.2em] uppercase text-white/45"
+        >
+          <div>Name</div>
+          <div>Email · Company</div>
+          <div>Source</div>
+          <div>Status</div>
+          <div>Owner</div>
+          <div>Received</div>
+          <div></div>
+        </div>
 
         {leads.length === 0 ? (
           <EmptyState
