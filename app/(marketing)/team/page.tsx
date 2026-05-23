@@ -80,7 +80,6 @@ function TeamPortrait({ member, featured = false }: { member: TeamMember; featur
 
 export default async function TeamPage() {
   const members = await loadTeamMembers();
-  const featured = members[0] ?? null;
 
   return (
     <>
@@ -88,13 +87,16 @@ export default async function TeamPage() {
       <main className="page team-page">
         <RevealSection className="team-hero dark" data-section="01">
           <SectionLabel n="01" text="TEAM" onDark />
-          <div className="section-inner team-hero-grid">
+          <div className="section-inner team-hero-shell">
             <div className="team-hero-copy">
               <p className="team-kicker">THE PEOPLE BEHIND THE WORK</p>
               <h1 className="display team-hero-title">
-                Operators first. Advisors second.
+                Not a cast. An operating room.
               </h1>
-              <p className="team-hero-lede">
+            </div>
+
+            <div className="team-hero-panel">
+              <p>
                 SADEEM is built by people who move between strategy rooms and operating floors. The team stays small,
                 senior, and close to the work.
               </p>
@@ -105,22 +107,24 @@ export default async function TeamPage() {
                 <Link href="/#contact">Work with us</Link>
               </div>
             </div>
+          </div>
 
-            <div className="team-hero-visual" aria-hidden="true">
-              {featured ? (
-                <>
-                  <TeamPortrait member={featured} featured />
-                  <div className="team-hero-card">
-                    <span>{featured.role || "SADEEM"}</span>
-                    <strong>{featured.name}</strong>
-                  </div>
-                </>
-              ) : (
-                <div className="team-hero-empty">
-                  <span>Profiles pending</span>
-                  <strong>Build the roster in admin.</strong>
-                </div>
-              )}
+          <div className="section-inner team-hero-index" aria-label="Team operating cadence">
+            <div>
+              <span>01</span>
+              <strong>Diagnose with operators</strong>
+            </div>
+            <div>
+              <span>02</span>
+              <strong>Build the rhythm</strong>
+            </div>
+            <div>
+              <span>03</span>
+              <strong>Transfer capability</strong>
+            </div>
+            <div>
+              <span>Team</span>
+              <strong>{members.length > 0 ? `${members.length} active profile${members.length === 1 ? "" : "s"}` : "Roster pending"}</strong>
             </div>
           </div>
         </RevealSection>
@@ -133,17 +137,18 @@ export default async function TeamPage() {
             </div>
 
             {members.length > 0 ? (
-              <div className="team-grid">
+              <div className="team-list">
                 {members.map((member, index) => {
                   const links = socialLinks(member.socials);
                   return (
-                    <article className="team-card" key={member.id}>
-                      <TeamPortrait member={member} />
-                      <div className="team-card-index">{String(index + 1).padStart(2, "0")}</div>
-                      <div className="team-card-copy">
-                        <p>{member.role || "SADEEM"}</p>
+                    <article className="team-row" key={member.id}>
+                      <div className="team-row-index">{String(index + 1).padStart(2, "0")}</div>
+                      <div className="team-row-name">
                         <h3>{member.name}</h3>
-                        {member.bio ? <div className="team-card-bio">{member.bio}</div> : null}
+                      </div>
+                      <div className="team-row-copy">
+                        <p className="team-row-role">{member.role || "SADEEM"}</p>
+                        {member.bio ? <div className="team-row-bio">{member.bio}</div> : null}
                         {links.length > 0 ? (
                           <div className="team-socials">
                             {links.map((link) => (
@@ -154,6 +159,7 @@ export default async function TeamPage() {
                           </div>
                         ) : null}
                       </div>
+                      <TeamPortrait member={member} />
                     </article>
                   );
                 })}
