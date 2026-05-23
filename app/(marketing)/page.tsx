@@ -47,7 +47,7 @@ export default function Home() {
         <WhySadeem />
         <CasesSection />
         <ClientsSection />
-        <FinalCTA scrollY={scrollY} />
+        <FinalCTA />
         <Footer />
       </main>
     </div>

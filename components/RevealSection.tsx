@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
 
 const variants = {
@@ -8,9 +8,18 @@ const variants = {
   show: { opacity: 1, y: 0 },
 };
 
+type RevealSectionProps = {
+  as?: string;
+  className?: string;
+  children?: ReactNode;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any;
+};
+
 // Slow, cinematic fade-upward reveal as a section scrolls into view.
-export default function RevealSection({ as = "section", className, children, ...rest }) {
-  const MotionTag = motion[as] || motion.section;
+export default function RevealSection({ as = "section", className, children, ...rest }: RevealSectionProps) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const MotionTag: any = (motion as any)[as] || motion.section;
   const [forceShow, setForceShow] = useState(false);
 
   useEffect(() => {

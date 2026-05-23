@@ -1,5 +1,5 @@
 // Atmospheric SVG imagery for case-study tiles (industrial / tech / retail).
-export default function CaseSvg({ kind }) {
+export default function CaseSvg({ kind }: { kind: string }) {
   if (kind === "industrial") {
     return (
       <svg viewBox="0 0 600 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">

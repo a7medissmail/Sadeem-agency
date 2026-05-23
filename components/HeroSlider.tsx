@@ -46,7 +46,7 @@ const slides = [
   },
 ];
 
-export default function HeroSlider({ scrollY }) {
+export default function HeroSlider({ scrollY }: { scrollY: number }) {
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);
   const total = slides.length;

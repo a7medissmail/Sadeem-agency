@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import Lenis from "lenis";
 
 const ScrollContext = createContext(0);
@@ -9,7 +9,7 @@ export function useScrollY() {
   return useContext(ScrollContext);
 }
 
-export default function SmoothScroll({ children }) {
+export default function SmoothScroll({ children }: { children: ReactNode }) {
   const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
@@ -39,8 +39,8 @@ export default function SmoothScroll({ children }) {
       requestAnimationFrame(() => lenis.scrollTo(initialHash, { immediate: true }));
     }
 
-    let rafId;
-    const raf = (time) => {
+    let rafId: number;
+    const raf = (time: number) => {
       lenis.raf(time);
       rafId = requestAnimationFrame(raf);
     };

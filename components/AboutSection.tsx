@@ -12,16 +12,16 @@ const stats = [
   { Glyph: Icon.Globe, value: 30, suffix: "+", label: ["Industries", "Impacted"] },
 ];
 
-function CountUp({ value, suffix = "", active }) {
+function CountUp({ value, suffix = "", active }: { value: number; suffix?: string; active: boolean }) {
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
     if (!active) return;
     const duration = 1350;
     const start = performance.now();
-    let raf;
+    let raf: number;
 
-    const tick = (now) => {
+    const tick = (now: number) => {
       const t = Math.min((now - start) / duration, 1);
       const eased = 1 - Math.pow(1 - t, 3);
       setCurrent(Math.round(value * eased));

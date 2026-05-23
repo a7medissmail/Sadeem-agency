@@ -11,7 +11,7 @@ const cases = [
   { tag: "RETAIL", body: "Improved efficiency and boosted profitability by 28%.", kind: "retail", n: "03" },
 ];
 
-function CaseTile({ tag, body, kind, n }) {
+function CaseTile({ tag, body, kind, n }: { tag: string; body: string; kind: string; n: string }) {
   return (
     <article className="case">
       <div className={`case-image case-${kind}`}>

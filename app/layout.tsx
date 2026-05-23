@@ -1,5 +1,5 @@
 import "./globals.css";
-import SmoothScroll from "@/components/SmoothScroll";
+import type { ReactNode } from "react";
 
 export const metadata = {
   title: "SADEEM — Strategic Growth Advisory",
@@ -12,7 +12,7 @@ export const viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
@@ -23,9 +23,7 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body>
-        <SmoothScroll>{children}</SmoothScroll>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

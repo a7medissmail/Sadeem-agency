@@ -14,7 +14,7 @@ const links = [
   { label: "Contact", href: "#contact" },
 ];
 
-export default function MainNavbar({ overDark }) {
+export default function MainNavbar({ overDark }: { overDark: boolean }) {
   const [activeHash, setActiveHash] = useState("");
 
   useEffect(() => {

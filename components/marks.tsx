@@ -1,6 +1,6 @@
 // Original brand glyph treatment + anonymized client logo marks.
 
-export function SadeemMark({ dark = false }) {
+export function SadeemMark({ dark = false }: { dark?: boolean }) {
   const stroke = dark ? "#0D0D0F" : "#F5F3F0";
   return (
     <div className="brand-mark" data-mark-dark={dark ? "1" : "0"}>
@@ -17,7 +17,7 @@ export function SadeemMark({ dark = false }) {
   );
 }
 
-export function LogoMark({ shape, s = 30 }) {
+export function LogoMark({ shape, s = 30 }: { shape: string; s?: number }) {
   const props = { width: s, height: s, viewBox: "0 0 32 32", fill: "none", stroke: "currentColor", strokeWidth: 1.2 };
   switch (shape) {
     case "wedge":

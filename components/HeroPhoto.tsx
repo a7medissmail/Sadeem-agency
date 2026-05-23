@@ -5,7 +5,19 @@ import Image from "next/image";
 // Layered photographic hero scene:
 //   background photo (Ken-Burns zoom) → fog → rotating orbital rings →
 //   parallax lone figure → dark shade for text legibility.
-export default function HeroPhoto({ src, alt, scrollY = 0, withFigure = false, priority = false }) {
+export default function HeroPhoto({
+  src,
+  alt,
+  scrollY = 0,
+  withFigure = false,
+  priority = false,
+}: {
+  src: string;
+  alt: string;
+  scrollY?: number;
+  withFigure?: boolean;
+  priority?: boolean;
+}) {
   const ringsY = scrollY * 0.05;
   const figureY = scrollY * 0.12;
   const fogY = scrollY * 0.06;

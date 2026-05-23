@@ -2,7 +2,7 @@
 
 import { SadeemMark } from "./marks";
 
-function FooterCol({ title, items }) {
+function FooterCol({ title, items }: { title: string; items: string[] }) {
   return (
     <div className="footer-col">
       <div className="footer-title">{title}</div>
@@ -15,7 +15,7 @@ function FooterCol({ title, items }) {
   );
 }
 
-function SocialDot({ label }) {
+function SocialDot({ label }: { label: string }) {
   return <div className="social-dot">{label}</div>;
 }
 
