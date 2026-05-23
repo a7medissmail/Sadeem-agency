@@ -1,201 +1,152 @@
 import Link from "next/link";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { Json } from "@/types/database";
 import Footer from "@/components/Footer";
 import RevealSection from "@/components/RevealSection";
 import SectionAwareNavbar from "@/components/SectionAwareNavbar";
 import SectionLabel from "@/components/SectionLabel";
+import { Icon } from "@/components/Icons";
 
 export const metadata = {
   title: "Team - SADEEM",
-  description: "Meet the operators, strategists, and builders behind SADEEM.",
+  description: "Three founders. One operating system.",
 };
 
-type TeamMember = {
-  id: string;
-  name: string;
-  role: string | null;
-  bio: string | null;
-  photo_url: string | null;
-  socials: Json | null;
-  sort_order: number;
-};
+const founders = [
+  { number: "01", role: "Founder & CEO", focus: "Strategy & Vision" },
+  { number: "02", role: "Co-Founder", focus: "Operations & Execution" },
+  { number: "03", role: "Co-Founder", focus: "Growth & Partnerships" },
+];
 
-async function loadTeamMembers(): Promise<TeamMember[]> {
-  try {
-    const supabase = createSupabaseServerClient();
-    const { data, error } = await supabase
-      .from("team_members")
-      .select("id, name, role, bio, photo_url, socials, sort_order")
-      .eq("is_active", true)
-      .order("sort_order", { ascending: true })
-      .order("name", { ascending: true });
+const beliefs = [
+  {
+    icon: <Icon.Target s={38} />,
+    title: "Operator DNA",
+    body: "We think like operators and build like owners.",
+  },
+  {
+    icon: <Icon.Merge s={38} />,
+    title: "Integrated Thinking",
+    body: "Strategy, execution, and growth - connected from day one.",
+  },
+  {
+    icon: <Icon.Team s={38} />,
+    title: "Quiet Partnership",
+    body: "We listen first, challenge honestly, and stay invisible in the process.",
+  },
+  {
+    icon: <Icon.Trend s={38} />,
+    title: "Measurable Outcomes",
+    body: "We measure what matters and deliver what moves the needle.",
+  },
+];
 
-    if (error) throw error;
-    return data ?? [];
-  } catch {
-    return [];
-  }
-}
-
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
-}
-
-function socialLinks(socials: Json | null) {
-  if (!socials || typeof socials !== "object" || Array.isArray(socials)) return [];
-  const labels: Record<string, string> = {
-    website: "Website",
-    linkedin: "LinkedIn",
-    x: "X",
-    instagram: "Instagram",
-  };
-
-  return Object.entries(labels)
-    .map(([key, label]) => {
-      const href = socials[key];
-      return typeof href === "string" ? { label, href } : null;
-    })
-    .filter((link): link is { label: string; href: string } => Boolean(link));
-}
-
-function TeamPortrait({ member, featured = false }: { member: TeamMember; featured?: boolean }) {
-  return (
-    <div className={featured ? "team-portrait is-featured" : "team-portrait"}>
-      {member.photo_url ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={member.photo_url} alt="" />
-      ) : (
-        <div className="team-portrait-fallback">{initials(member.name)}</div>
-      )}
-    </div>
-  );
-}
-
-export default async function TeamPage() {
-  const members = await loadTeamMembers();
-
+export default function TeamPage() {
   return (
     <>
       <SectionAwareNavbar initialOverDark />
       <main className="page team-page">
-        <RevealSection className="team-hero dark" data-section="01">
+        <RevealSection className="team-brief-hero dark" data-section="01">
           <SectionLabel n="01" text="TEAM" onDark />
-          <div className="section-inner team-hero-shell">
-            <div className="team-hero-copy">
-              <p className="team-kicker">THE PEOPLE BEHIND THE WORK</p>
-              <h1 className="display team-hero-title">
-                Not a cast. An operating room.
+          <div className="team-hero-bg" aria-hidden="true" />
+          <div className="team-orbit team-orbit-hero" aria-hidden="true" />
+          <div className="section-inner team-brief-hero-inner">
+            <div className="team-brief-copy">
+              <p className="team-brief-kicker">OUR TEAM</p>
+              <h1 className="display team-brief-title">
+                Three founders.
+                <br />
+                <span>One operating system.</span>
               </h1>
-            </div>
-
-            <div className="team-hero-panel">
               <p>
-                SADEEM is built by people who move between strategy rooms and operating floors. The team stays small,
-                senior, and close to the work.
+                We bring together strategy, operations, and growth expertise to build solutions that compound.
               </p>
-              <div className="team-hero-actions">
-                <a href="#roster" className="team-primary">
-                  Meet the team
-                </a>
-                <Link href="/#contact">Work with us</Link>
-              </div>
-            </div>
-          </div>
-
-          <div className="section-inner team-hero-index" aria-label="Team operating cadence">
-            <div>
-              <span>01</span>
-              <strong>Diagnose with operators</strong>
-            </div>
-            <div>
-              <span>02</span>
-              <strong>Build the rhythm</strong>
-            </div>
-            <div>
-              <span>03</span>
-              <strong>Transfer capability</strong>
-            </div>
-            <div>
-              <span>Team</span>
-              <strong>{members.length > 0 ? `${members.length} active profile${members.length === 1 ? "" : "s"}` : "Roster pending"}</strong>
+              <a href="#founders" className="team-line-cta">
+                <span>OUR STORY</span>
+                <Icon.Arrow />
+              </a>
             </div>
           </div>
         </RevealSection>
 
-        <RevealSection className="team-roster light" data-section="02" id="roster">
+        <RevealSection className="team-founders light" data-section="02" id="founders">
           <div className="section-inner">
-            <div className="team-section-head">
-              <p className="team-kicker">ROSTER</p>
-              <h2>Small enough to stay close. Senior enough to matter.</h2>
+            <div className="team-founders-head">
+              <div>
+                <p className="team-brief-kicker">FOUNDERS</p>
+                <h2>
+                  Different expertise.
+                  <br />
+                  Unified <span>mission.</span>
+                </h2>
+              </div>
+              <div className="team-founders-controls" aria-hidden="true">
+                <button type="button">←</button>
+                <span>01 / <strong>03</strong></span>
+                <button type="button">→</button>
+              </div>
             </div>
 
-            {members.length > 0 ? (
-              <div className="team-list">
-                {members.map((member, index) => {
-                  const links = socialLinks(member.socials);
-                  return (
-                    <article className="team-row" key={member.id}>
-                      <div className="team-row-index">{String(index + 1).padStart(2, "0")}</div>
-                      <div className="team-row-name">
-                        <h3>{member.name}</h3>
-                      </div>
-                      <div className="team-row-copy">
-                        <p className="team-row-role">{member.role || "SADEEM"}</p>
-                        {member.bio ? <div className="team-row-bio">{member.bio}</div> : null}
-                        {links.length > 0 ? (
-                          <div className="team-socials">
-                            {links.map((link) => (
-                              <a key={link.label} href={link.href} target="_blank" rel="noreferrer">
-                                {link.label}
-                              </a>
-                            ))}
-                          </div>
-                        ) : null}
-                      </div>
-                      <TeamPortrait member={member} />
-                    </article>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="team-empty-state">
-                <p className="team-kicker">COMING ONLINE</p>
-                <h3>The public team roster is not published yet.</h3>
-                <Link href="/#contact">Contact SADEEM</Link>
-              </div>
-            )}
+            <div className="team-founder-grid">
+              {founders.map((founder) => (
+                <article className="team-founder-card" key={founder.number}>
+                  <div className="team-founder-card-bg" aria-hidden="true" />
+                  <div className="team-founder-number">{founder.number}</div>
+                  <div className="team-founder-line" />
+                  <div className="team-founder-copy">
+                    <h3>{founder.role}</h3>
+                    <p>{founder.focus}</p>
+                  </div>
+                  <span className="team-founder-plus" aria-hidden="true">+</span>
+                </article>
+              ))}
+            </div>
           </div>
         </RevealSection>
 
-        <RevealSection className="team-principles dark" data-section="03">
-          <div className="section-inner team-principles-grid">
-            <div>
-              <p className="team-kicker">HOW WE WORK</p>
-              <h2>Senior attention, practical rhythm, measurable movement.</h2>
+        <RevealSection className="team-belief dark" data-section="03">
+          <div className="team-orbit team-orbit-belief" aria-hidden="true" />
+          <div className="section-inner team-belief-grid">
+            <div className="team-belief-copy">
+              <p className="team-brief-kicker">WHAT WE BELIEVE</p>
+              <h2>
+                We don&apos;t work
+                <br />
+                above teams.
+                <br />
+                We work <span>beside them.</span>
+              </h2>
             </div>
-            <div className="team-principles-list">
-              <div>
-                <span>01</span>
-                <strong>Close to the operator</strong>
-                <p>We shape decisions with the people who will carry them, not around them.</p>
-              </div>
-              <div>
-                <span>02</span>
-                <strong>Built for transfer</strong>
-                <p>The work leaves behind capability, not dependency.</p>
-              </div>
-              <div>
-                <span>03</span>
-                <strong>Clear enough to execute</strong>
-                <p>Every engagement moves from diagnosis to decisions, owners, and next actions.</p>
-              </div>
+
+            <div className="team-belief-list">
+              {beliefs.map((belief) => (
+                <article className="team-belief-item" key={belief.title}>
+                  <div className="team-belief-icon">{belief.icon}</div>
+                  <h3>{belief.title}</h3>
+                  <p>{belief.body}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </RevealSection>
+
+        <RevealSection className="team-future light" data-section="04">
+          <div className="team-future-image" aria-hidden="true" />
+          <div className="team-orbit team-orbit-future" aria-hidden="true" />
+          <div className="section-inner team-future-inner">
+            <div className="team-future-copy">
+              <p className="team-brief-kicker">THE FUTURE</p>
+              <h2>
+                Building the team
+                <br />
+                around the <span>mission.</span>
+              </h2>
+              <p>
+                We&apos;re assembling exceptional operators, thinkers, and builders who want to create real impact. If
+                that&apos;s you, let&apos;s build what&apos;s next - together.
+              </p>
+              <Link href="/careers" className="team-light-cta">
+                <span>EXPLORE CAREERS</span>
+                <Icon.Arrow />
+              </Link>
             </div>
           </div>
         </RevealSection>

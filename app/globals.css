@@ -2583,6 +2583,388 @@ section.team-roster {
   .team-row .team-portrait { max-width: 260px; }
 }
 
+/* ========== TEAM BRIEF REBUILD ========== */
+.team-page {
+  --team-black: #0D0D0F;
+  --team-warm: #F5F3F0;
+  --team-orange: #FF6A00;
+  --team-gray: #B8B8B8;
+}
+.team-brief-kicker {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--team-orange);
+}
+.team-brief-kicker::after {
+  content: "";
+  width: 38px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.78;
+}
+.team-brief-hero {
+  min-height: 100vh;
+  padding: clamp(116px, 12vw, 154px) 0 clamp(70px, 8vw, 108px);
+  color: var(--white);
+  background: var(--team-black);
+  position: relative;
+  overflow: hidden;
+}
+.team-hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(13,13,15,0.96) 0%, rgba(13,13,15,0.68) 38%, rgba(13,13,15,0.22) 72%, rgba(13,13,15,0.18) 100%),
+    linear-gradient(180deg, rgba(13,13,15,0.08) 0%, rgba(13,13,15,0.18) 54%, rgba(13,13,15,0.72) 100%),
+    url("/team/team-hero.png") center / cover no-repeat;
+  transform: scale(1.01);
+}
+.team-orbit {
+  position: absolute;
+  pointer-events: none;
+  border: 1px solid rgba(255,106,0,0.24);
+  border-radius: 50%;
+}
+.team-orbit::before,
+.team-orbit::after {
+  content: "";
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--team-orange);
+  box-shadow: 0 0 18px rgba(255,106,0,0.48);
+}
+.team-orbit-hero {
+  width: min(680px, 52vw);
+  aspect-ratio: 1 / 1;
+  right: 11vw;
+  top: 10vh;
+  opacity: 0.62;
+}
+.team-orbit-hero::before { right: 15%; top: 9%; }
+.team-orbit-hero::after { left: 10%; bottom: 23%; }
+.team-brief-hero-inner {
+  min-height: clamp(500px, 66vh, 710px);
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+.team-brief-copy {
+  max-width: 560px;
+}
+.team-brief-title {
+  margin-top: 22px;
+  color: var(--white);
+  font-size: clamp(58px, 7vw, 112px);
+  line-height: 0.94;
+  letter-spacing: -0.055em;
+}
+.team-brief-title span {
+  color: var(--team-orange);
+}
+.team-brief-copy > p {
+  max-width: 42ch;
+  margin: 26px 0 38px;
+  color: rgba(245,243,240,0.78);
+  font-size: clamp(17px, 1.25vw, 20px);
+  line-height: 1.65;
+}
+.team-line-cta,
+.team-light-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  width: fit-content;
+  padding-bottom: 9px;
+  border-bottom: 1px solid var(--team-orange);
+  color: var(--white);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.team-line-cta svg,
+.team-light-cta svg {
+  color: var(--team-orange);
+}
+.team-founders {
+  padding: clamp(78px, 8vw, 118px) 0 clamp(86px, 9vw, 132px);
+  background:
+    radial-gradient(680px 420px at 86% 8%, rgba(255,106,0,0.055), transparent 70%),
+    var(--team-warm);
+  color: var(--black);
+}
+.team-founders-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 32px;
+  align-items: end;
+  margin-bottom: clamp(34px, 5vw, 62px);
+}
+.team-founders-head h2,
+.team-belief-copy h2,
+.team-future-copy h2 {
+  margin: 18px 0 0;
+  font-size: clamp(44px, 5vw, 82px);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+}
+.team-founders-head h2 span,
+.team-belief-copy h2 span,
+.team-future-copy h2 span {
+  color: var(--team-orange);
+}
+.team-founders-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  color: rgba(13,13,15,0.38);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+}
+.team-founders-controls button {
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(13,13,15,0.18);
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(13,13,15,0.72);
+}
+.team-founders-controls strong {
+  color: var(--team-orange);
+}
+.team-founder-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(20px, 2vw, 34px);
+}
+.team-founder-card {
+  position: relative;
+  min-height: clamp(420px, 43vw, 530px);
+  overflow: hidden;
+  border-radius: 6px;
+  background: #090a0c;
+  color: var(--white);
+  box-shadow: 0 24px 70px rgba(13,13,15,0.18);
+}
+.team-founder-card-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(9,10,12,0.05) 0%, rgba(9,10,12,0.44) 42%, rgba(9,10,12,0.96) 100%),
+    radial-gradient(220px 280px at 58% 36%, rgba(245,243,240,0.08), transparent 70%),
+    url("/team/team-hero.png") center / cover no-repeat;
+  filter: saturate(0.78) contrast(1.02);
+  transform: scale(1.12);
+}
+.team-founder-card:nth-child(1) .team-founder-card-bg { background-position: 46% 50%; }
+.team-founder-card:nth-child(2) .team-founder-card-bg { background-position: 58% 48%; }
+.team-founder-card:nth-child(3) .team-founder-card-bg { background-position: 70% 48%; }
+.team-founder-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(13,13,15,0.72), transparent 62%),
+    linear-gradient(180deg, transparent 38%, rgba(13,13,15,0.92) 100%);
+}
+.team-founder-number,
+.team-founder-line,
+.team-founder-copy,
+.team-founder-plus {
+  position: absolute;
+  z-index: 1;
+}
+.team-founder-number {
+  top: 28px;
+  left: 28px;
+  color: var(--team-orange);
+  font-family: var(--font-mono);
+  font-size: 18px;
+  letter-spacing: 0.08em;
+}
+.team-founder-line {
+  left: 28px;
+  bottom: 110px;
+  width: 28px;
+  height: 2px;
+  background: var(--team-orange);
+}
+.team-founder-copy {
+  left: 28px;
+  right: 28px;
+  bottom: 28px;
+}
+.team-founder-copy h3 {
+  margin: 0;
+  color: var(--white);
+  font-size: clamp(24px, 2vw, 32px);
+  line-height: 1.08;
+}
+.team-founder-copy p {
+  margin: 12px 0 0;
+  color: rgba(245,243,240,0.68);
+  font-size: 15px;
+}
+.team-founder-plus {
+  right: 26px;
+  bottom: 24px;
+  color: var(--team-orange);
+  font-size: 28px;
+  line-height: 1;
+}
+.team-belief {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(84px, 8vw, 128px) 0;
+  background:
+    radial-gradient(740px 520px at 86% 10%, rgba(255,106,0,0.12), transparent 68%),
+    var(--team-black);
+  color: var(--white);
+}
+.team-orbit-belief {
+  width: min(900px, 64vw);
+  aspect-ratio: 2 / 1;
+  right: 6vw;
+  top: 16%;
+  opacity: 0.42;
+  transform: rotate(-8deg);
+}
+.team-orbit-belief::before { left: 18%; top: 48%; }
+.team-orbit-belief::after { right: 28%; top: 18%; }
+.team-belief-grid {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.78fr) minmax(560px, 1.22fr);
+  gap: clamp(46px, 7vw, 110px);
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+.team-belief-copy h2 {
+  color: var(--white);
+}
+.team-belief-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-left: 1px solid rgba(245,243,240,0.12);
+}
+.team-belief-item {
+  min-height: 230px;
+  padding: 24px 22px;
+  border-right: 1px solid rgba(245,243,240,0.12);
+}
+.team-belief-icon {
+  color: var(--team-orange);
+  min-height: 44px;
+}
+.team-belief-item h3 {
+  margin: 22px 0 12px;
+  color: var(--white);
+  font-size: 18px;
+  line-height: 1.1;
+}
+.team-belief-item p {
+  margin: 0;
+  color: rgba(245,243,240,0.62);
+  font-size: 14.5px;
+  line-height: 1.65;
+}
+.team-future {
+  position: relative;
+  overflow: hidden;
+  min-height: clamp(520px, 58vw, 720px);
+  padding: clamp(92px, 9vw, 136px) 0;
+  background: var(--team-warm);
+  color: var(--black);
+}
+.team-future-image {
+  position: absolute;
+  inset: 0 0 0 36%;
+  background:
+    linear-gradient(90deg, var(--team-warm) 0%, rgba(245,243,240,0.86) 18%, rgba(245,243,240,0.1) 62%),
+    linear-gradient(180deg, rgba(245,243,240,0.15), rgba(245,243,240,0.7)),
+    url("/hero/approach-mountains.webp") center / cover no-repeat;
+  opacity: 0.9;
+}
+.team-orbit-future {
+  width: min(520px, 42vw);
+  aspect-ratio: 1 / 1;
+  right: 20vw;
+  top: 20%;
+  opacity: 0.2;
+}
+.team-orbit-future::before { right: 11%; top: 27%; }
+.team-orbit-future::after { display: none; }
+.team-future-inner {
+  position: relative;
+  z-index: 1;
+}
+.team-future-copy {
+  max-width: 500px;
+}
+.team-future-copy p {
+  margin: 24px 0 34px;
+  max-width: 42ch;
+  color: rgba(13,13,15,0.72);
+  font-size: 16.5px;
+  line-height: 1.7;
+}
+.team-light-cta {
+  color: var(--black);
+}
+
+@media (max-width: 1100px) {
+  .team-founder-grid,
+  .team-belief-grid,
+  .team-belief-list {
+    grid-template-columns: 1fr;
+  }
+  .team-belief-list {
+    border-left: 0;
+    border-top: 1px solid rgba(245,243,240,0.12);
+  }
+  .team-belief-item {
+    min-height: 0;
+    border-right: 0;
+    border-bottom: 1px solid rgba(245,243,240,0.12);
+  }
+  .team-orbit-belief { width: 900px; right: -360px; }
+}
+
+@media (max-width: 760px) {
+  .team-brief-hero {
+    min-height: 780px;
+  }
+  .team-hero-bg {
+    background:
+      linear-gradient(180deg, rgba(13,13,15,0.86) 0%, rgba(13,13,15,0.54) 42%, rgba(13,13,15,0.9) 100%),
+      url("/team/team-hero.png") 62% center / cover no-repeat;
+  }
+  .team-orbit-hero { width: 520px; right: -220px; top: 18vh; }
+  .team-brief-title { font-size: clamp(48px, 15vw, 72px); }
+  .team-founders-head {
+    display: block;
+  }
+  .team-founders-controls { margin-top: 28px; }
+  .team-founder-card { min-height: 430px; }
+  .team-future-image {
+    inset: auto 0 0;
+    height: 52%;
+    background:
+      linear-gradient(180deg, var(--team-warm) 0%, rgba(245,243,240,0.32) 38%, rgba(245,243,240,0.84) 100%),
+      url("/hero/approach-mountains.webp") center / cover no-repeat;
+  }
+}
+
 /* ========== CONTACT (light, premium minimal) ========== */
 .contact {
   padding: var(--section-pad-y) 0;
