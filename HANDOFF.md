@@ -231,6 +231,12 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 
 ---
 
+### [2026-05-23] Post-P1 fixes
+
+- **`supabase/migrations/0002_grants.sql`** — added explicit GRANTs on `public.*` for `anon` + `authenticated` (plus default privileges on future tables). Without this, the project's "Automatically expose new tables" being disabled meant RLS policies were correct but the role had no table-level privilege → lead inserts and profile reads silently failed (form said "Could not save", admin pages ping-ponged through the login redirect).
+
+---
+
 ### [2026-05-23] Post-P0 fixes
 
 - **Tailwind content paths** (`f29b458`) — added `ts`/`tsx` so admin utilities actually generate. Without this the admin page rendered as bare HTML on Vercel.
