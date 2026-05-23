@@ -5,21 +5,50 @@ import MainNavbar from "@/components/MainNavbar";
 import Footer from "@/components/Footer";
 import SectionLabel from "@/components/SectionLabel";
 import RevealSection from "@/components/RevealSection";
-import LeadForm from "@/components/LeadForm";
+import CourseRegistrationForm from "@/components/CourseRegistrationForm";
+import type { CourseCurrency } from "@/lib/validation/course";
 
 type Props = { params: { slug: string } };
 
-async function loadCourse(slug: string) {
+type CourseDetailRow = {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string | null;
+  body: string | null;
+  location: string | null;
+  starts_at: string | null;
+  ends_at: string | null;
+  capacity: number | null;
+  price: number | null;
+  currency: CourseCurrency;
+  image_url: string | null;
+};
+
+const COURSE_COLUMNS =
+  "id, slug, title, summary, body, location, starts_at, ends_at, capacity, price, currency, image_url";
+
+async function loadCourse(slug: string): Promise<CourseDetailRow | null> {
   try {
     const supabase = createSupabaseServerClient();
     const { data, error } = await supabase
+      .from("courses")
+      .select(COURSE_COLUMNS)
+      .eq("slug", slug)
+      .eq("is_active", true)
+      .single();
+
+    if (!error && data) return data;
+
+    const fallback = await supabase
       .from("courses")
       .select("id, slug, title, summary, body, location, starts_at, ends_at, capacity, price, image_url")
       .eq("slug", slug)
       .eq("is_active", true)
       .single();
-    if (error || !data) return null;
-    return data;
+
+    if (fallback.error || !fallback.data) return null;
+    return { ...fallback.data, currency: "SAR" };
   } catch {
     return null;
   }
@@ -27,9 +56,9 @@ async function loadCourse(slug: string) {
 
 export async function generateMetadata({ params }: Props) {
   const course = await loadCourse(params.slug);
-  if (!course) return { title: "Workshop — SADEEM" };
+  if (!course) return { title: "Workshop - SADEEM" };
   return {
-    title: `${course.title} — SADEEM Workshops`,
+    title: `${course.title} - SADEEM Workshops`,
     description: course.summary ?? undefined,
   };
 }
@@ -37,10 +66,21 @@ export async function generateMetadata({ params }: Props) {
 function formatDateRange(starts: string | null, ends: string | null) {
   if (!starts) return null;
   const fmt = new Intl.DateTimeFormat("en", { dateStyle: "long" });
-  const s = fmt.format(new Date(starts));
-  if (!ends) return s;
-  const e = fmt.format(new Date(ends));
-  return s === e ? s : `${s} – ${e}`;
+  const start = fmt.format(new Date(starts));
+  if (!ends) return start;
+  const end = fmt.format(new Date(ends));
+  return start === end ? start : `${start} - ${end}`;
+}
+
+function formatPrice(price: number | null, currency: CourseCurrency) {
+  if (price == null) return null;
+  return new Intl.NumberFormat("en", {
+    style: "currency",
+    currency,
+    currencyDisplay: "code",
+    minimumFractionDigits: Number.isInteger(price) ? 0 : 2,
+    maximumFractionDigits: Number.isInteger(price) ? 0 : 2,
+  }).format(price);
 }
 
 export default async function CourseDetail({ params }: Props) {
@@ -48,100 +88,126 @@ export default async function CourseDetail({ params }: Props) {
   if (!course) notFound();
 
   const dateRange = formatDateRange(course.starts_at, course.ends_at);
+  const price = formatPrice(course.price, course.currency);
+  const body = course.body?.split(/\n\n+/).filter(Boolean) ?? [];
 
   return (
     <>
-      <MainNavbar overDark={false} />
-      <main className="page">
+      <MainNavbar overDark />
+      <main className="page course-page">
         <RevealSection className="course-detail light" data-section="01">
           <SectionLabel n="01" text="WORKSHOP" />
           <div className="section-inner course-detail-grid">
             <div className="course-detail-copy">
               <Link href="/courses" className="course-detail-back">
-                ← All workshops
+                All workshops
               </Link>
-              <div className="section-eyebrow" style={{ marginTop: 12 }}>WORKSHOP</div>
+              <p className="course-detail-kicker">COHORT DOSSIER</p>
               <h1 className="display course-detail-title">{course.title}</h1>
-              {course.summary ? <p className="lede course-detail-lede">{course.summary}</p> : null}
+              {course.summary ? <p className="course-detail-lede">{course.summary}</p> : null}
 
-              <ul className="course-detail-meta">
-                {dateRange ? (
-                  <li>
-                    <span>When</span>
-                    <span>{dateRange}</span>
-                  </li>
-                ) : null}
-                {course.location ? (
-                  <li>
-                    <span>Where</span>
-                    <span>{course.location}</span>
-                  </li>
-                ) : null}
-                {course.capacity != null ? (
-                  <li>
-                    <span>Cohort</span>
-                    <span>Up to {course.capacity} participants</span>
-                  </li>
-                ) : null}
-                {course.price != null ? (
-                  <li>
-                    <span>Investment</span>
-                    <span>SAR {course.price.toLocaleString()}</span>
-                  </li>
-                ) : null}
-              </ul>
+              <div className="course-detail-actions">
+                <a href="#reserve" className="course-detail-primary">
+                  Reserve interest
+                </a>
+                <span>{course.capacity ? `${course.capacity} seats max` : "Small cohort"}</span>
+              </div>
             </div>
 
-            <div className="course-detail-image">
-              {course.image_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={course.image_url} alt="" />
+            <div className="course-detail-visual">
+              <div className="course-detail-image">
+                {course.image_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={course.image_url} alt="" />
+                ) : (
+                  <div className="course-detail-image-fallback" />
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="section-inner course-detail-facts" aria-label="Workshop details">
+            {dateRange ? (
+              <div>
+                <span>When</span>
+                <strong>{dateRange}</strong>
+              </div>
+            ) : null}
+            {course.location ? (
+              <div>
+                <span>Where</span>
+                <strong>{course.location}</strong>
+              </div>
+            ) : null}
+            {course.capacity != null ? (
+              <div>
+                <span>Cohort</span>
+                <strong>Up to {course.capacity} participants</strong>
+              </div>
+            ) : null}
+            {price ? (
+              <div>
+                <span>Investment</span>
+                <strong>{price}</strong>
+              </div>
+            ) : null}
+          </div>
+        </RevealSection>
+
+        <RevealSection className="course-body light" data-section="02">
+          <div className="section-inner course-body-grid">
+            <div>
+              <p className="course-section-kicker">ABOUT THE WORKSHOP</p>
+              <h2 className="course-body-title">A working room, not a lecture hall.</h2>
+            </div>
+            <div className="course-body-text">
+              {body.length > 0 ? (
+                body.map((para, index) => <p key={index}>{para}</p>)
               ) : (
-                <div className="course-detail-image-fallback" />
+                <p>
+                  This workshop is built around practical diagnosis, structured decisions, and focused execution for
+                  the cohort in the room.
+                </p>
               )}
             </div>
           </div>
         </RevealSection>
 
-        {course.body ? (
-          <RevealSection className="course-body light" data-section="02">
-            <div className="section-inner course-body-inner">
-              <div className="section-eyebrow">ABOUT THE WORKSHOP</div>
-              <div className="course-body-text">
-                {course.body.split(/\n\n+/).map((para, i) => (
-                  <p key={i}>{para}</p>
-                ))}
+        <RevealSection className="course-register light" data-section="03" id="reserve">
+          <SectionLabel n="03" text="SEAT REQUEST" />
+          <div className="section-inner course-register-grid">
+            <div className="course-register-copy">
+              <p className="course-section-kicker">REGISTER INTEREST</p>
+              <h2>
+                Request a seat in<br />
+                <span>this cohort.</span>
+              </h2>
+              <p>
+                Share the business context behind your request. The team will confirm availability, fit, and the next
+                step for joining the cohort.
+              </p>
+
+              <div className="course-register-pass">
+                <div>
+                  <span>Workshop</span>
+                  <strong>{course.title}</strong>
+                </div>
+                {dateRange ? (
+                  <div>
+                    <span>Dates</span>
+                    <strong>{dateRange}</strong>
+                  </div>
+                ) : null}
+                {price ? (
+                  <div>
+                    <span>Investment</span>
+                    <strong>{price}</strong>
+                  </div>
+                ) : null}
               </div>
             </div>
-          </RevealSection>
-        ) : null}
 
-        <RevealSection className="contact light" data-section="03" id="register">
-          <SectionLabel n="03" text="REGISTER INTEREST" />
-          <div className="section-inner contact-grid">
-            <div className="contact-copy">
-              <div className="section-eyebrow">REGISTER INTEREST</div>
-              <h2 className="h2">
-                Reserve your seat<br />
-                in <span className="accent">this cohort.</span>
-              </h2>
-              <p className="body">
-                Cohorts are small and fill quickly. Share a few details and we&apos;ll confirm your spot —
-                or add you to the waitlist for the next one.
-              </p>
-              <ul className="contact-meta">
-                {dateRange ? (
-                  <li><span>When</span><span>{dateRange}</span></li>
-                ) : null}
-                {course.location ? (
-                  <li><span>Where</span><span>{course.location}</span></li>
-                ) : null}
-                <li><span>Reach</span><a href="mailto:hello@sadeem.co">hello@sadeem.co</a></li>
-              </ul>
-            </div>
-            <div className="contact-form">
-              <LeadForm source="course" />
-            </div>
+            <CourseRegistrationForm courseTitle={course.title} dateRange={dateRange} />
           </div>
         </RevealSection>
       </main>

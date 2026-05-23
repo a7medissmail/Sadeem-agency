@@ -11,7 +11,7 @@ export default async function EditCoursePage({ params }: { params: { id: string 
   const admin = getSupabaseAdmin();
   const { data, error } = await admin
     .from("courses")
-    .select("id, slug, title, summary, body, location, starts_at, ends_at, capacity, price, image_url, is_active")
+    .select("id, slug, title, summary, body, location, starts_at, ends_at, capacity, price, currency, image_url, is_active")
     .eq("id", params.id)
     .single();
   if (error || !data) notFound();

@@ -278,6 +278,19 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 
 ---
 
+### [2026-05-23] Post-P2 design + currency polish
+
+- Added selectable course currency (`SAR`, `USD`, `EUR`, `AED`, `EGP`, `GBP`) via `supabase/migrations/0005_course_currency.sql`, validation, database types, admin create/edit form, and public price formatting.
+- Reworked `/courses/[slug]` from the reused homepage contact layout into a workshop-specific dossier: dark hero, poster treatment, fact strip, editorial body section, and separate seat-request section.
+- Added `components/CourseRegistrationForm.tsx` so workshop registration no longer looks like the homepage lead form; it still writes to the same CRM lead flow with course context attached.
+- Public courses and detail pages temporarily fall back to `SAR` if the code is deployed before the new currency migration is applied.
+- Verified with `npx tsc --noEmit`, `npm run build`, `/courses` HTTP 200, `/courses/ecommerce` HTTP 200, and `/admin/courses/new` redirecting to login while signed out.
+
+**One-time provisioning**
+- Run `supabase/migrations/0005_course_currency.sql` in Supabase SQL Editor before editing currencies in production.
+
+---
+
 ### [2026-05-23] Post-P1 fixes
 
 - **`supabase/migrations/0002_grants.sql`** — added explicit GRANTs on `public.*` for `anon` + `authenticated` (plus default privileges on future tables). Without this, the project's "Automatically expose new tables" being disabled meant RLS policies were correct but the role had no table-level privilege → lead inserts and profile reads silently failed (form said "Could not save", admin pages ping-ponged through the login redirect).

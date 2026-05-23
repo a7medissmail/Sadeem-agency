@@ -4,22 +4,45 @@ import MainNavbar from "@/components/MainNavbar";
 import Footer from "@/components/Footer";
 import SectionLabel from "@/components/SectionLabel";
 import RevealSection from "@/components/RevealSection";
+import type { CourseCurrency } from "@/lib/validation/course";
 
-export const metadata = {
-  title: "Workshops — SADEEM",
-  description: "Strategic growth workshops by SADEEM — Riyadh and beyond.",
+type CourseIndexRow = {
+  id: string;
+  slug: string;
+  title: string;
+  summary: string | null;
+  location: string | null;
+  starts_at: string | null;
+  ends_at: string | null;
+  capacity: number | null;
+  price: number | null;
+  currency: CourseCurrency | null;
+  image_url: string | null;
 };
 
-async function loadCourses() {
+export const metadata = {
+  title: "Workshops - SADEEM",
+  description: "Strategic growth workshops by SADEEM - Riyadh and beyond.",
+};
+
+async function loadCourses(): Promise<CourseIndexRow[]> {
   try {
     const supabase = createSupabaseServerClient();
     const { data, error } = await supabase
       .from("courses")
+      .select("id, slug, title, summary, location, starts_at, ends_at, capacity, price, currency, image_url")
+      .eq("is_active", true)
+      .order("starts_at", { ascending: true, nullsFirst: false });
+    if (!error) return data ?? [];
+
+    const fallback = await supabase
+      .from("courses")
       .select("id, slug, title, summary, location, starts_at, ends_at, capacity, price, image_url")
       .eq("is_active", true)
       .order("starts_at", { ascending: true, nullsFirst: false });
-    if (error) return [];
-    return data ?? [];
+
+    if (fallback.error) return [];
+    return (fallback.data ?? []).map((course) => ({ ...course, currency: "SAR" as CourseCurrency }));
   } catch {
     return [];
   }
@@ -28,10 +51,21 @@ async function loadCourses() {
 function formatDateRange(starts: string | null, ends: string | null) {
   if (!starts) return null;
   const fmt = new Intl.DateTimeFormat("en", { dateStyle: "medium" });
-  const s = fmt.format(new Date(starts));
-  if (!ends) return s;
-  const e = fmt.format(new Date(ends));
-  return s === e ? s : `${s} → ${e}`;
+  const start = fmt.format(new Date(starts));
+  if (!ends) return start;
+  const end = fmt.format(new Date(ends));
+  return start === end ? start : `${start} -> ${end}`;
+}
+
+function formatPrice(price: number | null, currency: CourseCurrency | null) {
+  if (price == null) return null;
+  return new Intl.NumberFormat("en", {
+    style: "currency",
+    currency: currency ?? "SAR",
+    currencyDisplay: "code",
+    minimumFractionDigits: Number.isInteger(price) ? 0 : 2,
+    maximumFractionDigits: Number.isInteger(price) ? 0 : 2,
+  }).format(price);
 }
 
 export default async function CoursesIndex() {
@@ -50,8 +84,8 @@ export default async function CoursesIndex() {
               <span className="accent">operating system.</span>
             </h1>
             <p className="body courses-hero-body">
-              In-person workshops for founders and operators. Small cohorts. Pragmatic frameworks.
-              Designed to compound in your own business — not slide deck theatre.
+              In-person workshops for founders and operators. Small cohorts. Pragmatic frameworks. Designed to
+              compound in your own business - not slide deck theatre.
             </p>
           </div>
         </RevealSection>
@@ -63,38 +97,43 @@ export default async function CoursesIndex() {
                 <p className="font-mono text-[11px] tracking-[0.22em] uppercase text-black/40">
                   NO UPCOMING WORKSHOPS
                 </p>
-                <h2 className="h2" style={{ marginTop: 16 }}>New cohort opening soon.</h2>
+                <h2 className="h2" style={{ marginTop: 16 }}>
+                  New cohort opening soon.
+                </h2>
                 <p className="body" style={{ marginTop: 12 }}>
                   Drop a note and we&apos;ll let you know the moment dates are announced.
                 </p>
                 <Link className="cta-link dark" href="/#contact" style={{ marginTop: 24, display: "inline-flex" }}>
                   <span>GET ON THE LIST</span>
-                  <span aria-hidden>→</span>
+                  <span aria-hidden>-&gt;</span>
                 </Link>
               </div>
             ) : (
               <div className="courses-grid">
-                {courses.map((c) => {
-                  const dateRange = formatDateRange(c.starts_at, c.ends_at);
+                {courses.map((course) => {
+                  const dateRange = formatDateRange(course.starts_at, course.ends_at);
+                  const price = formatPrice(course.price, course.currency);
+
                   return (
-                    <Link key={c.id} href={`/courses/${c.slug}`} className="course-card">
+                    <Link key={course.id} href={`/courses/${course.slug}`} className="course-card">
                       <div className="course-card-image">
-                        {c.image_url ? (
+                        {course.image_url ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={c.image_url} alt="" loading="lazy" />
+                          <img src={course.image_url} alt="" loading="lazy" />
                         ) : (
                           <div className="course-card-fallback" />
                         )}
                       </div>
                       <div className="course-card-body">
                         <div className="course-card-meta">
-                          {c.location ? <span>{c.location}</span> : null}
+                          {course.location ? <span>{course.location}</span> : null}
                           {dateRange ? <span>{dateRange}</span> : null}
+                          {price ? <span>{price}</span> : null}
                         </div>
-                        <h3 className="course-card-title">{c.title}</h3>
-                        {c.summary ? <p className="course-card-summary">{c.summary}</p> : null}
+                        <h3 className="course-card-title">{course.title}</h3>
+                        {course.summary ? <p className="course-card-summary">{course.summary}</p> : null}
                         <span className="course-card-link">
-                          VIEW DETAILS <span aria-hidden>→</span>
+                          VIEW DETAILS <span aria-hidden>-&gt;</span>
                         </span>
                       </div>
                     </Link>

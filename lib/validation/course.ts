@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+export const courseCurrencies = ["SAR", "USD", "EUR", "AED", "EGP", "GBP"] as const;
+export type CourseCurrency = (typeof courseCurrencies)[number];
+
 // Convert "Sales Ops Workshop - Riyadh" into "sales-ops-workshop-riyadh".
 export function slugify(input: string): string {
   return input
@@ -83,6 +86,11 @@ const nullableNumber = (
 const booleanFromForm = (value: unknown): boolean =>
   value === true || value === "on" || value === "true" || value === "1";
 
+const currencyFromForm = (value: unknown): CourseCurrency => {
+  const normalized = typeof value === "string" ? value.trim().toUpperCase() : "";
+  return courseCurrencies.includes(normalized as CourseCurrency) ? (normalized as CourseCurrency) : "SAR";
+};
+
 export const courseSchema = z
   .object({
     title: requiredText("Title", 160),
@@ -97,6 +105,7 @@ export const courseSchema = z
     ends_at: nullableDateTime("Ends"),
     capacity: nullableNumber("Capacity", { integer: true, min: 1, max: 100000 }),
     price: nullableNumber("Price", { min: 0, max: 10000000 }),
+    currency: z.preprocess(currencyFromForm, z.enum(courseCurrencies)),
     image_url: nullableUrl,
     is_active: z.preprocess(booleanFromForm, z.boolean()),
   })
@@ -123,6 +132,7 @@ const FIELD_LABELS: Record<string, string> = {
   ends_at: "Ends",
   capacity: "Capacity",
   price: "Price",
+  currency: "Currency",
   image_url: "Image",
   is_active: "Publish setting",
 };

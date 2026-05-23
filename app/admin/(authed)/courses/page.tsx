@@ -7,14 +7,14 @@ import { Badge } from "@/components/admin/ui/Badge";
 import { Button } from "@/components/admin/ui/Button";
 import { toggleCourseActiveAction, deleteCourseAction } from "./actions";
 
-export const metadata = { title: "Courses — SADEEM Admin" };
+export const metadata = { title: "Courses - SADEEM Admin" };
 
 async function loadCourses() {
   try {
     const admin = getSupabaseAdmin();
     const { data, error } = await admin
       .from("courses")
-      .select("id, slug, title, summary, location, starts_at, capacity, is_active, image_url")
+      .select("id, slug, title, summary, location, starts_at, capacity, price, currency, is_active, image_url")
       .order("created_at", { ascending: false });
     if (error) throw error;
     return { courses: data ?? [], error: null as string | null };
@@ -27,6 +27,8 @@ export default async function CoursesAdminPage() {
   await requireRole(["admin", "editor", "viewer"]);
   const { courses, error } = await loadCourses();
   const fmt = new Intl.DateTimeFormat("en", { dateStyle: "medium" });
+  const priceFmt = (price: number | null, currency: string | null) =>
+    price == null ? "-" : `${currency ?? "SAR"} ${price.toLocaleString()}`;
 
   return (
     <div className="flex flex-col gap-8">
@@ -49,13 +51,14 @@ export default async function CoursesAdminPage() {
 
       <TableShell>
         <div
-          style={{ gridTemplateColumns: "1.6fr 1fr 1fr 0.8fr 0.6fr 0.7fr 0.5fr" }}
+          style={{ gridTemplateColumns: "1.5fr 0.9fr 0.9fr 0.65fr 0.75fr 0.55fr 0.7fr 0.5fr" }}
           className="grid gap-4 px-5 py-3 border-b border-white/10 font-mono text-[10px] tracking-[0.2em] uppercase text-white/45"
         >
           <div>Title</div>
           <div>Location</div>
           <div>Starts</div>
           <div>Capacity</div>
+          <div>Price</div>
           <div>Status</div>
           <div>Toggle</div>
           <div></div>
@@ -64,39 +67,44 @@ export default async function CoursesAdminPage() {
         {courses.length === 0 ? (
           <EmptyState title="No courses yet." hint="Click 'New course' to create the first workshop." />
         ) : (
-          courses.map((c) => (
+          courses.map((course) => (
             <div
-              key={c.id}
-              style={{ gridTemplateColumns: "1.6fr 1fr 1fr 0.8fr 0.6fr 0.7fr 0.5fr" }}
+              key={course.id}
+              style={{ gridTemplateColumns: "1.5fr 0.9fr 0.9fr 0.65fr 0.75fr 0.55fr 0.7fr 0.5fr" }}
               className="grid gap-4 px-5 py-3 items-center border-b border-white/5 last:border-0 text-[13.5px]"
             >
               <div className="min-w-0">
                 <Link
-                  href={`/admin/courses/${c.id}`}
+                  href={`/admin/courses/${course.id}`}
                   className="text-white/95 hover:text-[#ff6a00] truncate block"
                 >
-                  {c.title}
+                  {course.title}
                 </Link>
-                <div className="font-mono text-[11px] text-white/40 truncate">/{c.slug}</div>
+                <div className="font-mono text-[11px] text-white/40 truncate">/{course.slug}</div>
               </div>
-              <div className="text-white/70 truncate">{c.location || "—"}</div>
+              <div className="text-white/70 truncate">{course.location || "-"}</div>
               <div className="font-mono text-[11px] text-white/65">
-                {c.starts_at ? fmt.format(new Date(c.starts_at)) : "—"}
+                {course.starts_at ? fmt.format(new Date(course.starts_at)) : "-"}
               </div>
-              <div className="text-white/65">{c.capacity ?? "—"}</div>
+              <div className="text-white/65">{course.capacity ?? "-"}</div>
+              <div className="font-mono text-[11px] text-white/65">
+                {priceFmt(course.price, course.currency)}
+              </div>
               <div>
-                <Badge tone={c.is_active ? "green" : "neutral"}>{c.is_active ? "Live" : "Off"}</Badge>
+                <Badge tone={course.is_active ? "green" : "neutral"}>{course.is_active ? "Live" : "Off"}</Badge>
               </div>
               <form action={toggleCourseActiveAction}>
-                <input type="hidden" name="id" value={c.id} />
-                <input type="hidden" name="next" value={c.is_active ? "off" : "on"} />
-                <Button type="submit" variant={c.is_active ? "ghost" : "outline"} size="sm">
-                  {c.is_active ? "Turn off" : "Turn on"}
+                <input type="hidden" name="id" value={course.id} />
+                <input type="hidden" name="next" value={course.is_active ? "off" : "on"} />
+                <Button type="submit" variant={course.is_active ? "ghost" : "outline"} size="sm">
+                  {course.is_active ? "Turn off" : "Turn on"}
                 </Button>
               </form>
               <form action={deleteCourseAction}>
-                <input type="hidden" name="id" value={c.id} />
-                <Button type="submit" variant="danger" size="sm">Del</Button>
+                <input type="hidden" name="id" value={course.id} />
+                <Button type="submit" variant="danger" size="sm">
+                  Del
+                </Button>
               </form>
             </div>
           ))

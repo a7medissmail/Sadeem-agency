@@ -76,9 +76,18 @@ function readForm(formData: FormData) {
     ends_at: formData.get("ends_at") ?? "",
     capacity: formData.get("capacity") ?? "",
     price: formData.get("price") ?? "",
+    currency: formData.get("currency") ?? "SAR",
     image_url: formData.get("image_url") ?? "",
     is_active: formData.get("is_active") || false,
   };
+}
+
+function databaseErrorMessage(message: string) {
+  if (message.toLowerCase().includes("currency")) {
+    return "Course currency is not available in the database yet. Run supabase/migrations/0005_course_currency.sql, then try again.";
+  }
+
+  return message;
 }
 
 export async function createCourseAction(
@@ -100,7 +109,7 @@ export async function createCourseAction(
 
   const admin = getSupabaseAdmin();
   const { error } = await admin.from("courses").insert({ ...parsed.data, image_url });
-  if (error) return { error: error.message };
+  if (error) return { error: databaseErrorMessage(error.message) };
 
   revalidatePath("/admin/courses");
   revalidatePath("/courses");
@@ -128,7 +137,7 @@ export async function updateCourseAction(
 
   const admin = getSupabaseAdmin();
   const { error } = await admin.from("courses").update({ ...parsed.data, image_url }).eq("id", id);
-  if (error) return { error: error.message };
+  if (error) return { error: databaseErrorMessage(error.message) };
 
   revalidatePath("/admin/courses");
   revalidatePath("/courses");

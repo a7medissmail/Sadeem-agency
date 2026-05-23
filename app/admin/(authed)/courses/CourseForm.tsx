@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import Link from "next/link";
 import { createCourseAction, updateCourseAction, type CourseFormState } from "./actions";
-import { FieldRow, Input, Textarea } from "@/components/admin/ui/Field";
+import { FieldRow, Input, Select, Textarea } from "@/components/admin/ui/Field";
 import { Button } from "@/components/admin/ui/Button";
+import { courseCurrencies, type CourseCurrency } from "@/lib/validation/course";
 
 const initial: CourseFormState = {};
 
@@ -20,6 +21,7 @@ type CourseFormValues = {
   ends_at?: string | null;
   capacity?: number | null;
   price?: number | null;
+  currency?: CourseCurrency;
   image_url?: string | null;
   is_active?: boolean;
 };
@@ -180,7 +182,7 @@ export default function CourseForm({
           <FieldError messages={errors.ends_at} />
         </FieldRow>
 
-        <FieldRow label="Price (SAR)">
+        <FieldRow label="Price">
           <Input
             name="price"
             type="number"
@@ -191,6 +193,21 @@ export default function CourseForm({
             aria-invalid={Boolean(errors.price)}
           />
           <FieldError messages={errors.price} />
+        </FieldRow>
+
+        <FieldRow label="Currency">
+          <Select
+            name="currency"
+            defaultValue={course?.currency ?? "SAR"}
+            aria-invalid={Boolean(errors.currency)}
+          >
+            {courseCurrencies.map((currency) => (
+              <option key={currency} value={currency}>
+                {currency}
+              </option>
+            ))}
+          </Select>
+          <FieldError messages={errors.currency} />
         </FieldRow>
 
         <FieldRow label="Active (visible on the public site)">

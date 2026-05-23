@@ -35,7 +35,9 @@ export async function submitLeadAction(
   });
   if (!parsed.success) return { status: "error", message: fieldError(parsed) };
 
-  const { name, email, phone, company, message, source } = parsed.data;
+  const { name, email, phone, company, source } = parsed.data;
+  const context = String(formData.get("context") ?? "").trim();
+  const message = [context, parsed.data.message].filter(Boolean).join("\n\n") || null;
 
   const supabase = createSupabaseServerClient();
   const { error } = await supabase.from("leads").insert({
@@ -43,7 +45,7 @@ export async function submitLeadAction(
     email,
     phone: phone || null,
     company: company || null,
-    message: message || null,
+    message,
     source,
     owner_id: null,
   });

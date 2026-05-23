@@ -1,4 +1,4 @@
-// Hand-written Supabase schema types (matches supabase/migrations/0001_init.sql).
+// Hand-written Supabase schema types (matches supabase/migrations).
 // Once you connect the Supabase CLI you can regenerate this file with:
 //   npx supabase gen types typescript --project-id <id> > types/database.ts
 
@@ -11,6 +11,7 @@ export type BookingStatus = "scheduled" | "completed" | "cancelled" | "no_show";
 export type JobType = "job" | "internship";
 export type ApplicationStatus = "new" | "review" | "interview" | "offer" | "rejected";
 export type CampaignStatus = "draft" | "sending" | "sent" | "failed";
+export type CourseCurrency = "SAR" | "USD" | "EUR" | "AED" | "EGP" | "GBP";
 
 export type Database = {
   public: {
@@ -39,13 +40,18 @@ export type Database = {
           ends_at: string | null;
           capacity: number | null;
           price: number | null;
+          currency: CourseCurrency;
           image_url: string | null;
           is_active: boolean;
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["courses"]["Row"], "id" | "created_at" | "updated_at"> & {
+        Insert: Omit<
+          Database["public"]["Tables"]["courses"]["Row"],
+          "id" | "created_at" | "updated_at" | "currency"
+        > & {
           id?: string;
+          currency?: CourseCurrency;
           created_at?: string;
           updated_at?: string;
         };
