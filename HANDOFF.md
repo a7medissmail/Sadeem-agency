@@ -319,6 +319,13 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 
 ---
 
+### [2026-05-23] Dark navbar contrast hotfix
+
+- Strengthened `.mainnav.is-dark` from a mostly transparent top gradient to a darker blurred glass layer with a subtle border, so text/images no longer show through the fixed navbar on dark course sections.
+- Raised dark-navbar link and CTA contrast for better readability over dark artwork and long hero copy.
+
+---
+
 ### [2026-05-23] Post-P1 fixes
 
 - **`supabase/migrations/0002_grants.sql`** — added explicit GRANTs on `public.*` for `anon` + `authenticated` (plus default privileges on future tables). Without this, the project's "Automatically expose new tables" being disabled meant RLS policies were correct but the role had no table-level privilege → lead inserts and profile reads silently failed (form said "Could not save", admin pages ping-ponged through the login redirect).
