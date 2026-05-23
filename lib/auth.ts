@@ -6,28 +6,48 @@ import type { Database } from "@/types/database";
 
 export type Role = Database["public"]["Tables"]["profiles"]["Row"]["role"];
 
+function envOk() {
+  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+}
+
 export async function getCurrentUser() {
-  const supabase = createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user;
+  if (!envOk()) return null;
+  try {
+    const supabase = createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    return user;
+  } catch (err) {
+    console.error("[auth] getCurrentUser failed:", err);
+    return null;
+  }
 }
 
 export async function getCurrentProfile() {
-  const supabase = createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
+  if (!envOk()) return null;
+  try {
+    const supabase = createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return null;
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id, role, full_name, avatar_url")
-    .eq("id", user.id)
-    .single();
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("id, role, full_name, avatar_url")
+      .eq("id", user.id)
+      .single();
 
-  return profile ? { ...profile, email: user.email ?? null } : null;
+    if (error) {
+      console.error("[auth] profile read failed:", error.message);
+      return null;
+    }
+    return profile ? { ...profile, email: user.email ?? null } : null;
+  } catch (err) {
+    console.error("[auth] getCurrentProfile threw:", err);
+    return null;
+  }
 }
 
 export async function requireUser() {
