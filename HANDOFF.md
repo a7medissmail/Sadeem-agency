@@ -342,6 +342,7 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 - Main nav now includes `Team` and correctly marks active hash/route links.
 - Follow-up design hotfix removed the founder/profile image from the hero and replaced the card grid with editorial roster rows, so the page reads as a SADEEM team operating system rather than a founder-led profile page.
 - Second design rebuild follows the provided SADEEM Team Page brief: uses `public/team/team-hero.png` as a mountain/silhouette hero, static founder role cards with no invented names, dark belief section with orange outline icons and subtle orbit accents, warm future/careers section, and the existing footer unchanged.
+- Latest tuning reduces/widens the hero headline and removes all static founder cards; the founders section now renders active `team_members` from Supabase, using the admin-entered name, role, bio, and photo.
 
 **One-time provisioning**
 - Run `supabase/migrations/0006_team_photos.sql` in Supabase SQL Editor before uploading team photos in production.

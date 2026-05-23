@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { Json } from "@/types/database";
 import Footer from "@/components/Footer";
 import RevealSection from "@/components/RevealSection";
 import SectionAwareNavbar from "@/components/SectionAwareNavbar";
@@ -10,11 +12,15 @@ export const metadata = {
   description: "Three founders. One operating system.",
 };
 
-const founders = [
-  { number: "01", role: "Founder & CEO", focus: "Strategy & Vision" },
-  { number: "02", role: "Co-Founder", focus: "Operations & Execution" },
-  { number: "03", role: "Co-Founder", focus: "Growth & Partnerships" },
-];
+type TeamMember = {
+  id: string;
+  name: string;
+  role: string | null;
+  bio: string | null;
+  photo_url: string | null;
+  socials: Json | null;
+  sort_order: number;
+};
 
 const beliefs = [
   {
@@ -39,7 +45,27 @@ const beliefs = [
   },
 ];
 
-export default function TeamPage() {
+async function loadTeamMembers(): Promise<TeamMember[]> {
+  try {
+    const supabase = createSupabaseServerClient();
+    const { data, error } = await supabase
+      .from("team_members")
+      .select("id, name, role, bio, photo_url, socials, sort_order")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true })
+      .order("name", { ascending: true });
+
+    if (error) throw error;
+    return data ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export default async function TeamPage() {
+  const members = await loadTeamMembers();
+  const memberCount = members.length;
+
   return (
     <>
       <SectionAwareNavbar initialOverDark />
@@ -79,26 +105,39 @@ export default function TeamPage() {
                 </h2>
               </div>
               <div className="team-founders-controls" aria-hidden="true">
-                <button type="button">←</button>
-                <span>01 / <strong>03</strong></span>
-                <button type="button">→</button>
+                <span>
+                  {memberCount > 0 ? "01" : "00"} / <strong>{String(memberCount).padStart(2, "0")}</strong>
+                </span>
               </div>
             </div>
 
-            <div className="team-founder-grid">
-              {founders.map((founder) => (
-                <article className="team-founder-card" key={founder.number}>
-                  <div className="team-founder-card-bg" aria-hidden="true" />
-                  <div className="team-founder-number">{founder.number}</div>
-                  <div className="team-founder-line" />
-                  <div className="team-founder-copy">
-                    <h3>{founder.role}</h3>
-                    <p>{founder.focus}</p>
-                  </div>
-                  <span className="team-founder-plus" aria-hidden="true">+</span>
-                </article>
-              ))}
-            </div>
+            {members.length > 0 ? (
+              <div className="team-founder-grid">
+                {members.map((member, index) => (
+                  <article className="team-founder-card" key={member.id}>
+                    <div className="team-founder-card-bg" aria-hidden="true">
+                      {member.photo_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={member.photo_url} alt="" />
+                      ) : null}
+                    </div>
+                    <div className="team-founder-number">{String(index + 1).padStart(2, "0")}</div>
+                    <div className="team-founder-line" />
+                    <div className="team-founder-copy">
+                      <p className="team-founder-role">{member.role || "SADEEM"}</p>
+                      <h3>{member.name}</h3>
+                      {member.bio ? <p className="team-founder-focus">{member.bio}</p> : null}
+                    </div>
+                    <span className="team-founder-plus" aria-hidden="true">+</span>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <div className="team-founders-empty">
+                <p>No active team members are published yet.</p>
+                <span>Publish a profile from /admin/team to show it here.</span>
+              </div>
+            )}
           </div>
         </RevealSection>
 
