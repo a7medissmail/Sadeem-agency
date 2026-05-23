@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import MainNavbar from "@/components/MainNavbar";
+import SectionAwareNavbar from "@/components/SectionAwareNavbar";
 import Footer from "@/components/Footer";
 import SectionLabel from "@/components/SectionLabel";
 import RevealSection from "@/components/RevealSection";
@@ -93,10 +93,10 @@ export default async function CourseDetail({ params }: Props) {
 
   return (
     <>
-      <MainNavbar overDark />
+      <SectionAwareNavbar initialOverDark />
       <main className="page course-page">
-        <RevealSection className="course-detail light" data-section="01">
-          <SectionLabel n="01" text="WORKSHOP" />
+        <RevealSection className="course-detail dark" data-section="01">
+          <SectionLabel n="01" text="WORKSHOP" onDark />
           <div className="section-inner course-detail-grid">
             <div className="course-detail-copy">
               <Link href="/courses" className="course-detail-back">
@@ -173,8 +173,8 @@ export default async function CourseDetail({ params }: Props) {
           </div>
         </RevealSection>
 
-        <RevealSection className="course-register light" data-section="03" id="reserve">
-          <SectionLabel n="03" text="SEAT REQUEST" />
+        <RevealSection className="course-register dark" data-section="03" id="reserve">
+          <SectionLabel n="03" text="SEAT REQUEST" onDark />
           <div className="section-inner course-register-grid">
             <div className="course-register-copy">
               <p className="course-section-kicker">REGISTER INTEREST</p>

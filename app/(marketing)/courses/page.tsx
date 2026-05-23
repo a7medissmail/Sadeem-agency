@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import MainNavbar from "@/components/MainNavbar";
+import SectionAwareNavbar from "@/components/SectionAwareNavbar";
 import Footer from "@/components/Footer";
 import SectionLabel from "@/components/SectionLabel";
 import RevealSection from "@/components/RevealSection";
@@ -73,7 +73,7 @@ export default async function CoursesIndex() {
 
   return (
     <>
-      <MainNavbar overDark={false} />
+      <SectionAwareNavbar initialOverDark={false} />
       <main className="page">
         <RevealSection className="courses-hero light" data-section="01">
           <SectionLabel n="01" text="WORKSHOPS" />
