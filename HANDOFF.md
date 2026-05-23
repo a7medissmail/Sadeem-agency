@@ -310,6 +310,15 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 
 ---
 
+### [2026-05-23] Course detail long-copy polish
+
+- Changed the course hero image frame to a square-friendly `1 / 1` treatment with `object-fit: contain`, so uploaded square workshop artwork is not cropped by the old portrait frame.
+- Made the left "About the workshop" copy column sticky on desktop to avoid a dead empty column when the admin body text is long.
+- Added `CourseBodyParallax` with a subtle Framer Motion scroll offset for rich course body content; reduced-motion users and tablet/mobile layouts get a static reading flow.
+- Verified with `npx tsc --noEmit`, `npm run build`, and `/courses/ecommerce` HTTP 200.
+
+---
+
 ### [2026-05-23] Post-P1 fixes
 
 - **`supabase/migrations/0002_grants.sql`** — added explicit GRANTs on `public.*` for `anon` + `authenticated` (plus default privileges on future tables). Without this, the project's "Automatically expose new tables" being disabled meant RLS policies were correct but the role had no table-level privilege → lead inserts and profile reads silently failed (form said "Could not save", admin pages ping-ponged through the login redirect).

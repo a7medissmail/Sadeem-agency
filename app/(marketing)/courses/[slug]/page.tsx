@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import SectionLabel from "@/components/SectionLabel";
 import RevealSection from "@/components/RevealSection";
 import CourseRegistrationForm from "@/components/CourseRegistrationForm";
+import CourseBodyParallax from "@/components/CourseBodyParallax";
 import { sanitizeCourseHtml } from "@/lib/content/sanitizeCourseHtml";
 import type { CourseCurrency } from "@/lib/validation/course";
 
@@ -157,13 +158,13 @@ export default async function CourseDetail({ params }: Props) {
 
         <RevealSection className="course-body light" data-section="02">
           <div className="section-inner course-body-grid">
-            <div>
+            <div className="course-body-sticky">
               <p className="course-section-kicker">ABOUT THE WORKSHOP</p>
               <h2 className="course-body-title">A working room, not a lecture hall.</h2>
             </div>
             <div className="course-body-text">
               {bodyHtml ? (
-                <div className="course-rich-body" dangerouslySetInnerHTML={{ __html: bodyHtml }} />
+                <CourseBodyParallax html={bodyHtml} />
               ) : (
                 <p>
                   This workshop is built around practical diagnosis, structured decisions, and focused execution for
