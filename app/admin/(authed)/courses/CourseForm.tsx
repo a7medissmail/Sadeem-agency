@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type KeyboardEvent } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import Link from "next/link";
 import { createCourseAction, updateCourseAction, type CourseFormState } from "./actions";
@@ -59,6 +59,21 @@ function SaveButton({ mode }: { mode: "create" | "edit" }) {
       {pending ? "Saving..." : mode === "create" ? "Create course" : "Save changes"}
     </Button>
   );
+}
+
+function onCodeEditorKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+  if (event.key !== "Tab" || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return;
+
+  event.preventDefault();
+  const textarea = event.currentTarget;
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const nextValue = `${textarea.value.slice(0, start)}  ${textarea.value.slice(end)}`;
+
+  textarea.value = nextValue;
+  textarea.selectionStart = start + 2;
+  textarea.selectionEnd = start + 2;
+  textarea.dispatchEvent(new Event("input", { bubbles: true }));
 }
 
 export default function CourseForm({
@@ -126,14 +141,22 @@ export default function CourseForm({
         <FieldError messages={errors.summary} />
       </FieldRow>
 
-      <FieldRow label="Body (full description)">
+      <FieldRow label="Body HTML / inline CSS">
         <Textarea
           name="body"
-          rows={8}
+          rows={14}
           defaultValue={course?.body ?? ""}
           maxLength={12000}
           aria-invalid={Boolean(errors.body)}
+          spellCheck={false}
+          onKeyDown={onCodeEditorKeyDown}
+          className="min-h-[320px] font-mono text-[13px] leading-relaxed text-white/90 [tab-size:2]"
+          placeholder={`<p>Describe the workshop.</p>\n<p>Use <strong>HTML</strong>, <br>, lists, links, images, and safe inline styles.</p>`}
         />
+        <p className="text-[12px] leading-relaxed text-white/45">
+          Public output is sanitized: scripts, event handlers, iframes, unsafe URLs, global style tags, and arbitrary
+          classes are removed. Use inline style attributes for small typography tweaks.
+        </p>
         <FieldError messages={errors.body} />
       </FieldRow>
 

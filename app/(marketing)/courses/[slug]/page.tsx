@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import SectionLabel from "@/components/SectionLabel";
 import RevealSection from "@/components/RevealSection";
 import CourseRegistrationForm from "@/components/CourseRegistrationForm";
+import { sanitizeCourseHtml } from "@/lib/content/sanitizeCourseHtml";
 import type { CourseCurrency } from "@/lib/validation/course";
 
 type Props = { params: { slug: string } };
@@ -89,7 +90,7 @@ export default async function CourseDetail({ params }: Props) {
 
   const dateRange = formatDateRange(course.starts_at, course.ends_at);
   const price = formatPrice(course.price, course.currency);
-  const body = course.body?.split(/\n\n+/).filter(Boolean) ?? [];
+  const bodyHtml = sanitizeCourseHtml(course.body);
 
   return (
     <>
@@ -161,8 +162,8 @@ export default async function CourseDetail({ params }: Props) {
               <h2 className="course-body-title">A working room, not a lecture hall.</h2>
             </div>
             <div className="course-body-text">
-              {body.length > 0 ? (
-                body.map((para, index) => <p key={index}>{para}</p>)
+              {bodyHtml ? (
+                <div className="course-rich-body" dangerouslySetInnerHTML={{ __html: bodyHtml }} />
               ) : (
                 <p>
                   This workshop is built around practical diagnosis, structured decisions, and focused execution for

@@ -300,6 +300,16 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 
 ---
 
+### [2026-05-23] Course body editor + nav detection hotfix
+
+- Added a controlled HTML/inline-CSS editor experience to the admin course body field: monospace textarea, larger editing area, tab insertion, and helper text that names what is stripped.
+- Installed `sanitize-html` and render course body through `lib/content/sanitizeCourseHtml.ts`; public output now supports safe HTML (`br`, headings, lists, links, images, etc.) while removing scripts, event handlers, iframes, unsafe URLs, style tags, and arbitrary classes.
+- Added rich-body CSS for sanitized course content so headings, lists, quotes, code, links, and images stay aligned with the course detail design.
+- Hardened `SectionAwareNavbar` so it samples the actual element stack beneath the fixed navbar and listens to native `scroll` / `resize`, fixing stale light/dark nav state over dark course sections.
+- Verified with `npx tsc --noEmit`, `npm run build`, `/courses/ecommerce` HTTP 200, and admin `/admin/courses/new` redirect while signed out.
+
+---
+
 ### [2026-05-23] Post-P1 fixes
 
 - **`supabase/migrations/0002_grants.sql`** — added explicit GRANTs on `public.*` for `anon` + `authenticated` (plus default privileges on future tables). Without this, the project's "Automatically expose new tables" being disabled meant RLS policies were correct but the role had no table-level privilege → lead inserts and profile reads silently failed (form said "Could not save", admin pages ping-ponged through the login redirect).
