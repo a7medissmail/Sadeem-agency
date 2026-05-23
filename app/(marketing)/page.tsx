@@ -12,6 +12,7 @@ import WhySadeem from "@/components/WhySadeem";
 import CasesSection from "@/components/CasesSection";
 import ClientsSection from "@/components/ClientsSection";
 import FinalCTA from "@/components/FinalCTA";
+import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 
 export default function Home() {
@@ -48,6 +49,7 @@ export default function Home() {
         <CasesSection />
         <ClientsSection />
         <FinalCTA />
+        <ContactSection />
         <Footer />
       </main>
     </div>

@@ -1670,6 +1670,64 @@ section.dark { background: var(--black); color: var(--white); }
 }
 .final .body { margin-bottom: 32px; max-width: 30ch; }
 
+/* ========== CONTACT (light, premium minimal) ========== */
+.contact {
+  padding: var(--section-pad-y) 0;
+  background: linear-gradient(180deg, #fbfaf8 0%, #f6f4f0 100%);
+  position: relative;
+  overflow: hidden;
+}
+.contact::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(720px 460px at 88% 18%, rgba(255,106,0,0.05), transparent 64%),
+    radial-gradient(520px 360px at 8% 92%, rgba(13,13,15,0.03), transparent 72%);
+}
+.contact .section-inner { position: relative; z-index: 1; }
+.contact-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.92fr) minmax(440px, 1.08fr);
+  gap: clamp(48px, 5vw, 88px);
+  align-items: start;
+}
+.contact-copy .h2 { max-width: 13ch; }
+.contact-copy .body { margin: 22px 0 32px; max-width: 42ch; }
+.contact-meta {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border-top: 1px solid var(--rule);
+  padding-top: 22px;
+}
+.contact-meta li {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 16px;
+  align-items: baseline;
+  font-size: 14.5px;
+  color: var(--gray-mid);
+}
+.contact-meta li > span:first-child {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.contact-meta a { color: var(--black); border-bottom: 1px solid var(--rule); transition: color 0.35s, border-color 0.35s; }
+.contact-meta a:hover { color: var(--accent); border-color: var(--accent); }
+.contact-form { position: relative; }
+
+@media (max-width: 1100px) {
+  .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+}
+
 /* ========== FOOTER ========== */
 .footer { padding: clamp(72px, 8vw, 100px) 0 28px; background: var(--black); color: var(--white); position: relative; }
 .footer .section-inner { padding-left: var(--pad-x); }

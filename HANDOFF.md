@@ -143,7 +143,7 @@ HANDOFF.md                       # this file
 | Phase | Scope | Status |
 |---|---|---|
 | **P0** | TS migration, Supabase wiring, auth, admin shell, Users CRUD | ✅ Done |
-| **P1** | Homepage lead form, CRM list/board, Resend transactional email | Up next |
+| **P1** | Homepage lead form, CRM list/board, Resend transactional email | ✅ Done |
 | **P2** | Courses/Workshops (public + admin toggle/CRUD + image upload) | Planned |
 | **P3** | Team page + admin CRUD + photo upload | Planned |
 | **P4** | Careers + applications (resume upload, pipeline) | Planned |
@@ -192,6 +192,42 @@ Each phase ends in a working deployable state. See the full plan: `C:\Users\ahme
 - `.gitignore` extended (`.env.local`, `.claude/settings.local.json`, `.preview-tmp/`, dev-server logs).
 
 **Commit:** `3ca2888` — *P0 foundation: TypeScript, Supabase, auth, admin shell, user CRUD*
+
+---
+
+### [2026-05-23] P1 — Leads + CRM + transactional email ✅
+
+**Admin UI primitives** under `components/admin/ui/`:
+- `Button` (primary / outline / ghost / danger, two sizes), `Field` (Input/Select/Textarea + Label + FieldRow), `Badge` (7 tones), `PageHeader`, `Table` (TableShell / TableHeader / TableRow / EmptyState). All dark-themed, brand-tight. Used by the new Leads page and going forward.
+
+**Email**
+- Installed `resend`. `lib/email/resend.ts` exposes `sendEmail` and **gracefully no-ops** when `RESEND_API_KEY` / `EMAIL_FROM` are missing, so the lead row still saves.
+- `lib/email/templates.ts` — inline-styled HTML templates: `leadConfirmation(name)` (to the visitor) and `leadNotification({...})` (to `TEAM_NOTIFY_TO`). Survives Gmail / Outlook rendering.
+
+**Public lead capture**
+- `lib/actions/leads.ts` — `submitLeadAction` server action: zod validate, honeypot guard (`website` field must be empty), insert via cookie-bound server client (RLS `leads_public_insert` allows it), fire both emails best-effort with `Promise.allSettled`.
+- `components/LeadForm.tsx` — reusable client form. `useFormState` for UX, success view, error message, hidden `source` prop so the same component works on the homepage today and courses/consultation in future phases.
+- `components/ContactSection.tsx` — new light-themed section (between FinalCTA and Footer) with the cinematic design language: editorial vertical label, eyebrow + headline + body + email/office meta on the left, LeadForm on the right. Soft warm gradient + faint accent radials.
+- Re-targeted the FinalCTA's `LET'S TALK` link → `#contact` (the new ContactSection now owns the `#contact` anchor). The navbar Contact link works end-to-end.
+
+**Admin CRM**
+- `/admin/leads` — server-rendered list with filters (status + source via search params), inline status badge + change dropdown, owner assignment (from staff profiles), delete (admin-only), expandable message preview. Empty state. Uses the new primitives end-to-end.
+- `app/admin/(authed)/leads/actions.ts` — `updateLeadStatusAction`, `assignLeadOwnerAction`, `deleteLeadAction`. All gated by `requireRole`; `delete` is admin-only.
+- Removed `soon` flag from the Leads nav item; sidebar now exposes Leads as a live route.
+
+**Env additions for Vercel** (and `.env.local`) when you're ready to send emails:
+- `RESEND_API_KEY` (server-only, sensitive)
+- `EMAIL_FROM="SADEEM <hello@yourdomain.com>"` — must be a verified Resend sender
+- `TEAM_NOTIFY_TO=team@yourdomain.com`
+
+Without these, the form still works: rows save, emails are skipped with a warn log.
+
+**Files added**
+- `components/admin/ui/{Button,Field,Badge,PageHeader,Table}.tsx`
+- `components/LeadForm.tsx`, `components/ContactSection.tsx`
+- `lib/email/{resend,templates}.ts`
+- `lib/actions/leads.ts`
+- `app/admin/(authed)/leads/{page.tsx,actions.ts}`
 
 ---
 

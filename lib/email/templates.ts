@@ -1,0 +1,76 @@
+// Minimal, dependency-free HTML email templates.
+// Inline styles so they survive in Gmail/Outlook.
+
+const accent = "#FF6A00";
+const dark = "#0D0D0F";
+const muted = "#6b6b6e";
+const wrapStyle = `font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;background:#fafaf7;padding:32px;color:${dark};line-height:1.55`;
+const cardStyle = `max-width:560px;margin:0 auto;background:#ffffff;border:1px solid rgba(13,13,15,0.08);border-radius:14px;padding:32px;`;
+
+function esc(s: string) {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+export function leadConfirmation({ name }: { name: string }) {
+  const subject = "We received your message — SADEEM";
+  const html = `
+<!doctype html><html><body style="${wrapStyle}">
+  <div style="${cardStyle}">
+    <p style="font-family:Menlo,monospace;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:${accent};margin:0 0 14px">SADEEM</p>
+    <h1 style="font-size:24px;letter-spacing:-0.02em;margin:0 0 12px">Thanks, ${esc(name)}.</h1>
+    <p style="margin:0 0 16px;color:${dark}">Your message reached us. A member of the team will reach out shortly — usually within one business day.</p>
+    <p style="margin:0 0 16px;color:${muted}">In the meantime, feel free to think through what "next level" looks like for you. The clearer the ambition, the faster we can map a path to it.</p>
+    <hr style="border:none;border-top:1px solid rgba(13,13,15,0.08);margin:24px 0" />
+    <p style="font-family:Menlo,monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:${muted};margin:0">SADEEM — Strategic Growth Advisory</p>
+  </div>
+</body></html>`.trim();
+  return { subject, html };
+}
+
+export function leadNotification({
+  name,
+  email,
+  phone,
+  company,
+  message,
+  source,
+}: {
+  name: string;
+  email: string;
+  phone?: string | null;
+  company?: string | null;
+  message?: string | null;
+  source: string;
+}) {
+  const subject = `New lead — ${name} (${source})`;
+  const rows = [
+    ["Name", name],
+    ["Email", email],
+    ["Phone", phone || "—"],
+    ["Company", company || "—"],
+    ["Source", source],
+    ["Message", message || "—"],
+  ]
+    .map(
+      ([k, v]) => `
+      <tr>
+        <td style="padding:8px 0;width:120px;color:${muted};font-family:Menlo,monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;vertical-align:top">${k}</td>
+        <td style="padding:8px 0;color:${dark};vertical-align:top;white-space:pre-wrap">${esc(String(v))}</td>
+      </tr>`,
+    )
+    .join("");
+  const html = `
+<!doctype html><html><body style="${wrapStyle}">
+  <div style="${cardStyle}">
+    <p style="font-family:Menlo,monospace;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:${accent};margin:0 0 14px">NEW LEAD</p>
+    <h1 style="font-size:22px;letter-spacing:-0.02em;margin:0 0 8px">${esc(name)}</h1>
+    <p style="margin:0 0 18px;color:${muted}">Submitted via ${esc(source)}.</p>
+    <table style="border-collapse:collapse;width:100%">${rows}</table>
+  </div>
+</body></html>`.trim();
+  return { subject, html };
+}

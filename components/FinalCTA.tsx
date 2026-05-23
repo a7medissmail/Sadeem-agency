@@ -7,7 +7,7 @@ import { Icon } from "./Icons";
 
 export default function FinalCTA() {
   return (
-    <RevealSection className="final dark" data-section="09" id="contact">
+    <RevealSection className="final dark" data-section="09">
       <SectionLabel n="09" text="GET IN TOUCH" onDark />
 
       <div className="final-scene" aria-hidden="true">
@@ -46,7 +46,7 @@ export default function FinalCTA() {
           of growth?
         </h2>
         <p className="body on-dark">Let&apos;s start a conversation.</p>
-        <a className="btn-outline" href="#">
+        <a className="btn-outline" href="#contact">
           <span>LET&apos;S TALK</span>
           <Icon.Arrow />
         </a>

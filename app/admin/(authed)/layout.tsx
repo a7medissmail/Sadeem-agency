@@ -5,7 +5,7 @@ import { signOutAction } from "@/app/admin/login/actions";
 
 const nav = [
   { href: "/admin", label: "Dashboard" },
-  { href: "/admin/leads", label: "Leads", soon: true },
+  { href: "/admin/leads", label: "Leads" },
   { href: "/admin/bookings", label: "Bookings", soon: true },
   { href: "/admin/courses", label: "Courses", soon: true },
   { href: "/admin/team", label: "Team", soon: true },
