@@ -26,18 +26,26 @@ export default async function AuthedAdminLayout({ children }: { children: ReactN
           <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-white/45 mt-1">Admin</p>
         </div>
         <nav className="flex flex-col gap-1.5">
-          {nav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center justify-between px-3 py-2 text-[13.5px] text-white/75 hover:text-white hover:bg-white/5 rounded-md transition-colors"
-            >
-              <span>{item.label}</span>
-              {item.soon ? (
+          {nav.map((item) =>
+            item.soon ? (
+              <div
+                key={item.href}
+                aria-disabled="true"
+                className="flex items-center justify-between px-3 py-2 text-[13.5px] text-white/35 rounded-md cursor-not-allowed select-none"
+              >
+                <span>{item.label}</span>
                 <span className="font-mono text-[9px] tracking-[0.18em] uppercase text-white/30">soon</span>
-              ) : null}
-            </Link>
-          ))}
+              </div>
+            ) : (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="flex items-center justify-between px-3 py-2 text-[13.5px] text-white/75 hover:text-white hover:bg-white/5 rounded-md transition-colors"
+              >
+                <span>{item.label}</span>
+              </Link>
+            ),
+          )}
         </nav>
         <div className="mt-auto pt-6 border-t border-white/10 flex flex-col gap-3">
           <div className="text-[13px] leading-tight">

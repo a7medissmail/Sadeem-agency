@@ -29,23 +29,33 @@ const SOURCES: Source[] = ["homepage", "course", "consultation", "other"];
 type StaffRow = { id: string; full_name: string | null; role: "admin" | "editor" | "viewer" };
 
 async function loadData(filters: { status?: Status; source?: Source }) {
-  const admin = getSupabaseAdmin();
-  let q = admin
-    .from("leads")
-    .select("id, name, email, phone, company, message, source, status, owner_id, created_at")
-    .order("created_at", { ascending: false })
-    .limit(200);
-  if (filters.status) q = q.eq("status", filters.status);
-  if (filters.source) q = q.eq("source", filters.source);
-  const { data: leads, error } = await q;
-  if (error) throw new Error(error.message);
+  try {
+    const admin = getSupabaseAdmin();
+    let q = admin
+      .from("leads")
+      .select("id, name, email, phone, company, message, source, status, owner_id, created_at")
+      .order("created_at", { ascending: false })
+      .limit(200);
+    if (filters.status) q = q.eq("status", filters.status);
+    if (filters.source) q = q.eq("source", filters.source);
+    const { data: leads, error } = await q;
+    if (error) throw error;
 
-  const { data: staff } = await admin
-    .from("profiles")
-    .select("id, full_name, role")
-    .in("role", ["admin", "editor"]);
+    const { data: staff } = await admin
+      .from("profiles")
+      .select("id, full_name, role")
+      .in("role", ["admin", "editor"]);
 
-  return { leads: leads ?? [], staff: (staff ?? []) as StaffRow[] };
+    return {
+      leads: leads ?? [],
+      staff: (staff ?? []) as StaffRow[],
+      error: null as string | null,
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("[admin/leads] load failed:", message);
+    return { leads: [] as Database["public"]["Tables"]["leads"]["Row"][], staff: [] as StaffRow[], error: message };
+  }
 }
 
 export default async function LeadsPage({
@@ -56,13 +66,22 @@ export default async function LeadsPage({
   await requireRole(["admin", "editor", "viewer"]);
   const status = STATUSES.includes(searchParams.status as Status) ? (searchParams.status as Status) : undefined;
   const source = SOURCES.includes(searchParams.source as Source) ? (searchParams.source as Source) : undefined;
-  const { leads, staff } = await loadData({ status, source });
+  const { leads, staff, error } = await loadData({ status, source });
 
-  const staffById = new Map(staff.map((s) => [s.id, s.full_name || "Unnamed"]));
   const fmt = new Intl.DateTimeFormat("en", { dateStyle: "medium" });
 
   return (
     <div className="flex flex-col gap-8">
+      {error ? (
+        <div className="border border-amber-500/30 bg-amber-500/[0.06] text-amber-200 text-[13px] rounded-md px-4 py-3">
+          <div className="font-semibold mb-1">Couldn&apos;t load leads.</div>
+          <div className="text-amber-200/80">
+            Postgres returned: <code className="text-amber-100">{error}</code>. This usually means the{" "}
+            <code>0002_grants.sql</code> migration hasn&apos;t been applied to <em>this</em> Supabase project.
+            Run it in the project&apos;s SQL Editor.
+          </div>
+        </div>
+      ) : null}
       <PageHeader
         eyebrow="CRM"
         title="Leads"
