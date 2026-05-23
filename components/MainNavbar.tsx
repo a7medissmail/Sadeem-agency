@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Icon } from "./Icons";
 import { SadeemMark } from "./marks";
 
@@ -9,11 +10,13 @@ const links = [
   { label: "Services", href: "/#services" },
   { label: "Our approach", href: "/#approach" },
   { label: "Workshops", href: "/courses" },
+  { label: "Team", href: "/team" },
   { label: "Success stories", href: "/#cases" },
   { label: "Contact", href: "/#contact" },
 ];
 
 export default function MainNavbar({ overDark }: { overDark: boolean }) {
+  const pathname = usePathname();
   const [activeHash, setActiveHash] = useState("");
 
   useEffect(() => {
@@ -28,11 +31,18 @@ export default function MainNavbar({ overDark }: { overDark: boolean }) {
       <div className="mainnav-inner">
         <SadeemMark dark={!overDark} />
         <nav className="mainnav-links">
-          {links.map((l) => (
-            <a key={l.href} href={l.href} className={activeHash === l.href ? "is-active" : undefined}>
-              {l.label}
-            </a>
-          ))}
+          {links.map((l) => {
+            const isHashLink = l.href.startsWith("/#");
+            const isActive = isHashLink
+              ? pathname === "/" && activeHash === l.href.slice(1)
+              : pathname === l.href || pathname.startsWith(`${l.href}/`);
+
+            return (
+              <a key={l.href} href={l.href} className={isActive ? "is-active" : undefined}>
+                {l.label}
+              </a>
+            );
+          })}
         </nav>
         <a className="mainnav-cta" href="/#contact">
           <span>LET&apos;S TALK</span>

@@ -36,7 +36,7 @@ export default function Footer() {
               <SocialDot label="IG" />
             </div>
           </div>
-          <FooterCol title="Company" items={["About us", "Our approach", "Careers", "Insights"]} />
+          <FooterCol title="Company" items={["About us", "Our approach", "Team", "Careers", "Insights"]} />
           <FooterCol
             title="Services"
             items={["Strategy", "Growth & marketing", "Operations", "Transformation", "M&A advisory"]}

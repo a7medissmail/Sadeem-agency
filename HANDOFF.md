@@ -326,6 +326,26 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 
 ---
 
+### [2026-05-23] P3 - Team page ✅
+
+**Storage**
+- `supabase/migrations/0006_team_photos.sql` creates the public `team-photos` bucket and policies for public reads plus staff write/update/delete. Supabase CLI is not installed locally, so the migration was added manually following the existing numbered migration style.
+
+**Validation + admin CRUD**
+- `lib/validation/team.ts` validates name, role, bio, sort order, active toggle, photo URL, and structured social links (`website`, `linkedin`, `x`, `instagram`) with field-specific errors.
+- `/admin/team` is now live in the sidebar. It lists all team members, shows portrait/initials, role, sort order, status badge, one-click publish toggle, edit link, and admin-only delete.
+- `/admin/team/new` + `/admin/team/[id]` use `TeamForm`, with photo upload to Supabase Storage, current-photo preview, social URL fields, and publish toggle.
+- `app/admin/(authed)/team/actions.ts` handles create/update/toggle/delete through the service-role client and revalidates `/team` + `/admin/team`.
+
+**Public**
+- `/team` is a cinematic public page: dark hero, featured team portrait, light roster grid, social links, empty state, and dark "how we work" section.
+- Main nav now includes `Team` and correctly marks active hash/route links.
+
+**One-time provisioning**
+- Run `supabase/migrations/0006_team_photos.sql` in Supabase SQL Editor before uploading team photos in production.
+
+---
+
 ### [2026-05-23] Post-P1 fixes
 
 - **`supabase/migrations/0002_grants.sql`** — added explicit GRANTs on `public.*` for `anon` + `authenticated` (plus default privileges on future tables). Without this, the project's "Automatically expose new tables" being disabled meant RLS policies were correct but the role had no table-level privilege → lead inserts and profile reads silently failed (form said "Could not save", admin pages ping-ponged through the login redirect).
