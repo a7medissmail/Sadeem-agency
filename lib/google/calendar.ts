@@ -132,30 +132,53 @@ export async function getGoogleBusyIntervals(timeMin: string, timeMax: string): 
   return response.calendars?.[calendarId()]?.busy ?? [];
 }
 
-export async function createGoogleCalendarEvent(input: CalendarEventInput): Promise<CalendarEventResult | null> {
-  if (!isGoogleCalendarConfigured()) return null;
+function shouldSendAttendees() {
+  return process.env.GOOGLE_CALENDAR_SEND_ATTENDEES === "true";
+}
 
-  const response = await googleFetch<{
+async function insertEvent(input: CalendarEventInput, withMeet: boolean) {
+  const params = withMeet ? "?conferenceDataVersion=1&sendUpdates=all" : "?sendUpdates=none";
+  return googleFetch<{
     id: string;
     hangoutLink?: string;
     htmlLink?: string;
     conferenceData?: { entryPoints?: { entryPointType?: string; uri?: string }[] };
-  }>(`/calendars/${encodeURIComponent(calendarId())}/events?conferenceDataVersion=1&sendUpdates=all`, {
+  }>(`/calendars/${encodeURIComponent(calendarId())}/events${params}`, {
     method: "POST",
     body: JSON.stringify({
       summary: input.summary,
       description: input.description,
       start: { dateTime: input.start, timeZone: input.timeZone },
       end: { dateTime: input.end, timeZone: input.timeZone },
-      attendees: input.attendees?.filter(Boolean).map((email) => ({ email })),
-      conferenceData: {
-        createRequest: {
-          requestId: randomUUID(),
-          conferenceSolutionKey: { type: "hangoutsMeet" },
-        },
-      },
+      ...(shouldSendAttendees()
+        ? { attendees: input.attendees?.filter(Boolean).map((email) => ({ email })) }
+        : {}),
+      ...(withMeet
+        ? {
+            conferenceData: {
+              createRequest: {
+                requestId: randomUUID(),
+                conferenceSolutionKey: { type: "hangoutsMeet" },
+              },
+            },
+          }
+        : {}),
     }),
   });
+}
+
+export async function createGoogleCalendarEvent(input: CalendarEventInput): Promise<CalendarEventResult | null> {
+  if (!isGoogleCalendarConfigured()) return null;
+
+  let response: Awaited<ReturnType<typeof insertEvent>>;
+  try {
+    response = await insertEvent(input, true);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "";
+    if (!message.toLowerCase().includes("conference")) throw err;
+    console.warn("[google-calendar] Meet is not supported on this calendar; creating event without Meet");
+    response = await insertEvent(input, false);
+  }
 
   const meetLink =
     response.hangoutLink ??

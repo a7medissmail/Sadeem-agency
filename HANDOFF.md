@@ -397,6 +397,7 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 **One-time provisioning**
 - Run `supabase/migrations/0008_booking_foundation.sql` in Supabase SQL Editor before accepting production bookings.
 - Add `GOOGLE_SA_EMAIL`, `GOOGLE_SA_PRIVATE_KEY`, `GOOGLE_CALENDAR_ID`, and `GOOGLE_BOOKING_TIMEZONE` in Vercel/Supabase production envs. Without Google env vars, local bookings still work but no Google event/Meet link is created.
+- Google API caveat from local setup: this shared calendar accepts service-account event inserts, but returned `Invalid conference type value` for Meet creation. The app now falls back to creating the event without Meet. Service accounts also cannot invite attendees unless Google Workspace Domain-Wide Delegation is configured, so visitor/team invites are delivered through Resend + `.ics`.
 
 ---
 

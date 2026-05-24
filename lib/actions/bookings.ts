@@ -149,7 +149,7 @@ export async function submitBookingAction(
     end: chosenSlot.end,
     summary: "SADEEM Consultation",
     description: [topic, meetLink ? `Meet: ${meetLink}` : ""].filter(Boolean).join("\n\n"),
-    location: meetLink || "Google Meet",
+    location: meetLink || "Meeting link to follow",
   });
   const attachment = {
     filename: "sadeem-consultation.ics",
