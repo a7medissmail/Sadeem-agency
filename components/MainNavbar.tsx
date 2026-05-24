@@ -21,6 +21,7 @@ export default function MainNavbar({ overDark }: { overDark: boolean }) {
   const pathname = usePathname();
   const settings = useSiteSettings();
   const [activeHash, setActiveHash] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
   const logoUrl = overDark ? settings.logoLightUrl : settings.logoDarkUrl;
 
   useEffect(() => {
@@ -30,8 +31,21 @@ export default function MainNavbar({ overDark }: { overDark: boolean }) {
     return () => window.removeEventListener("hashchange", updateHash);
   }, []);
 
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname, activeHash]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [menuOpen]);
+
   return (
-    <header className={`mainnav ${overDark ? "is-dark" : "is-light"}`}>
+    <header className={`mainnav ${overDark ? "is-dark" : "is-light"} ${menuOpen ? "menu-open" : ""}`}>
       <div className="mainnav-inner">
         <a href="/" aria-label="SADEEM home" className="mainnav-logo">
           {logoUrl ? (
@@ -56,6 +70,36 @@ export default function MainNavbar({ overDark }: { overDark: boolean }) {
           })}
         </nav>
         <a className="mainnav-cta" href="/consultation">
+          <span>LET&apos;S TALK</span>
+          <Icon.Arrow />
+        </a>
+        <button
+          type="button"
+          className="mainnav-menu-button"
+          aria-label={menuOpen ? "Close navigation" : "Open navigation"}
+          aria-expanded={menuOpen}
+          aria-controls="mobile-navigation"
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          <span />
+          <span />
+        </button>
+      </div>
+      <div id="mobile-navigation" className="mainnav-mobile-panel" aria-hidden={!menuOpen}>
+        <nav className="mainnav-mobile-links">
+          {links.map((l, index) => (
+            <a
+              key={l.href}
+              href={l.href}
+              style={{ transitionDelay: menuOpen ? `${index * 35}ms` : "0ms" }}
+              onClick={() => setMenuOpen(false)}
+            >
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              {l.label}
+            </a>
+          ))}
+        </nav>
+        <a className="mainnav-mobile-cta" href="/consultation" onClick={() => setMenuOpen(false)}>
           <span>LET&apos;S TALK</span>
           <Icon.Arrow />
         </a>
