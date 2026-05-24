@@ -2825,7 +2825,7 @@ section.team-roster {
 .team-belief {
   position: relative;
   overflow: hidden;
-  padding: clamp(84px, 8vw, 128px) 0;
+  padding: clamp(76px, 7vw, 112px) 0;
   background:
     radial-gradient(740px 520px at 86% 10%, rgba(255,106,0,0.12), transparent 68%),
     var(--team-black);
@@ -2838,19 +2838,25 @@ section.team-roster {
   top: 16%;
   opacity: 0.42;
   transform: rotate(-8deg);
+  animation: teamOrbitDrift 18s ease-in-out infinite alternate;
 }
 .team-orbit-belief::before { left: 18%; top: 48%; }
 .team-orbit-belief::after { right: 28%; top: 18%; }
 .team-belief-grid {
   display: grid;
-  grid-template-columns: minmax(300px, 0.78fr) minmax(560px, 1.22fr);
-  gap: clamp(46px, 7vw, 110px);
+  grid-template-columns: minmax(340px, 0.66fr) minmax(680px, 1.34fr);
+  gap: clamp(22px, 3.2vw, 56px);
   align-items: center;
   position: relative;
   z-index: 1;
 }
+.team-belief-copy {
+  max-width: 620px;
+}
 .team-belief-copy h2 {
   color: var(--white);
+  font-size: clamp(40px, 4.35vw, 72px);
+  line-height: 0.98;
 }
 .team-belief-list {
   display: grid;
@@ -2858,13 +2864,33 @@ section.team-roster {
   border-left: 1px solid rgba(245,243,240,0.12);
 }
 .team-belief-item {
-  min-height: 230px;
-  padding: 24px 22px;
+  min-height: 248px;
+  padding: 26px clamp(18px, 1.7vw, 28px);
   border-right: 1px solid rgba(245,243,240,0.12);
+  transition: background 0.45s ease, transform 0.45s ease, border-color 0.45s ease;
+  animation: teamBeliefRise 0.9s ease both;
+}
+.team-belief-item:nth-child(1) { animation-delay: 90ms; }
+.team-belief-item:nth-child(2) { animation-delay: 180ms; }
+.team-belief-item:nth-child(3) { animation-delay: 270ms; }
+.team-belief-item:nth-child(4) { animation-delay: 360ms; }
+.team-belief-item:hover {
+  background: rgba(245,243,240,0.035);
+  border-color: rgba(255,106,0,0.3);
+  transform: translateY(-8px);
 }
 .team-belief-icon {
   color: var(--team-orange);
   min-height: 44px;
+  transform-origin: 50% 50%;
+  animation: teamIconPulse 4.8s ease-in-out infinite;
+}
+.team-belief-item:nth-child(2) .team-belief-icon { animation-delay: 0.45s; }
+.team-belief-item:nth-child(3) .team-belief-icon { animation-delay: 0.9s; }
+.team-belief-item:nth-child(4) .team-belief-icon { animation-delay: 1.35s; }
+.team-belief-item:hover .team-belief-icon {
+  animation-play-state: paused;
+  transform: translateY(-3px) scale(1.06);
 }
 .team-belief-item h3 {
   margin: 22px 0 12px;
@@ -2877,6 +2903,32 @@ section.team-roster {
   color: rgba(245,243,240,0.62);
   font-size: 14.5px;
   line-height: 1.65;
+}
+
+@keyframes teamOrbitDrift {
+  0% { transform: translate3d(0, 0, 0) rotate(-8deg) scale(1); opacity: 0.34; }
+  100% { transform: translate3d(-24px, 10px, 0) rotate(-5deg) scale(1.035); opacity: 0.5; }
+}
+
+@keyframes teamIconPulse {
+  0%, 100% { opacity: 0.84; transform: translateY(0) scale(1); }
+  50% { opacity: 1; transform: translateY(-2px) scale(1.035); }
+}
+
+@keyframes teamBeliefRise {
+  0% { opacity: 0; transform: translateY(18px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .team-orbit-belief,
+  .team-belief-icon,
+  .team-belief-item {
+    animation: none;
+  }
+  .team-belief-item:hover {
+    transform: none;
+  }
 }
 .team-future {
   position: relative;

@@ -147,7 +147,7 @@ HANDOFF.md                       # this file
 | **P0** | TS migration, Supabase wiring, auth, admin shell, Users CRUD | ✅ Done |
 | **P1** | Homepage lead form, CRM list/board, Resend transactional email | ✅ Done |
 | **P2** | Courses/Workshops (public + admin toggle/CRUD + image upload) | ✅ Done |
-| **P3** | Team page + admin CRUD + photo upload | Planned |
+| **P3** | Team page + admin CRUD + photo upload | Done |
 | **P4** | Careers + applications (resume upload, pipeline) | Planned |
 | **P5** | Consultation booking (custom UI + Google Calendar API) | Planned |
 | **P6** | Marketing email campaigns to CRM | Planned |
@@ -343,6 +343,7 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 - Follow-up design hotfix removed the founder/profile image from the hero and replaced the card grid with editorial roster rows, so the page reads as a SADEEM team operating system rather than a founder-led profile page.
 - Second design rebuild follows the provided SADEEM Team Page brief: uses `public/team/team-hero.png` as a mountain/silhouette hero, static founder role cards with no invented names, dark belief section with orange outline icons and subtle orbit accents, warm future/careers section, and the existing footer unchanged.
 - Latest tuning reduces/widens the hero headline and removes all static founder cards; the founders section now renders active `team_members` from Supabase, using the admin-entered name, role, bio, and photo.
+- Belief section polish tightened the left/right grid gap, reduced headline scale, and added subtle orbit drift, icon pulse, staggered item reveal, and hover lift animations.
 
 **One-time provisioning**
 - Run `supabase/migrations/0006_team_photos.sql` in Supabase SQL Editor before uploading team photos in production.
@@ -368,4 +369,3 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 
 - **Slide-1 faint foreground wisp** in front of the figure for extra depth (backlog).
 - **Stale `.next/types/app/page.ts`** may need clearing once after the marketing route group move; `tsc` is clean now.
-- **P3 Team page** — public team route + admin CRUD/photo upload is next.
