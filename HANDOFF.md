@@ -420,6 +420,35 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 - Run `supabase/migrations/0010_email_center_foundation.sql` in Supabase SQL Editor before using campaigns in production.
 - Optional: set `EMAIL_UNSUBSCRIBE_SECRET` in Vercel for a stable unsubscribe signing secret. If omitted, the app falls back to `SUPABASE_SERVICE_ROLE_KEY`.
 
+**Later email polish ideas**
+- Replace the current minimal HTML with a stronger SADEEM email design system: dark masthead, compact logo, orange rule, cleaner typography, and mobile-safe CTA buttons.
+- Add reusable transactional variants for booking confirmed, booking rescheduled/cancelled, application moved to interview/offer/rejected, job application received, and course interest follow-up.
+- Add campaign preview/test-send before bulk sending, plus saved templates like workshop announcement, consultation nurture, post-call follow-up, and dormant lead reactivation.
+- Add suppressions beyond unsubscribe: bounced, complained, manually blocked, and "do not mail" admin toggle.
+
+---
+
+### [2026-05-25] Website Settings
+
+**Admin**
+- `/admin/settings` manages global logos, favicon, footer contact details, and social links.
+- Logo assets support a dark variant for light nav and a white variant for dark nav/footer. Fallback remains the coded SADEEM mark.
+- Social links currently support LinkedIn, X, Instagram, Facebook, YouTube, and TikTok.
+
+**Public wiring**
+- `components/SiteSettingsProvider.tsx` fetches `/api/site-settings` client-side with safe defaults, updates favicon, and feeds navbar/footer.
+- `components/MainNavbar.tsx` swaps logo image by nav theme (`logo_light_url` on dark sections, `logo_dark_url` on light sections).
+- `components/Footer.tsx` reads footer copy/contact/socials from settings and renders brand icons through `react-icons/fa6`.
+
+**Database**
+- `supabase/migrations/0011_site_settings.sql` adds `site_settings` plus a public `site-assets` Storage bucket for logos/favicon.
+
+**One-time provisioning**
+- Run `supabase/migrations/0011_site_settings.sql` in Supabase SQL Editor before using `/admin/settings` on production.
+
+**Possible later settings**
+- Site-wide SEO defaults (`title`, `description`, OG image), footer nav column management, legal links, analytics IDs, default email reply-to, and brand color tokens.
+
 ---
 
 ### [2026-05-23] P2 follow-ups + P3 (Team) + P4 (Careers/Applications) ✅

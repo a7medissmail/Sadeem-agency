@@ -12,6 +12,7 @@ const nav = [
   { href: "/admin/team", label: "Team" },
   { href: "/admin/jobs", label: "Careers" },
   { href: "/admin/applications", label: "Applications" },
+  { href: "/admin/settings", label: "Settings" },
   { href: "/admin/users", label: "Users" },
 ];
 

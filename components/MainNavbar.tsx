@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Icon } from "./Icons";
 import { SadeemMark } from "./marks";
+import { useSiteSettings } from "./SiteSettingsProvider";
 
 const links = [
   { label: "About", href: "/#about" },
@@ -18,7 +19,9 @@ const links = [
 
 export default function MainNavbar({ overDark }: { overDark: boolean }) {
   const pathname = usePathname();
+  const settings = useSiteSettings();
   const [activeHash, setActiveHash] = useState("");
+  const logoUrl = overDark ? settings.logoLightUrl : settings.logoDarkUrl;
 
   useEffect(() => {
     const updateHash = () => setActiveHash(window.location.hash || "");
@@ -30,7 +33,14 @@ export default function MainNavbar({ overDark }: { overDark: boolean }) {
   return (
     <header className={`mainnav ${overDark ? "is-dark" : "is-light"}`}>
       <div className="mainnav-inner">
-        <SadeemMark dark={!overDark} />
+        <a href="/" aria-label="SADEEM home" className="mainnav-logo">
+          {logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logoUrl} alt="SADEEM" className="brand-logo-img" />
+          ) : (
+            <SadeemMark dark={!overDark} />
+          )}
+        </a>
         <nav className="mainnav-links">
           {links.map((l) => {
             const isHashLink = l.href.startsWith("/#");

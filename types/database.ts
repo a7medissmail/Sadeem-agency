@@ -236,6 +236,23 @@ export type Database = {
         Relationships: [];
         Update: Partial<Database["public"]["Tables"]["email_sends"]["Insert"]>;
       };
+      site_settings: {
+        Row: {
+          id: boolean;
+          logo_dark_url: string | null;
+          logo_light_url: string | null;
+          favicon_url: string | null;
+          footer_description: string;
+          footer_email: string;
+          footer_phone: string | null;
+          footer_location: string | null;
+          social_links: Json;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["site_settings"]["Row"]>;
+        Relationships: [];
+        Update: Partial<Database["public"]["Tables"]["site_settings"]["Insert"]>;
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

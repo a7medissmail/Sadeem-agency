@@ -1,5 +1,6 @@
 import "./globals.css";
 import type { ReactNode } from "react";
+import { SiteSettingsProvider } from "@/components/SiteSettingsProvider";
 
 export const metadata = {
   title: "SADEEM — Strategic Growth Advisory",
@@ -23,7 +24,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <SiteSettingsProvider>{children}</SiteSettingsProvider>
+      </body>
     </html>
   );
 }
