@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import {
@@ -106,5 +107,5 @@ export async function updateSiteSettingsAction(
   revalidatePath("/careers");
   revalidatePath("/consultation");
   revalidatePath("/admin/settings");
-  return { ok: true };
+  redirect("/admin/settings?updated=1");
 }

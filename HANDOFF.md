@@ -447,6 +447,7 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 - Run `supabase/migrations/0011_site_settings.sql` in Supabase SQL Editor before using `/admin/settings` on production.
 
 **Possible later settings**
+- Structured multi-location contact data. SADEEM has two offices; Cairo, Egypt is the HQ, and Riyadh, KSA is the Saudi office. Model as `{ label, city, country, address, is_hq, maps_url }` rather than a single footer text field.
 - Site-wide SEO defaults (`title`, `description`, OG image), footer nav column management, legal links, analytics IDs, default email reply-to, and brand color tokens.
 
 ---
