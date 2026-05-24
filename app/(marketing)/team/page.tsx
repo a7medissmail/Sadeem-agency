@@ -5,6 +5,8 @@ import Footer from "@/components/Footer";
 import RevealSection from "@/components/RevealSection";
 import SectionAwareNavbar from "@/components/SectionAwareNavbar";
 import SectionLabel from "@/components/SectionLabel";
+import TeamBeliefItem from "@/components/TeamBeliefItem";
+import TeamFounderCard from "@/components/TeamFounderCard";
 import { Icon } from "@/components/Icons";
 
 export const metadata = {
@@ -114,22 +116,14 @@ export default async function TeamPage() {
             {members.length > 0 ? (
               <div className="team-founder-grid">
                 {members.map((member, index) => (
-                  <article className="team-founder-card" key={member.id}>
-                    <div className="team-founder-card-bg" aria-hidden="true">
-                      {member.photo_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={member.photo_url} alt="" />
-                      ) : null}
-                    </div>
-                    <div className="team-founder-number">{String(index + 1).padStart(2, "0")}</div>
-                    <div className="team-founder-line" />
-                    <div className="team-founder-copy">
-                      <p className="team-founder-role">{member.role || "SADEEM"}</p>
-                      <h3>{member.name}</h3>
-                      {member.bio ? <p className="team-founder-focus">{member.bio}</p> : null}
-                    </div>
-                    <span className="team-founder-plus" aria-hidden="true">+</span>
-                  </article>
+                  <TeamFounderCard
+                    bio={member.bio}
+                    index={index}
+                    key={member.id}
+                    name={member.name}
+                    photoUrl={member.photo_url}
+                    role={member.role}
+                  />
                 ))}
               </div>
             ) : (
@@ -156,12 +150,10 @@ export default async function TeamPage() {
             </div>
 
             <div className="team-belief-list">
-              {beliefs.map((belief) => (
-                <article className="team-belief-item" key={belief.title}>
-                  <div className="team-belief-icon">{belief.icon}</div>
-                  <h3>{belief.title}</h3>
-                  <p>{belief.body}</p>
-                </article>
+              {beliefs.map((belief, index) => (
+                <TeamBeliefItem body={belief.body} index={index} key={belief.title} title={belief.title}>
+                  {belief.icon}
+                </TeamBeliefItem>
               ))}
             </div>
           </div>
