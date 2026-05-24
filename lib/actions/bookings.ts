@@ -31,6 +31,10 @@ function slotLabel(start: string, timeZone: string) {
   }).format(new Date(start));
 }
 
+function duplicateBookingMessage() {
+  return "You already have an upcoming consultation booked. Please reply to the confirmation email if you need to reschedule.";
+}
+
 async function cleanupBooking(bookingId: string | null, leadId: string | null) {
   const admin = getSupabaseAdmin();
   if (bookingId) await admin.from("bookings").delete().eq("id", bookingId);
@@ -69,6 +73,30 @@ export async function submitBookingAction(
 
   const admin = getSupabaseAdmin();
   const { name, email, phone, topic } = parsed.data;
+  const now = new Date().toISOString();
+
+  const { data: existingBooking, error: existingBookingError } = await admin
+    .from("bookings")
+    .select("slot_start")
+    .ilike("email", email)
+    .eq("status", "scheduled")
+    .gt("slot_end", now)
+    .limit(1)
+    .maybeSingle();
+
+  if (existingBookingError) {
+    console.error("[booking] duplicate check failed:", existingBookingError);
+    return { status: "error", message: "Could not validate your booking. Please try again." };
+  }
+
+  if (existingBooking) {
+    return {
+      status: "error",
+      message: duplicateBookingMessage(),
+      fieldErrors: { email: ["This email already has an upcoming consultation"] },
+    };
+  }
+
   const { data: lead, error: leadError } = await admin
     .from("leads")
     .insert({
@@ -105,11 +133,15 @@ export async function submitBookingAction(
 
   if (bookingError || !booking) {
     await cleanupBooking(null, lead.id);
+    const duplicateEmail = bookingError?.message?.includes("scheduled booking already exists");
     return {
       status: "error",
-      message: bookingError?.message?.includes("duplicate")
+      message: duplicateEmail
+        ? duplicateBookingMessage()
+        : bookingError?.message?.includes("duplicate")
         ? "That time was just booked. Please choose another slot."
         : "Could not reserve that time. Please try again.",
+      fieldErrors: duplicateEmail ? { email: ["This email already has an upcoming consultation"] } : undefined,
     };
   }
 

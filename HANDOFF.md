@@ -385,7 +385,7 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 **Public**
 - `/consultation` is a cinematic booking page with a custom slot picker, visitor form, success state, and no iframe.
 - `components/ConsultationBooking.tsx` fetches slots, groups them by day, submits through a Server Action, and shows field-level validation.
-- `lib/actions/bookings.ts` re-checks availability server-side, creates a consultation lead, reserves the booking, creates the Google Calendar event/Meet link when configured, stores event metadata, and sends Resend confirmation/team emails with an `.ics` attachment.
+- `lib/actions/bookings.ts` re-checks availability server-side, prevents the same email from holding a second upcoming scheduled consultation, creates a consultation lead, reserves the booking, creates the Google Calendar event/Meet link when configured, stores event metadata, and sends Resend confirmation/team emails with an `.ics` attachment.
 
 **Admin**
 - `/admin/bookings` is live in the sidebar. It lists consultation bookings, status changes, Meet links, and local/Google event status.
@@ -393,9 +393,10 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 
 **Database**
 - `supabase/migrations/0008_booking_foundation.sql` adds a unique scheduled-slot index, disables direct public booking inserts (server action only), and seeds default Mon-Thu 10:00-16:00 availability if no rules exist.
+- `supabase/migrations/0009_booking_duplicate_guard.sql` adds an indexed trigger guard so one normalized email cannot hold more than one upcoming `scheduled` booking, even under simultaneous submissions.
 
 **One-time provisioning**
-- Run `supabase/migrations/0008_booking_foundation.sql` in Supabase SQL Editor before accepting production bookings.
+- Run `supabase/migrations/0008_booking_foundation.sql` and `supabase/migrations/0009_booking_duplicate_guard.sql` in Supabase SQL Editor before accepting production bookings.
 - Add `GOOGLE_SA_EMAIL`, `GOOGLE_SA_PRIVATE_KEY`, `GOOGLE_CALENDAR_ID`, and `GOOGLE_BOOKING_TIMEZONE` in Vercel/Supabase production envs. Without Google env vars, local bookings still work but no Google event/Meet link is created.
 - Google API caveat from local setup: this shared calendar accepts service-account event inserts, but returned `Invalid conference type value` for Meet creation. The app now falls back to creating the event without Meet. Service accounts also cannot invite attendees unless Google Workspace Domain-Wide Delegation is configured, so visitor/team invites are delivered through Resend + `.ics`.
 

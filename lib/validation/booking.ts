@@ -18,6 +18,20 @@ const nullableText = (label: string, max: number) =>
     .pipe(z.string().max(max, `${label} must be ${max} characters or fewer`))
     .transform((value) => (value.length > 0 ? value : null));
 
+const optionalPhone = z
+  .preprocess(asString, z.string())
+  .transform((value) => value.trim())
+  .pipe(
+    z
+      .string()
+      .max(30, "Phone must be 30 characters or fewer")
+      .regex(/^[+()\d\s.-]*$/, "Phone can only include numbers, spaces, +, -, ., and parentheses"),
+  )
+  .refine((value) => value.length === 0 || value.replace(/\D/g, "").length >= 7, {
+    message: "Phone must include at least 7 digits",
+  })
+  .transform((value) => (value.length > 0 ? value : null));
+
 const booleanFromForm = (value: unknown): boolean =>
   value === true || value === "on" || value === "true" || value === "1";
 
@@ -33,9 +47,10 @@ export const bookingSchema = z.object({
   email: z
     .preprocess(asString, z.string())
     .transform((value) => value.trim())
-    .pipe(z.string().email("Enter a valid email").max(180, "Email must be 180 characters or fewer")),
-  phone: nullableText("Phone", 50),
-  topic: requiredText("Topic", 1400),
+    .pipe(z.string().email("Enter a valid email").max(180, "Email must be 180 characters or fewer"))
+    .transform((value) => value.toLowerCase()),
+  phone: optionalPhone,
+  topic: requiredText("Topic", 1400).pipe(z.string().min(10, "Topic must be at least 10 characters")),
   website: z.string().max(0).optional().or(z.literal("")),
 });
 
