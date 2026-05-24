@@ -2961,11 +2961,11 @@ section.team-roster {
   z-index: 1;
 }
 .team-future-copy {
-  max-width: 500px;
+  max-width: 700px;
 }
 .team-future-copy p {
   margin: 24px 0 34px;
-  max-width: 42ch;
+  max-width: 58ch;
   color: rgba(13,13,15,0.72);
   font-size: 16.5px;
   line-height: 1.7;
