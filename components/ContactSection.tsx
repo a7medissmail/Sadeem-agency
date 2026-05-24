@@ -22,11 +22,15 @@ export default function ContactSection() {
           <ul className="contact-meta">
             <li>
               <span>Reach</span>
-              <a href="mailto:hello@sadeem.co">hello@sadeem.co</a>
+              <a href="mailto:hello@sadeem.agency">hello@sadeem.agency</a>
             </li>
             <li>
-              <span>Office</span>
-              <span>Riyadh, Saudi Arabia</span>
+              <span>HQ</span>
+              <span>Cairo, Egypt</span>
+            </li>
+            <li>
+              <span>KSA</span>
+              <span>Riyadh, KSA</span>
             </li>
           </ul>
         </div>

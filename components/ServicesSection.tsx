@@ -26,7 +26,7 @@ export default function ServicesSection() {
               for <span className="accent">lasting impact.</span>
             </h2>
           </div>
-          <a className="cta-link on-dark" href="#">
+          <a className="cta-link on-dark" href="/#contact">
             <span>VIEW ALL SERVICES</span>
             <Icon.Arrow />
           </a>

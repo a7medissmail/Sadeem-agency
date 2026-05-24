@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { SiteSettingsProvider } from "@/components/SiteSettingsProvider";
 
 export const metadata = {
-  title: "SADEEM — Strategic Growth Advisory",
+  title: "SADEEM - Strategic Growth Advisory",
   description:
     "A strategic operating system for growth. SADEEM turns ambition into measurable, scalable execution.",
 };

@@ -16,7 +16,7 @@ function Submit({ idle }: { idle: boolean }) {
       disabled={pending}
       className="mt-2 inline-flex items-center justify-center gap-3 bg-[var(--accent)] text-white px-6 py-3 font-mono text-[11px] tracking-[0.24em] uppercase hover:brightness-110 transition disabled:opacity-60"
     >
-      {pending ? "Sending…" : idle ? "Send" : "Try again"}
+      {pending ? "Sending..." : idle ? "Send" : "Try again"}
     </button>
   );
 }
@@ -41,7 +41,7 @@ export default function LeadForm({
         <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[var(--accent)]">RECEIVED</p>
         <h3 className="mt-3 text-[22px] font-semibold tracking-tight">Thank you.</h3>
         <p className="mt-2 text-[14.5px] text-black/65 max-w-[40ch]">
-          Your message reached us. A SADEEM team member will reach out shortly — usually within one business day.
+          Your message reached us. A SADEEM team member will reach out shortly, usually within one business day.
         </p>
       </div>
     );
@@ -80,7 +80,9 @@ export default function LeadForm({
           />
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-black/55">Phone <span className="text-black/30">(optional)</span></span>
+          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-black/55">
+            Phone <span className="text-black/30">(optional)</span>
+          </span>
           <input
             name="phone"
             type="tel"
@@ -89,7 +91,9 @@ export default function LeadForm({
           />
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-black/55">Company <span className="text-black/30">(optional)</span></span>
+          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-black/55">
+            Company <span className="text-black/30">(optional)</span>
+          </span>
           <input
             name="company"
             autoComplete="organization"
@@ -98,7 +102,9 @@ export default function LeadForm({
         </label>
       </div>
       <label className="flex flex-col gap-1.5">
-        <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-black/55">What would you like to explore?</span>
+        <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-black/55">
+          What would you like to explore?
+        </span>
         <textarea
           name="message"
           rows={4}
@@ -106,7 +112,9 @@ export default function LeadForm({
         />
       </label>
       {state.status === "error" ? (
-        <p className="text-[13.5px] text-red-600" role="alert">{state.message}</p>
+        <p className="text-[13.5px] text-red-600" role="alert">
+          {state.message}
+        </p>
       ) : null}
       <Submit idle={state.status === "idle"} />
     </form>

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ComponentType } from "react";
+import Link from "next/link";
 import {
   FaFacebookF,
   FaInstagram,
@@ -13,13 +14,20 @@ import type { SiteSocialLink, SocialPlatform } from "@/lib/site/settings";
 import { SadeemMark } from "./marks";
 import { useSiteSettings } from "./SiteSettingsProvider";
 
-function FooterCol({ title, items }: { title: string; items: string[] }) {
+type FooterItem = {
+  label: string;
+  href?: string;
+};
+
+function FooterCol({ title, items }: { title: string; items: FooterItem[] }) {
   return (
     <div className="footer-col">
       <div className="footer-title">{title}</div>
       <ul className="footer-list">
-        {items.map((i) => (
-          <li key={i}>{i}</li>
+        {items.map((item) => (
+          <li key={item.label}>
+            {item.href ? <Link href={item.href}>{item.label}</Link> : item.label}
+          </li>
         ))}
       </ul>
     </div>
@@ -68,14 +76,35 @@ export default function Footer() {
               </div>
             ) : null}
           </div>
-          <FooterCol title="Company" items={["About us", "Our approach", "Team", "Careers", "Insights"]} />
+          <FooterCol
+            title="Company"
+            items={[
+              { label: "About us", href: "/#about" },
+              { label: "Our approach", href: "/#approach" },
+              { label: "Team", href: "/team" },
+              { label: "Careers", href: "/careers" },
+              { label: "Insights", href: "/#cases" },
+            ]}
+          />
           <FooterCol
             title="Services"
-            items={["Strategy", "Growth & marketing", "Operations", "Transformation", "M&A advisory"]}
+            items={[
+              { label: "Strategy", href: "/#services" },
+              { label: "Growth & marketing", href: "/#services" },
+              { label: "Operations", href: "/#services" },
+              { label: "Transformation", href: "/#services" },
+              { label: "M&A advisory", href: "/#services" },
+            ]}
           />
           <FooterCol
             title="Industries"
-            items={["Manufacturing", "Technology", "Retail", "Healthcare", "Real estate"]}
+            items={[
+              { label: "Manufacturing", href: "/#cases" },
+              { label: "Technology", href: "/#cases" },
+              { label: "Retail", href: "/#cases" },
+              { label: "Healthcare", href: "/#contact" },
+              { label: "Real estate", href: "/#contact" },
+            ]}
           />
           <div className="footer-col">
             <div className="footer-title">Contact</div>
@@ -90,8 +119,8 @@ export default function Footer() {
         <div className="footer-base">
           <span>© 2026 Sadeem. All rights reserved.</span>
           <span className="footer-base-right">
-            <a href="#">Privacy</a>
-            <a href="#">Terms</a>
+            <span>Privacy</span>
+            <span>Terms</span>
           </span>
         </div>
       </div>

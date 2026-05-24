@@ -21,8 +21,8 @@ function CaseTile({ tag, body, kind, n }: { tag: string; body: string; kind: str
       </div>
       <div className="case-copy">
         <p className="case-body">{body}</p>
-        <a className="cta-link on-dark sm" href="#">
-          <span>READ CASE STUDY</span>
+        <a className="cta-link on-dark sm" href="/#contact">
+          <span>DISCUSS A SIMILAR CASE</span>
           <Icon.Arrow />
         </a>
       </div>
@@ -32,7 +32,7 @@ function CaseTile({ tag, body, kind, n }: { tag: string; body: string; kind: str
 
 export default function CasesSection() {
   return (
-    <RevealSection className="cases dark" data-section="07">
+    <RevealSection className="cases dark" data-section="07" id="cases">
       <SectionLabel n="07" text="SUCCESS STORIES" onDark />
       <div className="section-inner">
         <div className="cases-head">
@@ -44,8 +44,8 @@ export default function CasesSection() {
               Measurable results.
             </h2>
           </div>
-          <a className="cta-link on-dark" href="#">
-            <span>VIEW ALL STORIES</span>
+          <a className="cta-link on-dark" href="/#contact">
+            <span>PLAN YOUR STORY</span>
             <Icon.Arrow />
           </a>
         </div>

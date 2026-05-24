@@ -513,5 +513,7 @@ Substantial second pass after the P2 baseline. Hardened the course experience, g
 
 ## 11. Open / parked items
 
+- **Success Stories product plan**: add a `success_stories` content model with `title`, `slug`, `industry`, `challenge`, `intervention`, `outcome`, `metrics` jsonb, `quote`, `cover_image_url`, `is_published`, and `sort_order`; public routes `/success-stories` and `/success-stories/[slug]`; admin CRUD with image upload and publish toggle. The homepage `#cases` section should later pull from the first 3 published stories instead of static cards.
+- **Email template polish backlog**: build branded templates for lead confirmation, internal lead notification, course registration, consultation booking, application received, application rejected, and campaign updates. Add stronger sender copy, logo header, footer social links, unsubscribe/legal text, and a consistent CTA slot. Automation ideas: new job alert to opted-in leads, application status changes, booking reminder, post-consultation follow-up, and course waitlist updates.
 - **Slide-1 faint foreground wisp** in front of the figure for extra depth (backlog).
 - **Stale `.next/types/app/page.ts`** may need clearing once after the marketing route group move; `tsc` is clean now.

@@ -7,6 +7,7 @@ import { SadeemMark } from "./marks";
 import { useSiteSettings } from "./SiteSettingsProvider";
 
 const links = [
+  { label: "Home", href: "/" },
   { label: "About", href: "/#about" },
   { label: "Services", href: "/#services" },
   { label: "Our approach", href: "/#approach" },
@@ -58,9 +59,12 @@ export default function MainNavbar({ overDark }: { overDark: boolean }) {
         <nav className="mainnav-links">
           {links.map((l) => {
             const isHashLink = l.href.startsWith("/#");
-            const isActive = isHashLink
-              ? pathname === "/" && activeHash === l.href.slice(1)
-              : pathname === l.href || pathname.startsWith(`${l.href}/`);
+            const isHome = l.href === "/";
+            const isActive = isHome
+              ? pathname === "/" && !activeHash
+              : isHashLink
+                ? pathname === "/" && activeHash === l.href.slice(1)
+                : pathname === l.href || pathname.startsWith(`${l.href}/`);
 
             return (
               <a key={l.href} href={l.href} className={isActive ? "is-active" : undefined}>
