@@ -150,7 +150,7 @@ HANDOFF.md                       # this file
 | **P3** | Team page + admin CRUD + photo upload | Done |
 | **P4** | Careers + applications (resume upload, pipeline) | Done |
 | **P5** | Consultation booking (custom UI + Google Calendar API) | Done |
-| **P6** | Marketing email campaigns to CRM | Planned |
+| **P6** | Email Center: CRM campaigns + transactional automation | Done |
 
 Each phase ends in a working deployable state. See the full plan: `C:\Users\ahmed\.claude\plans\ok-now-lets-plan-flickering-lampson.md`.
 
@@ -399,6 +399,26 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 - Run `supabase/migrations/0008_booking_foundation.sql` and `supabase/migrations/0009_booking_duplicate_guard.sql` in Supabase SQL Editor before accepting production bookings.
 - Add `GOOGLE_SA_EMAIL`, `GOOGLE_SA_PRIVATE_KEY`, `GOOGLE_CALENDAR_ID`, and `GOOGLE_BOOKING_TIMEZONE` in Vercel/Supabase production envs. Without Google env vars, local bookings still work but no Google event/Meet link is created.
 - Google API caveat from local setup: this shared calendar accepts service-account event inserts, but returned `Invalid conference type value` for Meet creation. The app now falls back to creating the event without Meet. Service accounts also cannot invite attendees unless Google Workspace Domain-Wide Delegation is configured, so visitor/team invites are delivered through Resend + `.ics`.
+
+---
+
+### [2026-05-25] P6 - Email Center
+
+**Campaigns**
+- `/admin/campaigns` is live in the admin sidebar as **Email**.
+- Staff can compose branded plain-text CRM campaigns, filter the audience by lead `status` and `source`, preview eligible counts, send via Resend, and track per-recipient `email_sends`.
+- Campaign emails include signed unsubscribe links. `/api/email/unsubscribe` verifies the token and marks `leads.marketing_unsubscribed_at`.
+
+**Transactional automation**
+- Application intake already sends applicant/team emails from P4.
+- Moving a candidate to `rejected` in `/admin/applications` now sends a polite rejection email automatically, only when the status actually changes to `rejected`.
+
+**Database**
+- `supabase/migrations/0010_email_center_foundation.sql` adds `leads.marketing_unsubscribed_at`, campaign audience indexes, and richer send log metadata (`recipient_email`, `resend_id`, `created_at`).
+
+**One-time provisioning**
+- Run `supabase/migrations/0010_email_center_foundation.sql` in Supabase SQL Editor before using campaigns in production.
+- Optional: set `EMAIL_UNSUBSCRIBE_SECRET` in Vercel for a stable unsubscribe signing secret. If omitted, the app falls back to `SUPABASE_SERVICE_ROLE_KEY`.
 
 ---
 

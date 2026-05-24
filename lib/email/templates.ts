@@ -130,6 +130,21 @@ export function applicationNotification({
   return { subject, html };
 }
 
+export function applicationRejection({ name, jobTitle }: { name: string; jobTitle: string }) {
+  const subject = `Update on your SADEEM application - ${jobTitle}`;
+  const html = `
+<!doctype html><html><body style="${wrapStyle}">
+  <div style="${cardStyle}">
+    <p style="font-family:Menlo,monospace;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:${accent};margin:0 0 14px">APPLICATION UPDATE</p>
+    <h1 style="font-size:24px;letter-spacing:-0.02em;margin:0 0 12px">Thank you, ${esc(name)}.</h1>
+    <p style="margin:0 0 16px;color:${dark}">We reviewed your application for <strong>${esc(jobTitle)}</strong>.</p>
+    <p style="margin:0 0 16px;color:${muted}">We won&apos;t be moving forward with this role right now, but we appreciate the time and care you put into applying.</p>
+    <p style="margin:0;color:${muted}">We&apos;ll keep building the team deliberately, and we hope our paths cross again.</p>
+  </div>
+</body></html>`.trim();
+  return { subject, html };
+}
+
 export function bookingConfirmation({
   name,
   slotLabel,
@@ -154,6 +169,41 @@ export function bookingConfirmation({
     <p style="margin:0;color:${muted}">We attached a calendar invite so the session lands in your calendar cleanly.</p>
   </div>
 </body></html>`.trim();
+  return { subject, html };
+}
+
+export function campaignEmail({
+  subject,
+  body,
+  leadName,
+  unsubscribeUrl,
+}: {
+  subject: string;
+  body: string;
+  leadName: string;
+  unsubscribeUrl: string;
+}) {
+  const paragraphs = body
+    .split(/\n{2,}/)
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .map((part) => `<p style="margin:0 0 16px;color:${dark};white-space:pre-wrap">${esc(part)}</p>`)
+    .join("");
+
+  const html = `
+<!doctype html><html><body style="${wrapStyle}">
+  <div style="${cardStyle}">
+    <p style="font-family:Menlo,monospace;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:${accent};margin:0 0 14px">SADEEM UPDATE</p>
+    <h1 style="font-size:24px;letter-spacing:-0.02em;margin:0 0 16px">${esc(subject)}</h1>
+    <p style="margin:0 0 16px;color:${muted}">Hi ${esc(leadName)},</p>
+    ${paragraphs}
+    <hr style="border:none;border-top:1px solid rgba(13,13,15,0.08);margin:24px 0" />
+    <p style="font-size:12px;color:${muted};margin:0">You are receiving this because you contacted SADEEM. <a href="${esc(
+      unsubscribeUrl,
+    )}" style="color:${accent}">Unsubscribe</a>.</p>
+  </div>
+</body></html>`.trim();
+
   return { subject, html };
 }
 

@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { sendEmail } from "@/lib/email/resend";
+import { applicationRejection } from "@/lib/email/templates";
 import { applicationStatuses } from "@/lib/validation/careers";
 import type { ApplicationStatus } from "@/types/database";
 
@@ -16,8 +18,31 @@ export async function updateApplicationStatusAction(formData: FormData): Promise
   if (!applicationStatuses.includes(status)) throw new Error("Invalid application status");
 
   const admin = getSupabaseAdmin();
+  const { data: application, error: readError } = await admin
+    .from("applications")
+    .select("id, name, email, status, job_id")
+    .eq("id", id)
+    .single();
+
+  if (readError || !application) throw new Error(readError?.message ?? "Application not found");
+
   const { error } = await admin.from("applications").update({ status }).eq("id", id);
   if (error) throw new Error(error.message);
+
+  if (application.status !== status && status === "rejected") {
+    const { data: job } = await admin.from("jobs").select("title").eq("id", application.job_id).maybeSingle();
+    const email = applicationRejection({
+      name: application.name,
+      jobTitle: job?.title ?? "the role",
+    });
+
+    await sendEmail({
+      to: application.email,
+      subject: email.subject,
+      html: email.html,
+      replyTo: process.env.TEAM_NOTIFY_TO,
+    });
+  }
 
   revalidatePath("/admin/applications");
 }

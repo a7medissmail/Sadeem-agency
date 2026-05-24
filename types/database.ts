@@ -69,11 +69,16 @@ export type Database = {
           source: LeadSource;
           status: LeadStatus;
           owner_id: string | null;
+          marketing_unsubscribed_at: string | null;
           created_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["leads"]["Row"], "id" | "created_at" | "status"> & {
+        Insert: Omit<
+          Database["public"]["Tables"]["leads"]["Row"],
+          "id" | "created_at" | "status" | "marketing_unsubscribed_at"
+        > & {
           id?: string;
           status?: LeadStatus;
+          marketing_unsubscribed_at?: string | null;
           created_at?: string;
         };
         Relationships: [];
@@ -200,9 +205,13 @@ export type Database = {
           sent_at: string | null;
           created_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["email_campaigns"]["Row"], "id" | "created_at" | "status"> & {
+        Insert: Omit<
+          Database["public"]["Tables"]["email_campaigns"]["Row"],
+          "id" | "created_at" | "status" | "sent_at"
+        > & {
           id?: string;
           status?: CampaignStatus;
+          sent_at?: string | null;
           created_at?: string;
         };
         Relationships: [];
@@ -214,10 +223,16 @@ export type Database = {
           campaign_id: string;
           lead_id: string;
           status: "queued" | "sent" | "failed" | "bounced";
+          recipient_email: string | null;
+          resend_id: string | null;
           error: string | null;
           sent_at: string | null;
+          created_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["email_sends"]["Row"], "id"> & { id?: string };
+        Insert: Omit<Database["public"]["Tables"]["email_sends"]["Row"], "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
         Relationships: [];
         Update: Partial<Database["public"]["Tables"]["email_sends"]["Insert"]>;
       };
