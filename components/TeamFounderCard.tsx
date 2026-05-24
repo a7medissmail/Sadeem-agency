@@ -14,16 +14,14 @@ export default function TeamFounderCard({ index, name, role, bio, photoUrl }: Te
   return (
     <motion.article
       className="team-founder-card"
-      initial={{ opacity: 0, y: 58, scale: 0.96, filter: "blur(10px)" }}
+      initial={{ opacity: 0, y: 28 }}
       whileInView={{
         opacity: 1,
         y: 0,
-        scale: 1,
-        filter: "blur(0px)",
-        transition: { duration: 0.78, delay: index * 0.1, ease: [0.2, 0.7, 0.2, 1] },
+        transition: { duration: 0.58, delay: index * 0.08, ease: [0.2, 0.7, 0.2, 1] },
       }}
-      whileHover={{ y: -14, scale: 1.015, transition: { duration: 0.36, ease: [0.2, 0.7, 0.2, 1] } }}
-      viewport={{ once: false, amount: 0.32 }}
+      whileHover={{ y: -5, transition: { duration: 0.28, ease: [0.2, 0.7, 0.2, 1] } }}
+      viewport={{ once: true, amount: 0.24 }}
     >
       <div className="team-founder-card-bg" aria-hidden="true">
         {photoUrl ? (

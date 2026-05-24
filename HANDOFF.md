@@ -345,6 +345,7 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 - Latest tuning reduces/widens the hero headline and removes all static founder cards; the founders section now renders active `team_members` from Supabase, using the admin-entered name, role, bio, and photo.
 - Belief section polish tightened the left/right grid gap, reduced headline scale, and added subtle orbit drift, icon pulse, staggered item reveal, and hover lift animations.
 - Follow-up page polish fixes live founder cards to stay three-across on desktop, moves founder/belief cards to Framer Motion viewport reveals, and strengthens hover/image/orbit motion so the animations are visible without breaking the premium feel.
+- Founder card motion was dialed back after visual QA: no continuous image drift, no glare sweep, one-time reveal only, and a very small hover lift.
 
 **One-time provisioning**
 - Run `supabase/migrations/0006_team_photos.sql` in Supabase SQL Editor before uploading team photos in production.
