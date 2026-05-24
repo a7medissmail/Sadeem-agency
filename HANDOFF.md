@@ -375,6 +375,50 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 
 ---
 
+### [2026-05-23] P2 follow-ups + P3 (Team) + P4 (Careers/Applications) ✅
+
+Substantial second pass after the P2 baseline. Hardened the course experience, generalized the navbar, then built out P3 + P4 end-to-end.
+
+**Validation + content infra**
+- All new schemas (`course`, `team`, `careers`) follow a single pattern: `requiredText` / `nullableText` / `nullableUrl` / `nullableDateTime` / `nullableNumber` / `booleanFromForm` preprocess helpers piped through `z.string()`/`z.number()`, plus a `format<Thing>ValidationError(error)` helper returning `{ error, fieldErrors }` so admin forms render per-field hints (not just a single "Invalid input").
+- Course schema gained `currency` (enum of SAR/USD/EUR/AED/EGP/GBP) and a `superRefine` that requires `ends_at > starts_at`.
+- Added `sanitize-html` + `@types/sanitize-html`. New `lib/content/sanitizeCourseHtml.ts` accepts either HTML or plain text — if no tags, paragraph-splits and escapes; if HTML, runs through `sanitize-html` with a curated allowlist (safe styles, `rel=noopener noreferrer` on links, lazy `img`).
+
+**Navigation**
+- New `components/SectionAwareNavbar.tsx` replaces the homepage-only navbar state. It samples `document.elementsFromPoint` (with side fallbacks and a rect-based safety pass) to detect whether the section under the navbar is dark/light and flips `<MainNavbar overDark>` accordingly. Works on every marketing route, not just `/`.
+- `MainNavbar` link list extended: Workshops `/courses` + Team `/team` + Careers `/careers`. All anchors use `/#…`.
+
+**Course page (P2 follow-ups)**
+- Detail page rewritten: dark hero with cohort dossier kicker, two-column layout, dedicated facts strip (When / Where / Cohort / Investment with formatted currency), sticky "About the workshop" sidebar paired with parallax body (`CourseBodyParallax`), and a dedicated "Reserve seat" dark section using `CourseRegistrationForm` (course-specific lead form, posts with `source=course` plus the course id/title surfaced in the email).
+- Index page picks up currency + price in card meta.
+- 0005_course_currency.sql adds the `currency` column with a `check` constraint covering the supported codes.
+
+**P3 — Team page + admin CRUD + photo upload** ✅
+- 0006_team_photos.sql creates the public `team-photos` bucket with the same policy shape as `course-images`.
+- `lib/validation/team.ts` — nested `socials` object (website/linkedin/x/instagram) that collapses to `null` when empty, integer `sort_order`, photo URL.
+- Admin: `/admin/team` list (sort_order + active badge), `/admin/team/new`, `/admin/team/[id]` with one `TeamForm` (photo upload + previews). Actions in `app/admin/(authed)/team/actions.ts`.
+- Public `/team` page with `TeamFounderCard` and `TeamBeliefItem` components matching the brand voice.
+
+**P4 — Careers + applications (resume upload + pipeline)** ✅
+- 0007_application_resumes.sql creates a **private** `application-resumes` bucket (5 MB cap, PDF/DOC/DOCX MIME allowlist) plus staff-only object policies, and tightens the `applications_public_insert` policy so submissions are only accepted when the parent job is `is_open = true`.
+- `lib/validation/careers.ts` — `jobSchema` (with `type` enum job/internship), `applicationSchema` (email + cover note + honeypot), and shared `applicationStatuses`.
+- Admin: `/admin/jobs` (list with open/closed badge), `/admin/jobs/new`, `/admin/jobs/[id]` editing via `JobForm`; `/admin/applications` list with status pipeline (`new → review → interview → offer / rejected`), resume signed-URL download (service-role generates short-lived link).
+- Public: `/careers` (list of `is_open` postings), `/careers/[slug]` (detail + body + requirements + `JobApplicationForm` that uploads resume to the private bucket, inserts the row, fires confirmation + team notification via Resend).
+- `lib/actions/applications.ts` orchestrates the public submit (validate → upload → insert → email).
+
+**Admin sidebar** now exposes Dashboard, Leads, Courses, Team, Careers, Applications, Users as live routes. Only Bookings is still `soon` (P5).
+
+**Tooling**
+- `tsconfig.tsbuildinfo` is now gitignored and untracked (was getting included on every typecheck).
+
+**Audit checklist** (done):
+- `npx tsc --noEmit` clean across the full surface.
+- Migrations 0005–0007 idempotent; safe to re-run.
+- All new admin forms gated by `requireRole`; deletes restricted to `admin`.
+- Public form submissions go through anon-key cookie client (RLS-policed) or service-role inside server actions (for storage writes).
+
+---
+
 ### [2026-05-23] Post-P1 fixes
 
 - **`supabase/migrations/0002_grants.sql`** — added explicit GRANTs on `public.*` for `anon` + `authenticated` (plus default privileges on future tables). Without this, the project's "Automatically expose new tables" being disabled meant RLS policies were correct but the role had no table-level privilege → lead inserts and profile reads silently failed (form said "Could not save", admin pages ping-ponged through the login redirect).
