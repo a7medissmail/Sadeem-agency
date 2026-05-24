@@ -67,7 +67,7 @@ Vercel needs the same env vars under **Project → Settings → Environment Vari
 - ✅ Homepage lead/contact form + admin CRM leads list.
 - ✅ Courses/Workshops public pages + admin CRUD/toggle/image upload.
 
-**Not yet built**: team/careers/applications public + admin, booking UI + Google Calendar, marketing email campaigns.
+**Not yet built**: booking UI + Google Calendar, marketing email campaigns.
 
 ---
 
@@ -148,7 +148,7 @@ HANDOFF.md                       # this file
 | **P1** | Homepage lead form, CRM list/board, Resend transactional email | ✅ Done |
 | **P2** | Courses/Workshops (public + admin toggle/CRUD + image upload) | ✅ Done |
 | **P3** | Team page + admin CRUD + photo upload | Done |
-| **P4** | Careers + applications (resume upload, pipeline) | Planned |
+| **P4** | Careers + applications (resume upload, pipeline) | Done |
 | **P5** | Consultation booking (custom UI + Google Calendar API) | Planned |
 | **P6** | Marketing email campaigns to CRM | Planned |
 
@@ -349,6 +349,29 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 
 **One-time provisioning**
 - Run `supabase/migrations/0006_team_photos.sql` in Supabase SQL Editor before uploading team photos in production.
+
+---
+
+### [2026-05-24] P4 - Careers + applications
+
+**Storage + security**
+- `supabase/migrations/0007_application_resumes.sql` creates a private `application-resumes` bucket with a 5 MB limit and PDF/DOC/DOCX MIME allow-list.
+- Staff can access resumes through signed URLs generated server-side; public visitors never receive storage write credentials.
+- The public `applications_public_insert` policy now only allows inserts for open jobs.
+
+**Validation + admin**
+- `lib/validation/careers.ts` validates jobs and application submissions with field-specific errors.
+- `/admin/jobs` is now live in the sidebar with full CRUD for jobs/internships, open/closed toggle, slug generation, and HTML/plain-text body editors.
+- `/admin/applications` is now live in the sidebar with a status pipeline, signed resume download links, status changes, and admin delete.
+
+**Public**
+- `/careers` renders open roles only.
+- `/careers/[slug]` renders the role dossier, sanitized HTML/plain text body/requirements, and a working apply form.
+- `components/JobApplicationForm.tsx` submits through a Server Action, validates with zod, uploads the resume to private storage, creates the `applications` row, and sends best-effort Resend confirmation/team notifications.
+- `next.config.mjs` raises the Server Action body limit to `6mb` so 5 MB resumes can pass.
+
+**One-time provisioning**
+- Run `supabase/migrations/0007_application_resumes.sql` in Supabase SQL Editor before accepting production resume uploads.
 
 ---
 

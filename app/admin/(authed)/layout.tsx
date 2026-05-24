@@ -9,8 +9,8 @@ const nav = [
   { href: "/admin/bookings", label: "Bookings", soon: true },
   { href: "/admin/courses", label: "Courses" },
   { href: "/admin/team", label: "Team" },
-  { href: "/admin/jobs", label: "Careers", soon: true },
-  { href: "/admin/applications", label: "Applications", soon: true },
+  { href: "/admin/jobs", label: "Careers" },
+  { href: "/admin/applications", label: "Applications" },
   { href: "/admin/users", label: "Users" },
 ];
 

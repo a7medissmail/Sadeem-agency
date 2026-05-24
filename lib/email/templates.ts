@@ -16,16 +16,16 @@ function esc(s: string) {
 }
 
 export function leadConfirmation({ name }: { name: string }) {
-  const subject = "We received your message — SADEEM";
+  const subject = "We received your message - SADEEM";
   const html = `
 <!doctype html><html><body style="${wrapStyle}">
   <div style="${cardStyle}">
     <p style="font-family:Menlo,monospace;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:${accent};margin:0 0 14px">SADEEM</p>
     <h1 style="font-size:24px;letter-spacing:-0.02em;margin:0 0 12px">Thanks, ${esc(name)}.</h1>
-    <p style="margin:0 0 16px;color:${dark}">Your message reached us. A member of the team will reach out shortly — usually within one business day.</p>
+    <p style="margin:0 0 16px;color:${dark}">Your message reached us. A member of the team will reach out shortly - usually within one business day.</p>
     <p style="margin:0 0 16px;color:${muted}">In the meantime, feel free to think through what "next level" looks like for you. The clearer the ambition, the faster we can map a path to it.</p>
     <hr style="border:none;border-top:1px solid rgba(13,13,15,0.08);margin:24px 0" />
-    <p style="font-family:Menlo,monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:${muted};margin:0">SADEEM — Strategic Growth Advisory</p>
+    <p style="font-family:Menlo,monospace;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:${muted};margin:0">SADEEM - Strategic Growth Advisory</p>
   </div>
 </body></html>`.trim();
   return { subject, html };
@@ -46,14 +46,14 @@ export function leadNotification({
   message?: string | null;
   source: string;
 }) {
-  const subject = `New lead — ${name} (${source})`;
+  const subject = `New lead - ${name} (${source})`;
   const rows = [
     ["Name", name],
     ["Email", email],
-    ["Phone", phone || "—"],
-    ["Company", company || "—"],
+    ["Phone", phone || "-"],
+    ["Company", company || "-"],
     ["Source", source],
-    ["Message", message || "—"],
+    ["Message", message || "-"],
   ]
     .map(
       ([k, v]) => `
@@ -69,6 +69,61 @@ export function leadNotification({
     <p style="font-family:Menlo,monospace;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:${accent};margin:0 0 14px">NEW LEAD</p>
     <h1 style="font-size:22px;letter-spacing:-0.02em;margin:0 0 8px">${esc(name)}</h1>
     <p style="margin:0 0 18px;color:${muted}">Submitted via ${esc(source)}.</p>
+    <table style="border-collapse:collapse;width:100%">${rows}</table>
+  </div>
+</body></html>`.trim();
+  return { subject, html };
+}
+
+export function applicationConfirmation({ name, jobTitle }: { name: string; jobTitle: string }) {
+  const subject = `Application received - ${jobTitle}`;
+  const html = `
+<!doctype html><html><body style="${wrapStyle}">
+  <div style="${cardStyle}">
+    <p style="font-family:Menlo,monospace;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:${accent};margin:0 0 14px">APPLICATION RECEIVED</p>
+    <h1 style="font-size:24px;letter-spacing:-0.02em;margin:0 0 12px">Thanks, ${esc(name)}.</h1>
+    <p style="margin:0 0 16px;color:${dark}">We received your application for <strong>${esc(jobTitle)}</strong>.</p>
+    <p style="margin:0;color:${muted}">The SADEEM team will review your profile and follow up if there is a strong fit for the role.</p>
+  </div>
+</body></html>`.trim();
+  return { subject, html };
+}
+
+export function applicationNotification({
+  name,
+  email,
+  phone,
+  jobTitle,
+  coverNote,
+}: {
+  name: string;
+  email: string;
+  phone?: string | null;
+  jobTitle: string;
+  coverNote?: string | null;
+}) {
+  const subject = `New application - ${jobTitle} - ${name}`;
+  const rows = [
+    ["Name", name],
+    ["Email", email],
+    ["Phone", phone || "-"],
+    ["Role", jobTitle],
+    ["Cover note", coverNote || "-"],
+  ]
+    .map(
+      ([k, v]) => `
+      <tr>
+        <td style="padding:8px 0;width:120px;color:${muted};font-family:Menlo,monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;vertical-align:top">${k}</td>
+        <td style="padding:8px 0;color:${dark};vertical-align:top;white-space:pre-wrap">${esc(String(v))}</td>
+      </tr>`,
+    )
+    .join("");
+  const html = `
+<!doctype html><html><body style="${wrapStyle}">
+  <div style="${cardStyle}">
+    <p style="font-family:Menlo,monospace;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:${accent};margin:0 0 14px">NEW APPLICATION</p>
+    <h1 style="font-size:22px;letter-spacing:-0.02em;margin:0 0 8px">${esc(name)}</h1>
+    <p style="margin:0 0 18px;color:${muted}">Submitted for ${esc(jobTitle)}.</p>
     <table style="border-collapse:collapse;width:100%">${rows}</table>
   </div>
 </body></html>`.trim();

@@ -11,6 +11,7 @@ const links = [
   { label: "Our approach", href: "/#approach" },
   { label: "Workshops", href: "/courses" },
   { label: "Team", href: "/team" },
+  { label: "Careers", href: "/careers" },
   { label: "Success stories", href: "/#cases" },
   { label: "Contact", href: "/#contact" },
 ];
