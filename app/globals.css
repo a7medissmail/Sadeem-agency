@@ -2147,6 +2147,369 @@ section.course-register {
   .course-detail-facts div:last-child { border-bottom: 0; }
 }
 
+/* ========== CONSULTATION (public) ========== */
+.consultation-page { background: var(--white); }
+.consult-hero,
+.consult-principles {
+  position: relative;
+  overflow: hidden;
+  color: var(--white);
+  background:
+    radial-gradient(920px 560px at 84% 18%, rgba(255,106,0,0.16), transparent 64%),
+    #0d0e10;
+}
+.consult-hero {
+  min-height: 92vh;
+  padding: clamp(118px, 12vw, 164px) 0 clamp(74px, 8vw, 116px);
+}
+.consult-hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(13,13,15,0.95), rgba(13,13,15,0.76) 42%, rgba(13,13,15,0.38) 78%, rgba(13,13,15,0.34)),
+    linear-gradient(180deg, rgba(13,13,15,0.08), rgba(13,13,15,0.82)),
+    url("/hero/cta-scene.webp") center / cover no-repeat;
+  opacity: 0.92;
+  transform: scale(1.02);
+}
+.consult-hero-inner {
+  position: relative;
+  z-index: 1;
+  min-height: clamp(480px, 58vh, 680px);
+  display: flex;
+  align-items: center;
+}
+.consult-hero-copy { max-width: 860px; }
+.consult-hero-title {
+  margin-top: 22px;
+  color: var(--white);
+  font-size: clamp(54px, 7.4vw, 118px);
+  line-height: 0.92;
+  letter-spacing: -0.055em;
+}
+.consult-hero-title span,
+.consult-booking-copy h2 span,
+.consult-principles h2 span { color: var(--accent); }
+.consult-hero-copy > p {
+  margin: 28px 0 38px;
+  max-width: 54ch;
+  color: rgba(245,243,240,0.72);
+  font-size: clamp(17px, 1.25vw, 20px);
+  line-height: 1.62;
+}
+.consult-booking {
+  padding: clamp(86px, 9vw, 132px) 0;
+  background:
+    radial-gradient(820px 520px at 92% 8%, rgba(255,106,0,0.06), transparent 68%),
+    #f4f1eb;
+}
+.consult-booking-grid {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.68fr) minmax(560px, 1.15fr);
+  gap: clamp(48px, 7vw, 120px);
+  align-items: start;
+}
+.consult-booking-copy {
+  position: sticky;
+  top: 132px;
+}
+.consult-booking-copy h2,
+.consult-principles h2 {
+  margin: 20px 0 22px;
+  font-size: clamp(48px, 6.6vw, 96px);
+  line-height: 0.95;
+  letter-spacing: -0.052em;
+}
+.consult-booking-copy > p {
+  max-width: 42ch;
+  color: rgba(13,13,15,0.62);
+  font-size: 16px;
+  line-height: 1.68;
+}
+.consult-booking-notes {
+  margin-top: clamp(34px, 5vw, 64px);
+  border-top: 1px solid rgba(13,13,15,0.14);
+}
+.consult-booking-notes div {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 18px;
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(13,13,15,0.12);
+}
+.consult-booking-notes span {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+}
+.consult-booking-notes strong {
+  font-size: 16px;
+  color: var(--black);
+}
+.consult-console {
+  position: relative;
+  border: 1px solid rgba(13,13,15,0.16);
+  background: rgba(255,255,255,0.42);
+  box-shadow: 0 42px 92px rgba(13,13,15,0.09);
+}
+.consult-console::before {
+  content: "";
+  position: absolute;
+  inset: 22px;
+  border: 1px solid rgba(255,106,0,0.16);
+  pointer-events: none;
+}
+.consult-console-head {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  border-bottom: 1px solid rgba(13,13,15,0.14);
+}
+.consult-console-head div {
+  padding: 22px clamp(20px, 3vw, 34px);
+  border-right: 1px solid rgba(13,13,15,0.12);
+}
+.consult-console-head div:last-child { border-right: 0; }
+.consult-console-head p,
+.consult-form-grid label > span {
+  margin: 0 0 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.consult-console-head strong {
+  color: var(--black);
+  font-size: 15px;
+}
+.consult-slots {
+  padding: clamp(20px, 3vw, 34px);
+  border-bottom: 1px solid rgba(13,13,15,0.12);
+}
+.consult-days {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.consult-days button,
+.consult-times button {
+  border: 1px solid rgba(13,13,15,0.14);
+  background: rgba(255,255,255,0.35);
+  color: var(--black);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.28s ease, background 0.28s ease, transform 0.28s ease;
+}
+.consult-days button {
+  min-height: 84px;
+  padding: 14px;
+}
+.consult-days button span {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(13,13,15,0.48);
+}
+.consult-days button strong {
+  display: block;
+  margin-top: 10px;
+  font-size: 18px;
+}
+.consult-times {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+.consult-times button {
+  min-height: 48px;
+  padding: 0 13px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.consult-days button:hover,
+.consult-times button:hover {
+  border-color: rgba(255,106,0,0.5);
+  transform: translateY(-1px);
+}
+.consult-days button.is-active,
+.consult-times button.is-active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--white);
+}
+.consult-days button.is-active span { color: rgba(255,255,255,0.72); }
+.consult-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding: clamp(20px, 3vw, 34px);
+}
+.consult-form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.consult-topic { grid-column: 1 / -1; }
+.consult-form-grid input,
+.consult-form-grid textarea {
+  width: 100%;
+  border: 1px solid rgba(13,13,15,0.16);
+  background: rgba(255,255,255,0.56);
+  color: var(--black);
+  padding: 14px;
+  outline: none;
+  font-size: 15px;
+  transition: border-color 0.3s, background 0.3s;
+}
+.consult-form-grid input:focus,
+.consult-form-grid textarea:focus {
+  border-color: rgba(255,106,0,0.72);
+  background: rgba(255,255,255,0.82);
+}
+.consult-form-grid textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+.consult-form-grid textarea::placeholder { color: rgba(13,13,15,0.42); }
+.consult-submit {
+  width: calc(100% - clamp(40px, 6vw, 68px));
+  min-height: 58px;
+  margin: 0 clamp(20px, 3vw, 34px) clamp(20px, 3vw, 34px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 0;
+  background: var(--accent);
+  color: var(--white);
+  padding: 0 20px 0 24px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  transition: filter 0.28s ease, opacity 0.28s ease;
+}
+.consult-submit:hover { filter: brightness(1.08); }
+.consult-submit:disabled { opacity: 0.45; cursor: wait; }
+.consult-loading,
+.consult-error,
+.consult-field-error {
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.consult-loading,
+.consult-error {
+  grid-column: 1 / -1;
+  color: rgba(13,13,15,0.55);
+}
+.consult-error,
+.consult-field-error { color: #c9432b; }
+.consult-success {
+  border: 1px solid rgba(255,106,0,0.35);
+  background: rgba(255,106,0,0.08);
+  padding: clamp(28px, 4vw, 46px);
+}
+.consult-success h3 {
+  margin: 14px 0 12px;
+  font-size: clamp(34px, 4.8vw, 64px);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+}
+.consult-success p {
+  max-width: 48ch;
+  color: rgba(13,13,15,0.64);
+  line-height: 1.65;
+}
+.consult-success a {
+  display: inline-flex;
+  margin-top: 20px;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.consult-principles {
+  padding: clamp(88px, 9vw, 140px) 0;
+}
+.consult-principles::before {
+  content: "";
+  position: absolute;
+  width: 980px;
+  height: 360px;
+  right: -120px;
+  top: 16%;
+  border: 1px solid rgba(255,106,0,0.16);
+  border-radius: 50%;
+  transform: rotate(-9deg);
+}
+.consult-principles-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(280px, 0.72fr) minmax(560px, 1.18fr);
+  gap: clamp(48px, 7vw, 118px);
+}
+.consult-principles h2 {
+  color: var(--white);
+  max-width: 9.5ch;
+}
+.consult-principle-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-left: 1px solid rgba(245,243,240,0.14);
+}
+.consult-principle-list article {
+  min-height: 260px;
+  padding: clamp(28px, 4vw, 46px);
+  border-right: 1px solid rgba(245,243,240,0.14);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.consult-principle-list span {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+}
+.consult-principle-list h3 {
+  margin: 18px 0 12px;
+  color: var(--white);
+  font-size: clamp(24px, 2.4vw, 34px);
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+.consult-principle-list p {
+  margin: 0;
+  color: rgba(245,243,240,0.58);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+@media (max-width: 1100px) {
+  .consult-booking-grid,
+  .consult-principles-grid { grid-template-columns: 1fr; }
+  .consult-booking-copy { position: relative; top: auto; }
+  .consult-principle-list { grid-template-columns: 1fr; }
+  .consult-principle-list article { min-height: 0; }
+}
+
+@media (max-width: 720px) {
+  .consult-days,
+  .consult-times,
+  .consult-form-grid,
+  .consult-console-head { grid-template-columns: 1fr; }
+  .consult-console-head div { border-right: 0; border-bottom: 1px solid rgba(13,13,15,0.12); }
+  .consult-console-head div:last-child { border-bottom: 0; }
+}
+
 /* ========== CAREERS (public) ========== */
 .careers-page { background: var(--white); }
 .careers-hero,

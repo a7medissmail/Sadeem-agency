@@ -129,3 +129,74 @@ export function applicationNotification({
 </body></html>`.trim();
   return { subject, html };
 }
+
+export function bookingConfirmation({
+  name,
+  slotLabel,
+  meetLink,
+}: {
+  name: string;
+  slotLabel: string;
+  meetLink?: string | null;
+}) {
+  const subject = "Consultation booked - SADEEM";
+  const html = `
+<!doctype html><html><body style="${wrapStyle}">
+  <div style="${cardStyle}">
+    <p style="font-family:Menlo,monospace;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:${accent};margin:0 0 14px">CONSULTATION BOOKED</p>
+    <h1 style="font-size:24px;letter-spacing:-0.02em;margin:0 0 12px">You're booked, ${esc(name)}.</h1>
+    <p style="margin:0 0 16px;color:${dark}">Your SADEEM consultation is scheduled for <strong>${esc(slotLabel)}</strong>.</p>
+    ${
+      meetLink
+        ? `<p style="margin:0 0 16px;color:${dark}">Join link: <a href="${esc(meetLink)}" style="color:${accent}">${esc(meetLink)}</a></p>`
+        : `<p style="margin:0 0 16px;color:${muted}">We'll send the meeting link shortly.</p>`
+    }
+    <p style="margin:0;color:${muted}">We attached a calendar invite so the session lands in your calendar cleanly.</p>
+  </div>
+</body></html>`.trim();
+  return { subject, html };
+}
+
+export function bookingNotification({
+  name,
+  email,
+  phone,
+  topic,
+  slotLabel,
+  meetLink,
+}: {
+  name: string;
+  email: string;
+  phone?: string | null;
+  topic?: string | null;
+  slotLabel: string;
+  meetLink?: string | null;
+}) {
+  const subject = `New consultation booking - ${name}`;
+  const rows = [
+    ["Name", name],
+    ["Email", email],
+    ["Phone", phone || "-"],
+    ["When", slotLabel],
+    ["Meet link", meetLink || "-"],
+    ["Topic", topic || "-"],
+  ]
+    .map(
+      ([k, v]) => `
+      <tr>
+        <td style="padding:8px 0;width:120px;color:${muted};font-family:Menlo,monospace;font-size:11px;letter-spacing:0.16em;text-transform:uppercase;vertical-align:top">${k}</td>
+        <td style="padding:8px 0;color:${dark};vertical-align:top;white-space:pre-wrap">${esc(String(v))}</td>
+      </tr>`,
+    )
+    .join("");
+  const html = `
+<!doctype html><html><body style="${wrapStyle}">
+  <div style="${cardStyle}">
+    <p style="font-family:Menlo,monospace;font-size:11px;letter-spacing:0.28em;text-transform:uppercase;color:${accent};margin:0 0 14px">NEW CONSULTATION</p>
+    <h1 style="font-size:22px;letter-spacing:-0.02em;margin:0 0 8px">${esc(name)}</h1>
+    <p style="margin:0 0 18px;color:${muted}">A visitor booked through the custom consultation flow.</p>
+    <table style="border-collapse:collapse;width:100%">${rows}</table>
+  </div>
+</body></html>`.trim();
+  return { subject, html };
+}

@@ -10,7 +10,7 @@
 SADEEM is a premium cinematic strategic-advisory site that's being turned into a full web app:
 
 - **Public site** (`/`) — cinematic one-pager (hero slider with real photo composites, Why/About/Services/Approach/Cases/Clients/Final CTA). Lenis smooth scroll + Framer Motion reveals + custom CSS atmospheres + real WebP imagery.
-- **Admin app** (`/admin`) — protected back office for staff: dashboard, Users CRUD (live), and Leads / Bookings / Courses / Team / Careers / Applications coming by phase.
+- **Admin app** (`/admin`) — protected back office for staff: dashboard, Users CRUD, Leads, Bookings, Courses, Team, Careers, and Applications.
 - **Backend** — Supabase (Postgres + Auth + Storage), RLS on every table, server actions for writes, service-role key strictly server-side.
 
 ---
@@ -67,7 +67,7 @@ Vercel needs the same env vars under **Project → Settings → Environment Vari
 - ✅ Homepage lead/contact form + admin CRM leads list.
 - ✅ Courses/Workshops public pages + admin CRUD/toggle/image upload.
 
-**Not yet built**: booking UI + Google Calendar, marketing email campaigns.
+**Not yet built**: marketing email campaigns.
 
 ---
 
@@ -149,7 +149,7 @@ HANDOFF.md                       # this file
 | **P2** | Courses/Workshops (public + admin toggle/CRUD + image upload) | ✅ Done |
 | **P3** | Team page + admin CRUD + photo upload | Done |
 | **P4** | Careers + applications (resume upload, pipeline) | Done |
-| **P5** | Consultation booking (custom UI + Google Calendar API) | Planned |
+| **P5** | Consultation booking (custom UI + Google Calendar API) | Done |
 | **P6** | Marketing email campaigns to CRM | Planned |
 
 Each phase ends in a working deployable state. See the full plan: `C:\Users\ahmed\.claude\plans\ok-now-lets-plan-flickering-lampson.md`.
@@ -375,6 +375,31 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 
 ---
 
+### [2026-05-24] P5 - Consultation booking
+
+**Calendar + slots**
+- `lib/google/calendar.ts` implements Google Calendar service-account auth without a new dependency, reads FreeBusy, and inserts events with `conferenceDataVersion=1` so Google Meet links are created when credentials are present.
+- `lib/booking/slots.ts` computes bookable windows from active `availability_rules`, subtracts scheduled local bookings and Google busy intervals, applies buffers, and exposes safe slot data.
+- `/api/consultation/slots` returns live availability for the custom booking UI.
+
+**Public**
+- `/consultation` is a cinematic booking page with a custom slot picker, visitor form, success state, and no iframe.
+- `components/ConsultationBooking.tsx` fetches slots, groups them by day, submits through a Server Action, and shows field-level validation.
+- `lib/actions/bookings.ts` re-checks availability server-side, creates a consultation lead, reserves the booking, creates the Google Calendar event/Meet link when configured, stores event metadata, and sends Resend confirmation/team emails with an `.ics` attachment.
+
+**Admin**
+- `/admin/bookings` is live in the sidebar. It lists consultation bookings, status changes, Meet links, and local/Google event status.
+- The same page includes availability rule create/update/delete controls for weekday windows, slot duration, buffer, and active toggle.
+
+**Database**
+- `supabase/migrations/0008_booking_foundation.sql` adds a unique scheduled-slot index, disables direct public booking inserts (server action only), and seeds default Mon-Thu 10:00-16:00 availability if no rules exist.
+
+**One-time provisioning**
+- Run `supabase/migrations/0008_booking_foundation.sql` in Supabase SQL Editor before accepting production bookings.
+- Add `GOOGLE_SA_EMAIL`, `GOOGLE_SA_PRIVATE_KEY`, `GOOGLE_CALENDAR_ID`, and `GOOGLE_BOOKING_TIMEZONE` in Vercel/Supabase production envs. Without Google env vars, local bookings still work but no Google event/Meet link is created.
+
+---
+
 ### [2026-05-23] P2 follow-ups + P3 (Team) + P4 (Careers/Applications) ✅
 
 Substantial second pass after the P2 baseline. Hardened the course experience, generalized the navbar, then built out P3 + P4 end-to-end.
@@ -406,7 +431,7 @@ Substantial second pass after the P2 baseline. Hardened the course experience, g
 - Public: `/careers` (list of `is_open` postings), `/careers/[slug]` (detail + body + requirements + `JobApplicationForm` that uploads resume to the private bucket, inserts the row, fires confirmation + team notification via Resend).
 - `lib/actions/applications.ts` orchestrates the public submit (validate → upload → insert → email).
 
-**Admin sidebar** now exposes Dashboard, Leads, Courses, Team, Careers, Applications, Users as live routes. Only Bookings is still `soon` (P5).
+**Admin sidebar** now exposes Dashboard, Leads, Bookings, Courses, Team, Careers, Applications, and Users as live routes.
 
 **Tooling**
 - `tsconfig.tsbuildinfo` is now gitignored and untracked (was getting included on every typecheck).

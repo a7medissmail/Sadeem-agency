@@ -45,7 +45,7 @@ export default function MainNavbar({ overDark }: { overDark: boolean }) {
             );
           })}
         </nav>
-        <a className="mainnav-cta" href="/#contact">
+        <a className="mainnav-cta" href="/consultation">
           <span>LET&apos;S TALK</span>
           <Icon.Arrow />
         </a>
