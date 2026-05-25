@@ -14,7 +14,7 @@ const links = [
   { label: "Workshops", href: "/courses" },
   { label: "Team", href: "/team" },
   { label: "Careers", href: "/careers" },
-  { label: "Success stories", href: "/#cases" },
+  { label: "Success stories", href: "/success-stories" },
   { label: "Contact", href: "/#contact" },
 ];
 

@@ -236,6 +236,34 @@ export type Database = {
         Relationships: [];
         Update: Partial<Database["public"]["Tables"]["email_sends"]["Insert"]>;
       };
+      success_stories: {
+        Row: {
+          id: string;
+          slug: string;
+          title: string;
+          client_name: string | null;
+          industry: string | null;
+          summary: string | null;
+          challenge: string | null;
+          solution: string | null;
+          results: string | null;
+          body: string | null;
+          image_url: string | null;
+          metric_value: string | null;
+          metric_label: string | null;
+          sort_order: number;
+          is_published: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["success_stories"]["Row"], "id" | "created_at" | "updated_at"> & {
+          id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+        Update: Partial<Database["public"]["Tables"]["success_stories"]["Insert"]>;
+      };
       site_settings: {
         Row: {
           id: boolean;

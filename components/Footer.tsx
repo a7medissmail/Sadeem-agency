@@ -83,7 +83,7 @@ export default function Footer() {
               { label: "Our approach", href: "/#approach" },
               { label: "Team", href: "/team" },
               { label: "Careers", href: "/careers" },
-              { label: "Success stories", href: "/#cases" },
+              { label: "Success stories", href: "/success-stories" },
             ]}
           />
           <FooterCol

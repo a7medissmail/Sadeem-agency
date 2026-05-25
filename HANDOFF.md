@@ -511,9 +511,36 @@ Substantial second pass after the P2 baseline. Hardened the course experience, g
 
 ---
 
+### [2026-05-25] Production QA + Success Stories foundation
+
+**Production QA fixes**
+- Public first-screen heroes for `/courses`, `/team`, `/careers`, and `/consultation` now render as plain sections instead of `RevealSection` wrappers. This prevents above-the-fold sections from first-painting invisible when Framer's viewport reveal has not fired yet.
+- Consultation copy no longer promises Google Meet unless a Meet link actually exists. Booking UI now says `45 min / Online`, the `.ics` fallback location says meeting details will follow, and confirmation emails use the same language.
+- Contact section now reads the configured footer email from site settings instead of hardcoding `hello@sadeem.agency`.
+- Footer company links now say `Success stories` instead of the parked `Insights` label.
+
+**Success Stories foundation**
+- `supabase/migrations/0012_success_stories.sql` adds `success_stories` plus a public `success-story-images` Storage bucket and RLS policies: public can read only published stories; staff can manage all rows.
+- `types/database.ts` includes the new `success_stories` table shape.
+- Admin CRUD added under `/admin/success-stories` with create/edit pages, publish toggle, delete, image upload, safe rich body editor, metrics, challenge/solution/results fields, and slug validation.
+- Public routes added: `/success-stories` and `/success-stories/[slug]`.
+- Homepage `CasesSection` now loads the first three published stories through `/api/success-stories?limit=3`, with the previous static cards kept as a fallback until the database migration is applied and stories are published.
+- Navbar/footer Success Stories links now point to `/success-stories`.
+
+**Verification**
+- `npx tsc --noEmit` clean.
+- `npm run build` clean.
+- Local smoke: `/`, `/success-stories`, `/admin/success-stories`, `/admin/success-stories/new`, `/api/success-stories?limit=3`.
+- Mobile overflow check for `/` and `/success-stories`: `scrollWidth === viewport width`.
+
+**One-time provisioning**
+- Run `supabase/migrations/0012_success_stories.sql` in Supabase SQL Editor before using the Success Stories admin in production.
+
+---
+
 ## 11. Open / parked items
 
-- **Success Stories product plan**: add a `success_stories` content model with `title`, `slug`, `industry`, `challenge`, `intervention`, `outcome`, `metrics` jsonb, `quote`, `cover_image_url`, `is_published`, and `sort_order`; public routes `/success-stories` and `/success-stories/[slug]`; admin CRUD with image upload and publish toggle. The homepage `#cases` section should later pull from the first 3 published stories instead of static cards.
+- **Success Stories follow-up**: apply migration `0012_success_stories.sql` on production, add the first real stories from admin, then remove/replace the homepage fallback cards once the content library is populated.
 - **Email template polish backlog**: build branded templates for lead confirmation, internal lead notification, course registration, consultation booking, application received, application rejected, and campaign updates. Add stronger sender copy, logo header, footer social links, unsubscribe/legal text, and a consistent CTA slot. Automation ideas: new job alert to opted-in leads, application status changes, booking reminder, post-consultation follow-up, and course waitlist updates.
 - **Slide-1 faint foreground wisp** in front of the figure for extra depth (backlog).
 - **Stale `.next/types/app/page.ts`** may need clearing once after the marketing route group move; `tsc` is clean now.
