@@ -72,10 +72,10 @@ export default function JobForm({ mode, job }: { mode: "create" | "edit"; job?: 
   }
 
   return (
-    <form action={formAction} className="flex max-w-[820px] flex-col gap-6">
+    <form action={formAction} className="flex max-w-[920px] flex-col gap-6 border border-[var(--admin-border)] bg-[var(--admin-panel)] p-6">
       {job?.id ? <input type="hidden" name="id" value={job.id} /> : null}
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid gap-4 md:grid-cols-2">
         <FieldRow label="Title">
           <Input
             name="title"
@@ -139,8 +139,8 @@ export default function JobForm({ mode, job }: { mode: "create" | "edit"; job?: 
 
         <FieldRow label="Open (visible on public careers)">
           <span className="mt-1 inline-flex cursor-pointer select-none items-center gap-3">
-            <input type="checkbox" name="is_open" defaultChecked={job?.is_open ?? false} className="h-4 w-4 accent-[#ff6a00]" />
-            <span className="text-[13.5px] text-white/80">Accept applications</span>
+            <input type="checkbox" name="is_open" defaultChecked={job?.is_open ?? false} className="h-4 w-4 accent-[var(--admin-accent)]" />
+            <span className="text-[13.5px] text-[var(--admin-muted)]">Accept applications</span>
           </span>
         </FieldRow>
       </div>
@@ -154,7 +154,7 @@ export default function JobForm({ mode, job }: { mode: "create" | "edit"; job?: 
           spellCheck={false}
           onKeyDown={onCodeEditorKeyDown}
           aria-invalid={Boolean(errors.body)}
-          className="min-h-[280px] font-mono text-[13px] leading-relaxed text-white/90 [tab-size:2]"
+          className="min-h-[280px] font-mono text-[13px] leading-relaxed text-[var(--admin-text)] [tab-size:2]"
           placeholder={`<p>Describe the role, mission, and impact.</p>\n<ul><li>What they will own</li><li>How they will work</li></ul>`}
         />
         <FieldError messages={errors.body} />
@@ -169,7 +169,7 @@ export default function JobForm({ mode, job }: { mode: "create" | "edit"; job?: 
           spellCheck={false}
           onKeyDown={onCodeEditorKeyDown}
           aria-invalid={Boolean(errors.requirements)}
-          className="min-h-[220px] font-mono text-[13px] leading-relaxed text-white/90 [tab-size:2]"
+          className="min-h-[220px] font-mono text-[13px] leading-relaxed text-[var(--admin-text)] [tab-size:2]"
           placeholder={`<ul><li>Operator mindset</li><li>Strong writing and analytical judgment</li></ul>`}
         />
         <FieldError messages={errors.requirements} />
@@ -183,7 +183,7 @@ export default function JobForm({ mode, job }: { mode: "create" | "edit"; job?: 
 
       <div className="flex items-center gap-4 pt-2">
         <SaveButton mode={mode} />
-        <Link href="/admin/jobs" className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-white/55 hover:text-white">
+        <Link href="/admin/jobs" className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-[var(--admin-muted)] hover:text-[var(--admin-text)]">
           Cancel
         </Link>
       </div>

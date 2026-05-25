@@ -15,6 +15,9 @@ async function dashboardData() {
     recentLeads,
     upcomingBookings,
     recentApplications,
+    leadStatuses,
+    bookingStatuses,
+    applicationStatuses,
   ] = await Promise.all([
     supabase.from("leads").select("*", { count: "exact", head: true }),
     supabase.from("bookings").select("*", { count: "exact", head: true }),
@@ -33,6 +36,9 @@ async function dashboardData() {
       .select("id, name, email, status, created_at")
       .order("created_at", { ascending: false })
       .limit(5),
+    supabase.from("leads").select("status").limit(1000),
+    supabase.from("bookings").select("status").limit(1000),
+    supabase.from("applications").select("status").limit(1000),
   ]);
 
   for (const result of [
@@ -43,8 +49,18 @@ async function dashboardData() {
     recentLeads,
     upcomingBookings,
     recentApplications,
+    leadStatuses,
+    bookingStatuses,
+    applicationStatuses,
   ]) {
     if (result.error) throw result.error;
+  }
+
+  function countStatuses(rows: { status: string }[]) {
+    return rows.reduce<Record<string, number>>((acc, row) => {
+      acc[row.status] = (acc[row.status] ?? 0) + 1;
+      return acc;
+    }, {});
   }
 
   return {
@@ -53,6 +69,11 @@ async function dashboardData() {
       bookings: bookingsCount.count ?? 0,
       activeCourses: activeCoursesCount.count ?? 0,
       applications: applicationsCount.count ?? 0,
+    },
+    statusCounts: {
+      leads: countStatuses(leadStatuses.data ?? []),
+      bookings: countStatuses(bookingStatuses.data ?? []),
+      applications: countStatuses(applicationStatuses.data ?? []),
     },
     recentLeads: recentLeads.data ?? [],
     upcomingBookings: upcomingBookings.data ?? [],
@@ -80,6 +101,53 @@ function Panel({ title, href, children }: { title: string; href: string; childre
   );
 }
 
+function StatusBar({ label, value, total, tone = "accent" }: { label: string; value: number; total: number; tone?: "accent" | "muted" | "danger" }) {
+  const pct = total > 0 ? Math.max(4, Math.round((value / total) * 100)) : 0;
+  const fill =
+    tone === "danger"
+      ? "bg-[var(--admin-danger)]"
+      : tone === "muted"
+        ? "bg-[var(--admin-muted)]"
+        : "bg-[var(--admin-accent)]";
+
+  return (
+    <div className="grid grid-cols-[122px_1fr_36px] items-center gap-3">
+      <span className="truncate font-mono text-[10px] uppercase tracking-[0.17em] text-[var(--admin-subtle)]">{label}</span>
+      <span className="h-1.5 overflow-hidden rounded-full bg-[var(--admin-border-soft)]">
+        <span className={`block h-full origin-left rounded-full ${fill}`} style={{ transform: `scaleX(${pct / 100})` }} />
+      </span>
+      <span className="text-right font-mono text-[10px] text-[var(--admin-muted)]">{value}</span>
+    </div>
+  );
+}
+
+function PulsePanel({
+  title,
+  total,
+  rows,
+}: {
+  title: string;
+  total: number;
+  rows: { label: string; value: number; tone?: "accent" | "muted" | "danger" }[];
+}) {
+  return (
+    <section className="rounded-xl border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
+      <div className="mb-5 flex items-start justify-between gap-4">
+        <div>
+          <h2 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-muted)]">{title}</h2>
+          <p className="mt-2 text-[13px] text-[var(--admin-subtle)]">Live distribution</p>
+        </div>
+        <span className="font-mono text-[22px] leading-none text-[var(--admin-text)]">{total}</span>
+      </div>
+      <div className="flex flex-col gap-3">
+        {rows.map((row) => (
+          <StatusBar key={row.label} label={row.label} value={row.value} total={total} tone={row.tone} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default async function AdminDashboard() {
   const profile = await getCurrentProfile();
   let data: Awaited<ReturnType<typeof dashboardData>> | null = null;
@@ -101,8 +169,13 @@ export default async function AdminDashboard() {
     { label: "Add workshop", href: "/admin/courses/new" },
     { label: "Add story", href: "/admin/success-stories/new" },
     { label: "Add job", href: "/admin/jobs/new" },
+    { label: "Build form", href: "/admin/forms/new" },
     { label: "Site settings", href: "/admin/settings" },
   ];
+
+  const newLeads = data?.statusCounts.leads.new ?? 0;
+  const scheduledBookings = data?.statusCounts.bookings.scheduled ?? 0;
+  const reviewApplications = (data?.statusCounts.applications.review ?? 0) + (data?.statusCounts.applications.interview ?? 0);
 
   return (
     <div className="flex flex-col gap-8">
@@ -143,6 +216,58 @@ export default async function AdminDashboard() {
           </Link>
         ))}
       </div>
+
+      <section className="rounded-xl border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
+        <div className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr] xl:items-center">
+          <div>
+            <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">THE BRIEF</p>
+            <h2 className="mt-2 max-w-[15ch] text-[32px] font-semibold leading-[1.02] tracking-tight">
+              A calm day with clear signals.
+            </h2>
+          </div>
+          <p className="max-w-[72ch] text-[15px] leading-relaxed text-[var(--admin-muted)]">
+            {newLeads} new leads need triage, {scheduledBookings} consultations are scheduled, and {reviewApplications} candidates
+            are in active review. The next admin pass should turn these signals into assigned work, reminders, and clean handoffs.
+          </p>
+        </div>
+      </section>
+
+      {data ? (
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+          <PulsePanel
+            title="Lead pipeline"
+            total={data.counts.leads}
+            rows={[
+              { label: "New", value: data.statusCounts.leads.new ?? 0 },
+              { label: "Contacted", value: data.statusCounts.leads.contacted ?? 0, tone: "muted" },
+              { label: "Qualified", value: data.statusCounts.leads.qualified ?? 0 },
+              { label: "Won", value: data.statusCounts.leads.won ?? 0 },
+              { label: "Lost", value: data.statusCounts.leads.lost ?? 0, tone: "danger" },
+            ]}
+          />
+          <PulsePanel
+            title="Booking health"
+            total={data.counts.bookings}
+            rows={[
+              { label: "Scheduled", value: data.statusCounts.bookings.scheduled ?? 0 },
+              { label: "Completed", value: data.statusCounts.bookings.completed ?? 0, tone: "muted" },
+              { label: "No show", value: data.statusCounts.bookings.no_show ?? 0, tone: "danger" },
+              { label: "Cancelled", value: data.statusCounts.bookings.cancelled ?? 0, tone: "danger" },
+            ]}
+          />
+          <PulsePanel
+            title="Hiring funnel"
+            total={data.counts.applications}
+            rows={[
+              { label: "New", value: data.statusCounts.applications.new ?? 0 },
+              { label: "Review", value: data.statusCounts.applications.review ?? 0 },
+              { label: "Interview", value: data.statusCounts.applications.interview ?? 0 },
+              { label: "Offer", value: data.statusCounts.applications.offer ?? 0 },
+              { label: "Rejected", value: data.statusCounts.applications.rejected ?? 0, tone: "danger" },
+            ]}
+          />
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Panel title="Latest leads" href="/admin/leads">

@@ -12,6 +12,19 @@ export type JobType = "job" | "internship";
 export type ApplicationStatus = "new" | "review" | "interview" | "offer" | "rejected";
 export type CampaignStatus = "draft" | "sending" | "sent" | "failed";
 export type CourseCurrency = "SAR" | "USD" | "EUR" | "AED" | "EGP" | "GBP";
+export type FormPurpose = "lead" | "application" | "consultation" | "proposal" | "generic";
+export type FormFieldType =
+  | "text"
+  | "textarea"
+  | "email"
+  | "phone"
+  | "url"
+  | "select"
+  | "multiselect"
+  | "checkbox"
+  | "file"
+  | "date";
+export type FormSubmissionStatus = "new" | "reviewed" | "converted" | "archived";
 
 export type Database = {
   public: {
@@ -184,15 +197,158 @@ export type Database = {
           resume_url: string | null;
           cover_note: string | null;
           status: ApplicationStatus;
+          owner_id: string | null;
+          score: number | null;
+          portfolio_url: string | null;
+          linkedin_url: string | null;
+          custom_answers: Json;
           created_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["applications"]["Row"], "id" | "created_at" | "status"> & {
+        Insert: Omit<
+          Database["public"]["Tables"]["applications"]["Row"],
+          "id" | "created_at" | "status" | "owner_id" | "score" | "portfolio_url" | "linkedin_url" | "custom_answers"
+        > & {
           id?: string;
           status?: ApplicationStatus;
+          owner_id?: string | null;
+          score?: number | null;
+          portfolio_url?: string | null;
+          linkedin_url?: string | null;
+          custom_answers?: Json;
           created_at?: string;
         };
         Relationships: [];
         Update: Partial<Database["public"]["Tables"]["applications"]["Insert"]>;
+      };
+      application_notes: {
+        Row: {
+          id: string;
+          application_id: string;
+          author_id: string | null;
+          note: string;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["application_notes"]["Row"], "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+        Update: Partial<Database["public"]["Tables"]["application_notes"]["Insert"]>;
+      };
+      application_status_history: {
+        Row: {
+          id: string;
+          application_id: string;
+          from_status: ApplicationStatus | null;
+          to_status: ApplicationStatus;
+          actor_id: string | null;
+          note: string | null;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["application_status_history"]["Row"], "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+        Update: Partial<Database["public"]["Tables"]["application_status_history"]["Insert"]>;
+      };
+      forms: {
+        Row: {
+          id: string;
+          slug: string;
+          name: string;
+          purpose: FormPurpose;
+          description: string | null;
+          submit_label: string;
+          success_message: string | null;
+          is_active: boolean;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<
+          Database["public"]["Tables"]["forms"]["Row"],
+          "id" | "created_at" | "updated_at" | "purpose" | "submit_label" | "is_active" | "created_by"
+        > & {
+          id?: string;
+          purpose?: FormPurpose;
+          submit_label?: string;
+          is_active?: boolean;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+        Update: Partial<Database["public"]["Tables"]["forms"]["Insert"]>;
+      };
+      form_fields: {
+        Row: {
+          id: string;
+          form_id: string;
+          label: string;
+          field_key: string;
+          type: FormFieldType;
+          placeholder: string | null;
+          help_text: string | null;
+          options: Json;
+          is_required: boolean;
+          sort_order: number;
+          config: Json;
+          created_at: string;
+        };
+        Insert: Omit<
+          Database["public"]["Tables"]["form_fields"]["Row"],
+          "id" | "created_at" | "options" | "is_required" | "sort_order" | "config"
+        > & {
+          id?: string;
+          options?: Json;
+          is_required?: boolean;
+          sort_order?: number;
+          config?: Json;
+          created_at?: string;
+        };
+        Relationships: [];
+        Update: Partial<Database["public"]["Tables"]["form_fields"]["Insert"]>;
+      };
+      form_submissions: {
+        Row: {
+          id: string;
+          form_id: string;
+          respondent_name: string | null;
+          respondent_email: string | null;
+          related_type: string | null;
+          related_id: string | null;
+          status: FormSubmissionStatus;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: Omit<
+          Database["public"]["Tables"]["form_submissions"]["Row"],
+          "id" | "created_at" | "status" | "metadata"
+        > & {
+          id?: string;
+          status?: FormSubmissionStatus;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Relationships: [];
+        Update: Partial<Database["public"]["Tables"]["form_submissions"]["Insert"]>;
+      };
+      form_answers: {
+        Row: {
+          id: string;
+          submission_id: string;
+          field_id: string | null;
+          field_key: string;
+          value: Json;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["form_answers"]["Row"], "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+        Update: Partial<Database["public"]["Tables"]["form_answers"]["Insert"]>;
       };
       email_campaigns: {
         Row: {

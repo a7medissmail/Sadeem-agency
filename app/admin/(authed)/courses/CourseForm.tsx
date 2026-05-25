@@ -96,11 +96,11 @@ export default function CourseForm({
   }
 
   return (
-    <form action={formAction} encType="multipart/form-data" className="flex max-w-[760px] flex-col gap-6">
+    <form action={formAction} encType="multipart/form-data" className="flex max-w-[900px] flex-col gap-6 border border-[var(--admin-border)] bg-[var(--admin-panel)] p-6">
       {course?.id ? <input type="hidden" name="id" value={course.id} /> : null}
       {course?.image_url ? <input type="hidden" name="image_url" value={course.image_url} /> : null}
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid gap-4 md:grid-cols-2">
         <FieldRow label="Title">
           <Input
             name="title"
@@ -150,17 +150,17 @@ export default function CourseForm({
           aria-invalid={Boolean(errors.body)}
           spellCheck={false}
           onKeyDown={onCodeEditorKeyDown}
-          className="min-h-[320px] font-mono text-[13px] leading-relaxed text-white/90 [tab-size:2]"
+          className="min-h-[320px] font-mono text-[13px] leading-relaxed text-[var(--admin-text)] [tab-size:2]"
           placeholder={`<p>Describe the workshop.</p>\n<p>Use <strong>HTML</strong>, <br>, lists, links, images, and safe inline styles.</p>`}
         />
-        <p className="text-[12px] leading-relaxed text-white/45">
+        <p className="text-[12px] leading-relaxed text-[var(--admin-subtle)]">
           Public output is sanitized: scripts, event handlers, iframes, unsafe URLs, global style tags, and arbitrary
           classes are removed. Use inline style attributes for small typography tweaks.
         </p>
         <FieldError messages={errors.body} />
       </FieldRow>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid gap-4 md:grid-cols-2">
         <FieldRow label="Location">
           <Input
             name="location"
@@ -239,22 +239,22 @@ export default function CourseForm({
               type="checkbox"
               name="is_active"
               defaultChecked={course?.is_active ?? false}
-              className="h-4 w-4 accent-[#ff6a00]"
+              className="h-4 w-4 accent-[var(--admin-accent)]"
             />
-            <span className="text-[13.5px] text-white/80">Publish</span>
+            <span className="text-[13.5px] text-[var(--admin-muted)]">Publish</span>
           </span>
         </FieldRow>
       </div>
 
-      <div className="flex flex-col gap-3 border-t border-white/10 pt-6">
+      <div className="flex flex-col gap-3 border-t border-[var(--admin-border-soft)] pt-6">
         <FieldRow label="Cover image (PNG / JPG / WebP, < 5 MB)">
           <Input name="image_file" type="file" accept="image/png,image/jpeg,image/webp" />
         </FieldRow>
 
         {course?.image_url ? (
-          <p className="text-[12.5px] text-white/50">
+          <p className="text-[12.5px] text-[var(--admin-muted)]">
             Currently using{" "}
-            <a href={course.image_url} target="_blank" rel="noreferrer" className="underline hover:text-[#ff6a00]">
+            <a href={course.image_url} target="_blank" rel="noreferrer" className="underline hover:text-[var(--admin-accent)]">
               {course.image_url.split("/").pop()}
             </a>
             . Upload a new file to replace.
@@ -272,7 +272,7 @@ export default function CourseForm({
         <SaveButton mode={mode} />
         <Link
           href="/admin/courses"
-          className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-white/55 hover:text-white"
+          className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-[var(--admin-muted)] hover:text-[var(--admin-text)]"
         >
           Cancel
         </Link>

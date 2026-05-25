@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Badge } from "@/components/admin/ui/Badge";
 import { Button } from "@/components/admin/ui/Button";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
-import { EmptyState, TableShell } from "@/components/admin/ui/Table";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { deleteJobAction, toggleJobOpenAction } from "./actions";
@@ -23,16 +22,28 @@ async function loadJobs() {
   }
 }
 
+function MetricCard({ label, value, hint }: { label: string; value: number | string; hint: string }) {
+  return (
+    <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
+      <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">{label}</p>
+      <div className="mt-3 text-[30px] font-semibold leading-none text-[var(--admin-text)]">{value}</div>
+      <p className="mt-3 text-[12.5px] text-[var(--admin-muted)]">{hint}</p>
+    </div>
+  );
+}
+
 export default async function JobsAdminPage() {
   await requireRole(["admin", "editor", "viewer"]);
   const { jobs, error } = await loadJobs();
+  const openCount = jobs.filter((job) => job.is_open).length;
+  const internshipCount = jobs.filter((job) => job.type === "internship").length;
 
   return (
     <div className="flex flex-col gap-8">
       <PageHeader
         eyebrow="CAREERS"
-        title="Jobs"
-        description="Publish roles and internships. Open roles appear publicly and accept applications."
+        title="Roles"
+        description="Publish roles and internships. Open roles appear publicly and feed the hiring board."
         actions={
           <Link href="/admin/jobs/new">
             <Button>New role</Button>
@@ -42,62 +53,83 @@ export default async function JobsAdminPage() {
 
       {error ? (
         <div className="rounded-md border border-amber-500/30 bg-amber-500/[0.06] px-4 py-3 text-[13px] text-amber-200">
-          Couldn&apos;t load jobs: <code>{error}</code>
+          Couldn&apos;t load roles: <code>{error}</code>
         </div>
       ) : null}
 
-      <TableShell>
-        <div
-          style={{ gridTemplateColumns: "1.45fr 0.75fr 0.8fr 0.85fr 0.6fr 0.7fr 0.5fr" }}
-          className="grid gap-4 border-b border-white/10 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white/45"
-        >
-          <div>Role</div>
-          <div>Type</div>
-          <div>Department</div>
-          <div>Location</div>
-          <div>Status</div>
-          <div>Toggle</div>
-          <div></div>
+      <section className="grid gap-4 xl:grid-cols-[1fr_0.85fr]">
+        <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
+          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">Hiring OS</p>
+          <h2 className="mt-2 max-w-[13ch] text-[34px] font-semibold leading-[1.02] tracking-tight text-[var(--admin-text)]">
+            Define the seat before the pipeline fills.
+          </h2>
+          <p className="mt-4 max-w-[68ch] text-[14.5px] leading-relaxed text-[var(--admin-muted)]">
+            Roles are the source of truth for public careers pages and the candidate pipeline.
+          </p>
         </div>
+        <div className="grid grid-cols-3 gap-3">
+          <MetricCard label="Total" value={jobs.length} hint="All roles" />
+          <MetricCard label="Open" value={openCount} hint="Accepting applications" />
+          <MetricCard label="Internships" value={internshipCount} hint="Early talent tracks" />
+        </div>
+      </section>
 
-        {jobs.length === 0 ? (
-          <EmptyState title="No roles yet." hint="Click 'New role' to publish the first career opening." />
-        ) : (
-          jobs.map((job) => (
-            <div
-              key={job.id}
-              style={{ gridTemplateColumns: "1.45fr 0.75fr 0.8fr 0.85fr 0.6fr 0.7fr 0.5fr" }}
-              className="grid items-center gap-4 border-b border-white/5 px-5 py-3 text-[13.5px] last:border-0"
-            >
-              <div className="min-w-0">
-                <Link href={`/admin/jobs/${job.id}`} className="block truncate text-white/95 hover:text-[#ff6a00]">
-                  {job.title}
-                </Link>
-                <div className="truncate font-mono text-[11px] text-white/40">/{job.slug}</div>
-              </div>
-              <div className="capitalize text-white/70">{job.type}</div>
-              <div className="truncate text-white/70">{job.department || "-"}</div>
-              <div className="truncate text-white/70">{job.location || "-"}</div>
-              <div>
+      {jobs.length === 0 ? (
+        <div className="border border-dashed border-[var(--admin-border)] bg-[var(--admin-panel)] px-5 py-12 text-center text-[13px] text-[var(--admin-subtle)]">
+          No roles yet. Publish the first opening.
+        </div>
+      ) : (
+        <section className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
+          {jobs.map((job) => (
+            <article key={job.id} className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5 transition-colors hover:border-[var(--admin-accent)]">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <Link href={`/admin/jobs/${job.id}`} className="block text-[22px] font-semibold leading-tight text-[var(--admin-text)] hover:text-[var(--admin-accent)]">
+                    {job.title}
+                  </Link>
+                  <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">/{job.slug}</p>
+                </div>
                 <Badge tone={job.is_open ? "green" : "neutral"}>{job.is_open ? "Open" : "Closed"}</Badge>
               </div>
-              <form action={toggleJobOpenAction}>
-                <input type="hidden" name="id" value={job.id} />
-                <input type="hidden" name="next" value={job.is_open ? "off" : "on"} />
-                <Button type="submit" variant={job.is_open ? "ghost" : "outline"} size="sm">
-                  {job.is_open ? "Close" : "Open"}
-                </Button>
-              </form>
-              <form action={deleteJobAction}>
-                <input type="hidden" name="id" value={job.id} />
-                <Button type="submit" variant="danger" size="sm">
-                  Del
-                </Button>
-              </form>
-            </div>
-          ))
-        )}
-      </TableShell>
+
+              <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-[var(--admin-border-soft)] pt-5 text-[12.5px]">
+                <div>
+                  <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Type</dt>
+                  <dd className="mt-1 capitalize text-[var(--admin-muted)]">{job.type}</dd>
+                </div>
+                <div>
+                  <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Department</dt>
+                  <dd className="mt-1 truncate text-[var(--admin-muted)]">{job.department || "-"}</dd>
+                </div>
+                <div>
+                  <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Location</dt>
+                  <dd className="mt-1 truncate text-[var(--admin-muted)]">{job.location || "-"}</dd>
+                </div>
+                <div>
+                  <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Created</dt>
+                  <dd className="mt-1 text-[var(--admin-muted)]">{new Date(job.created_at).toLocaleDateString()}</dd>
+                </div>
+              </dl>
+
+              <div className="mt-6 flex flex-wrap items-center gap-2">
+                <form action={toggleJobOpenAction}>
+                  <input type="hidden" name="id" value={job.id} />
+                  <input type="hidden" name="next" value={job.is_open ? "off" : "on"} />
+                  <Button type="submit" variant={job.is_open ? "ghost" : "outline"} size="sm">
+                    {job.is_open ? "Close" : "Open"}
+                  </Button>
+                </form>
+                <form action={deleteJobAction}>
+                  <input type="hidden" name="id" value={job.id} />
+                  <Button type="submit" variant="danger" size="sm">
+                    Delete
+                  </Button>
+                </form>
+              </div>
+            </article>
+          ))}
+        </section>
+      )}
     </div>
   );
 }

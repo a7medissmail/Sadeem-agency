@@ -1,31 +1,12 @@
-import { Badge } from "@/components/admin/ui/Badge";
-import { Button } from "@/components/admin/ui/Button";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { applicationStatuses } from "@/lib/validation/careers";
-import type { ApplicationStatus } from "@/types/database";
-import { deleteApplicationAction, updateApplicationStatusAction } from "./actions";
+import type { ApplicationStatus, Json } from "@/types/database";
+import { ApplicationsBoard, type ApplicationBoardRow, type StaffRow } from "./ApplicationsBoard";
 
 export const metadata = { title: "Applications - SADEEM Admin" };
 
 const RESUME_BUCKET = "application-resumes";
-
-const statusLabels: Record<ApplicationStatus, string> = {
-  new: "New",
-  review: "Review",
-  interview: "Interview",
-  offer: "Offer",
-  rejected: "Rejected",
-};
-
-const statusTones: Record<ApplicationStatus, "orange" | "blue" | "violet" | "green" | "red"> = {
-  new: "orange",
-  review: "blue",
-  interview: "violet",
-  offer: "green",
-  rejected: "red",
-};
 
 type ApplicationRow = {
   id: string;
@@ -36,6 +17,11 @@ type ApplicationRow = {
   resume_url: string | null;
   cover_note: string | null;
   status: ApplicationStatus;
+  owner_id: string | null;
+  score: number | null;
+  portfolio_url: string | null;
+  linkedin_url: string | null;
+  custom_answers: Json;
   created_at: string;
 };
 
@@ -44,6 +30,24 @@ type JobLite = {
   title: string;
   slug: string;
   type: string;
+};
+
+type ApplicationNoteRow = {
+  id: string;
+  application_id: string;
+  author_id: string | null;
+  note: string;
+  created_at: string;
+};
+
+type ApplicationHistoryRow = {
+  id: string;
+  application_id: string;
+  from_status: ApplicationStatus | null;
+  to_status: ApplicationStatus;
+  actor_id: string | null;
+  note: string | null;
+  created_at: string;
 };
 
 async function signedResumeUrl(path: string | null): Promise<string | null> {
@@ -61,12 +65,27 @@ async function loadApplications() {
     const admin = getSupabaseAdmin();
     const { data: applications, error } = await admin
       .from("applications")
-      .select("id, job_id, name, email, phone, resume_url, cover_note, status, created_at")
+      .select(
+        "id, job_id, name, email, phone, resume_url, cover_note, status, owner_id, score, portfolio_url, linkedin_url, custom_answers, created_at",
+      )
       .order("created_at", { ascending: false });
     if (error) throw error;
 
-    const jobIds = [...new Set((applications ?? []).map((application) => application.job_id))];
+    const applicationRows = (applications ?? []) as ApplicationRow[];
+    const jobIds = [...new Set(applicationRows.map((application) => application.job_id))];
+    const applicationIds = applicationRows.map((application) => application.id);
     const jobsById = new Map<string, JobLite>();
+    const staffById = new Map<string, StaffRow>();
+    const notesByApplication = new Map<string, ApplicationNoteRow[]>();
+    const historyByApplication = new Map<string, ApplicationHistoryRow[]>();
+
+    const { data: staff, error: staffError } = await admin
+      .from("profiles")
+      .select("id, full_name, role")
+      .in("role", ["admin", "editor"])
+      .order("full_name", { ascending: true });
+    if (staffError) throw staffError;
+    for (const member of (staff ?? []) as StaffRow[]) staffById.set(member.id, member);
 
     if (jobIds.length > 0) {
       const { data: jobs, error: jobsError } = await admin
@@ -77,28 +96,58 @@ async function loadApplications() {
       for (const job of jobs ?? []) jobsById.set(job.id, job);
     }
 
+    if (applicationIds.length > 0) {
+      const [notesResult, historyResult] = await Promise.all([
+        admin
+          .from("application_notes")
+          .select("id, application_id, author_id, note, created_at")
+          .in("application_id", applicationIds)
+          .order("created_at", { ascending: false })
+          .limit(500),
+        admin
+          .from("application_status_history")
+          .select("id, application_id, from_status, to_status, actor_id, note, created_at")
+          .in("application_id", applicationIds)
+          .order("created_at", { ascending: false })
+          .limit(500),
+      ]);
+      if (notesResult.error) throw notesResult.error;
+      if (historyResult.error) throw historyResult.error;
+
+      for (const note of (notesResult.data ?? []) as ApplicationNoteRow[]) {
+        notesByApplication.set(note.application_id, [...(notesByApplication.get(note.application_id) ?? []), note]);
+      }
+      for (const event of (historyResult.data ?? []) as ApplicationHistoryRow[]) {
+        historyByApplication.set(event.application_id, [...(historyByApplication.get(event.application_id) ?? []), event]);
+      }
+    }
+
     const rows = await Promise.all(
-      (applications ?? []).map(async (application) => ({
+      applicationRows.map(async (application): Promise<ApplicationBoardRow> => ({
         ...application,
         job: jobsById.get(application.job_id) ?? null,
+        ownerName: application.owner_id ? staffById.get(application.owner_id)?.full_name ?? "Unnamed owner" : null,
+        notes: (notesByApplication.get(application.id) ?? []).map((note) => ({
+          ...note,
+          authorName: note.author_id ? staffById.get(note.author_id)?.full_name ?? "SADEEM team" : "SADEEM team",
+        })),
+        history: (historyByApplication.get(application.id) ?? []).map((event) => ({
+          ...event,
+          actorName: event.actor_id ? staffById.get(event.actor_id)?.full_name ?? "SADEEM team" : "SADEEM team",
+        })),
         resumeDownloadUrl: await signedResumeUrl(application.resume_url),
       })),
     );
 
-    return { applications: rows, error: null as string | null };
+    return { applications: rows, staff: (staff ?? []) as StaffRow[], error: null as string | null };
   } catch (err) {
-    return { applications: [], error: err instanceof Error ? err.message : "Unknown error" };
+    return { applications: [], staff: [], error: err instanceof Error ? err.message : "Unknown error" };
   }
 }
 
 export default async function ApplicationsAdminPage() {
   await requireRole(["admin", "editor", "viewer"]);
-  const { applications, error } = await loadApplications();
-  const dateFmt = new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short" });
-  const grouped = applicationStatuses.map((status) => ({
-    status,
-    items: applications.filter((application) => application.status === status),
-  }));
+  const { applications, staff, error } = await loadApplications();
 
   return (
     <div className="flex flex-col gap-8">
@@ -114,80 +163,7 @@ export default async function ApplicationsAdminPage() {
         </div>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
-        {grouped.map((column) => (
-          <section key={column.status} className="min-h-[420px] border border-white/10 bg-white/[0.025] p-4">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <Badge tone={statusTones[column.status]}>{statusLabels[column.status]}</Badge>
-              <span className="font-mono text-[10px] text-white/35">{String(column.items.length).padStart(2, "0")}</span>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              {column.items.length === 0 ? (
-                <div className="border border-dashed border-white/10 px-3 py-8 text-center text-[12.5px] text-white/35">
-                  No candidates
-                </div>
-              ) : (
-                column.items.map((application) => (
-                  <article key={application.id} className="border border-white/10 bg-[#0a0b0d] p-4">
-                    <div className="font-semibold text-white/95">{application.name}</div>
-                    <div className="mt-1 text-[12.5px] text-white/50">{application.job?.title ?? "Deleted role"}</div>
-                    <div className="mt-3 flex flex-col gap-1.5 font-mono text-[10.5px] text-white/45">
-                      <a href={`mailto:${application.email}`} className="hover:text-[#ff6a00]">{application.email}</a>
-                      {application.phone ? <span>{application.phone}</span> : null}
-                      <span>{dateFmt.format(new Date(application.created_at))}</span>
-                    </div>
-
-                    {application.cover_note ? (
-                      <p className="mt-3 line-clamp-4 text-[12.5px] leading-relaxed text-white/58">
-                        {application.cover_note}
-                      </p>
-                    ) : null}
-
-                    <div className="mt-4 flex flex-wrap items-center gap-2">
-                      {application.resumeDownloadUrl ? (
-                        <a
-                          href={application.resumeDownloadUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#ff6a00] hover:text-[#ff8c3a]"
-                        >
-                          Resume
-                        </a>
-                      ) : (
-                        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/30">
-                          No resume
-                        </span>
-                      )}
-                    </div>
-
-                    <form action={updateApplicationStatusAction} className="mt-4 flex items-center gap-2">
-                      <input type="hidden" name="id" value={application.id} />
-                      <select
-                        name="status"
-                        defaultValue={application.status}
-                        className="min-w-0 flex-1 border border-white/10 bg-[#111214] px-2 py-1.5 text-[12px] text-white/80 outline-none focus:border-[#ff6a00]"
-                      >
-                        {applicationStatuses.map((status) => (
-                          <option key={status} value={status}>
-                            {statusLabels[status]}
-                          </option>
-                        ))}
-                      </select>
-                      <Button type="submit" size="sm" variant="outline">Save</Button>
-                    </form>
-
-                    <form action={deleteApplicationAction} className="mt-2">
-                      <input type="hidden" name="id" value={application.id} />
-                      <Button type="submit" size="sm" variant="danger">Delete</Button>
-                    </form>
-                  </article>
-                ))
-              )}
-            </div>
-          </section>
-        ))}
-      </div>
+      <ApplicationsBoard applications={applications} staff={staff} />
     </div>
   );
 }

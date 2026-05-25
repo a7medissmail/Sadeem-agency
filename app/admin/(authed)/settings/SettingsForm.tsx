@@ -32,7 +32,7 @@ function socialValue(socials: Json | null | undefined, platform: SocialPlatform)
 function PreviewLogo({ url, tone }: { url: string | null; tone: "dark" | "light" }) {
   if (!url) return null;
   return (
-    <div className={tone === "dark" ? "border border-white/10 bg-white p-4" : "border border-white/10 bg-black p-4"}>
+    <div className={tone === "dark" ? "border border-[var(--admin-border)] bg-white p-4" : "border border-[var(--admin-border)] bg-black p-4"}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={url} alt="" className="h-8 w-auto max-w-[180px] object-contain" />
     </div>
@@ -46,11 +46,11 @@ export default function SettingsForm({ settings }: { settings: SettingsRow }) {
   return (
     <form action={formAction} encType="multipart/form-data" className="grid gap-8 xl:grid-cols-[1fr_0.9fr]">
       <div className="flex flex-col gap-6">
-        <section className="border border-white/10 bg-white/[0.025] p-5">
+        <section className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
           <div className="mb-5">
-            <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#ff6a00]">Brand</p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--admin-accent)]">Brand</p>
             <h2 className="mt-2 text-xl font-semibold">Logo and favicon</h2>
-            <p className="mt-1 text-[13px] text-white/45">
+            <p className="mt-1 text-[13px] text-[var(--admin-muted)]">
               Dark logo is for light nav. White logo is for dark nav and footer.
             </p>
           </div>
@@ -88,9 +88,9 @@ export default function SettingsForm({ settings }: { settings: SettingsRow }) {
           </div>
         </section>
 
-        <section className="border border-white/10 bg-white/[0.025] p-5">
+        <section className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
           <div className="mb-5">
-            <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#ff6a00]">Footer</p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--admin-accent)]">Footer</p>
             <h2 className="mt-2 text-xl font-semibold">Contact and social links</h2>
           </div>
 
@@ -131,9 +131,9 @@ export default function SettingsForm({ settings }: { settings: SettingsRow }) {
         </section>
       </div>
 
-      <aside className="h-fit border border-white/10 bg-[#0a0b0d] p-5">
-        <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#ff6a00]">Notes</p>
-        <div className="mt-4 space-y-4 text-[13.5px] leading-relaxed text-white/55">
+      <aside className="h-fit border border-[var(--admin-border)] bg-[var(--admin-surface-strong)] p-5 shadow-[var(--admin-shadow)]">
+        <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--admin-accent)]">Notes</p>
+        <div className="mt-4 space-y-4 text-[13.5px] leading-relaxed text-[var(--admin-muted)]">
           <p>Use transparent SVG or PNG logos. Keep both variants visually identical, only color changes.</p>
           <p>Social icons render through react-icons/fa6 so we can add more platforms without custom SVG work.</p>
           <p>Favicon changes update on the client and will be picked up by browsers after cache refresh.</p>

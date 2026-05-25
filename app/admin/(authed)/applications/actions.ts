@@ -11,9 +11,10 @@ import type { ApplicationStatus } from "@/types/database";
 const RESUME_BUCKET = "application-resumes";
 
 export async function updateApplicationStatusAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  const profile = await requireRole(["admin", "editor"]);
   const id = formData.get("id") as string;
   const status = formData.get("status") as ApplicationStatus;
+  const note = String(formData.get("note") ?? "").trim();
   if (!id) throw new Error("Missing application id");
   if (!applicationStatuses.includes(status)) throw new Error("Invalid application status");
 
@@ -28,6 +29,16 @@ export async function updateApplicationStatusAction(formData: FormData): Promise
 
   const { error } = await admin.from("applications").update({ status }).eq("id", id);
   if (error) throw new Error(error.message);
+
+  if (application.status !== status) {
+    await admin.from("application_status_history").insert({
+      application_id: id,
+      from_status: application.status,
+      to_status: status,
+      actor_id: profile.id,
+      note: note || null,
+    });
+  }
 
   if (application.status !== status && status === "rejected") {
     const { data: job } = await admin.from("jobs").select("title").eq("id", application.job_id).maybeSingle();
@@ -45,6 +56,67 @@ export async function updateApplicationStatusAction(formData: FormData): Promise
       replyTo: process.env.TEAM_NOTIFY_TO,
     });
   }
+
+  revalidatePath("/admin/applications");
+}
+
+function nullableTrim(value: FormDataEntryValue | null) {
+  const text = String(value ?? "").trim();
+  return text.length > 0 ? text : null;
+}
+
+function nullableUrl(value: FormDataEntryValue | null, label: string) {
+  const text = nullableTrim(value);
+  if (!text) return null;
+  try {
+    const url = new URL(text);
+    if (url.protocol !== "http:" && url.protocol !== "https:") throw new Error();
+    return url.toString();
+  } catch {
+    throw new Error(`${label} must be a valid http(s) URL`);
+  }
+}
+
+export async function updateApplicationMetaAction(formData: FormData): Promise<void> {
+  await requireRole(["admin", "editor"]);
+  const id = formData.get("id") as string;
+  if (!id) throw new Error("Missing application id");
+
+  const rawScore = nullableTrim(formData.get("score"));
+  const score = rawScore == null ? null : Number(rawScore);
+  if (score != null && (!Number.isInteger(score) || score < 0 || score > 100)) {
+    throw new Error("Score must be a number between 0 and 100");
+  }
+
+  const owner_id = nullableTrim(formData.get("owner_id"));
+  const portfolio_url = nullableUrl(formData.get("portfolio_url"), "Portfolio URL");
+  const linkedin_url = nullableUrl(formData.get("linkedin_url"), "LinkedIn URL");
+
+  const admin = getSupabaseAdmin();
+  const { error } = await admin
+    .from("applications")
+    .update({ owner_id, score, portfolio_url, linkedin_url })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/applications");
+}
+
+export async function addApplicationNoteAction(formData: FormData): Promise<void> {
+  const profile = await requireRole(["admin", "editor"]);
+  const id = formData.get("id") as string;
+  const note = String(formData.get("note") ?? "").trim();
+  if (!id) throw new Error("Missing application id");
+  if (note.length < 2) throw new Error("Note must be at least 2 characters");
+  if (note.length > 4000) throw new Error("Note must be 4000 characters or fewer");
+
+  const admin = getSupabaseAdmin();
+  const { error } = await admin.from("application_notes").insert({
+    application_id: id,
+    author_id: profile.id,
+    note,
+  });
+  if (error) throw new Error(error.message);
 
   revalidatePath("/admin/applications");
 }

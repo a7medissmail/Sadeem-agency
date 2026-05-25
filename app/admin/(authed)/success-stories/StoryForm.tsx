@@ -84,11 +84,11 @@ export default function StoryForm({ mode, story }: { mode: "create" | "edit"; st
   }
 
   return (
-    <form action={formAction} encType="multipart/form-data" className="flex max-w-[860px] flex-col gap-6">
+    <form action={formAction} encType="multipart/form-data" className="flex max-w-[980px] flex-col gap-6 border border-[var(--admin-border)] bg-[var(--admin-panel)] p-6">
       {story?.id ? <input type="hidden" name="id" value={story.id} /> : null}
       {story?.image_url ? <input type="hidden" name="image_url" value={story.image_url} /> : null}
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid gap-4 md:grid-cols-2">
         <FieldRow label="Title">
           <Input
             name="title"
@@ -174,7 +174,7 @@ export default function StoryForm({ mode, story }: { mode: "create" | "edit"; st
         <FieldError messages={errors.summary} />
       </FieldRow>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid gap-4 lg:grid-cols-3">
         <FieldRow label="Challenge">
           <Textarea name="challenge" rows={7} defaultValue={story?.challenge ?? ""} maxLength={900} />
           <FieldError messages={errors.challenge} />
@@ -198,16 +198,16 @@ export default function StoryForm({ mode, story }: { mode: "create" | "edit"; st
           aria-invalid={Boolean(errors.body)}
           spellCheck={false}
           onKeyDown={onCodeEditorKeyDown}
-          className="min-h-[320px] font-mono text-[13px] leading-relaxed text-white/90 [tab-size:2]"
+          className="min-h-[320px] font-mono text-[13px] leading-relaxed text-[var(--admin-text)] [tab-size:2]"
           placeholder={`<p>Write the full case narrative.</p>\n<h3>Operating moves</h3>\n<ul><li>What changed</li><li>What became measurable</li></ul>`}
         />
-        <p className="text-[12px] leading-relaxed text-white/45">
+        <p className="text-[12px] leading-relaxed text-[var(--admin-subtle)]">
           Public output is sanitized. Use safe HTML and small inline style attributes only.
         </p>
         <FieldError messages={errors.body} />
       </FieldRow>
 
-      <div className="grid grid-cols-2 gap-4 border-t border-white/10 pt-6">
+      <div className="grid gap-4 border-t border-[var(--admin-border-soft)] pt-6 md:grid-cols-2">
         <FieldRow label="Sort order">
           <Input
             name="sort_order"
@@ -225,9 +225,9 @@ export default function StoryForm({ mode, story }: { mode: "create" | "edit"; st
               type="checkbox"
               name="is_published"
               defaultChecked={story?.is_published ?? false}
-              className="h-4 w-4 accent-[#ff6a00]"
+              className="h-4 w-4 accent-[var(--admin-accent)]"
             />
-            <span className="text-[13.5px] text-white/80">Show on public site</span>
+            <span className="text-[13.5px] text-[var(--admin-muted)]">Show on public site</span>
           </span>
         </FieldRow>
 
@@ -236,9 +236,9 @@ export default function StoryForm({ mode, story }: { mode: "create" | "edit"; st
         </FieldRow>
 
         {story?.image_url ? (
-          <p className="self-end text-[12.5px] text-white/50">
+          <p className="self-end text-[12.5px] text-[var(--admin-muted)]">
             Currently using{" "}
-            <a href={story.image_url} target="_blank" rel="noreferrer" className="underline hover:text-[#ff6a00]">
+            <a href={story.image_url} target="_blank" rel="noreferrer" className="underline hover:text-[var(--admin-accent)]">
               {story.image_url.split("/").pop()}
             </a>
             . Upload a new file to replace.
@@ -256,7 +256,7 @@ export default function StoryForm({ mode, story }: { mode: "create" | "edit"; st
         <SaveButton mode={mode} />
         <Link
           href="/admin/success-stories"
-          className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-white/55 hover:text-white"
+          className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-[var(--admin-muted)] hover:text-[var(--admin-text)]"
         >
           Cancel
         </Link>

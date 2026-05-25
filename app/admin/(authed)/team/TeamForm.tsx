@@ -53,11 +53,11 @@ export default function TeamForm({
   const errors = state.fieldErrors ?? {};
 
   return (
-    <form action={formAction} encType="multipart/form-data" className="flex max-w-[760px] flex-col gap-6">
+    <form action={formAction} encType="multipart/form-data" className="flex max-w-[900px] flex-col gap-6 border border-[var(--admin-border)] bg-[var(--admin-panel)] p-6">
       {member?.id ? <input type="hidden" name="id" value={member.id} /> : null}
       {member?.photo_url ? <input type="hidden" name="photo_url" value={member.photo_url} /> : null}
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid gap-4 md:grid-cols-2">
         <FieldRow label="Name">
           <Input
             name="name"
@@ -94,7 +94,7 @@ export default function TeamForm({
         <FieldError messages={errors.bio} />
       </FieldRow>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid gap-4 md:grid-cols-2">
         <FieldRow label="Sort order">
           <Input
             name="sort_order"
@@ -113,14 +113,14 @@ export default function TeamForm({
               type="checkbox"
               name="is_active"
               defaultChecked={member?.is_active ?? true}
-              className="h-4 w-4 accent-[#ff6a00]"
+              className="h-4 w-4 accent-[var(--admin-accent)]"
             />
-            <span className="text-[13.5px] text-white/80">Publish</span>
+            <span className="text-[13.5px] text-[var(--admin-muted)]">Publish</span>
           </span>
         </FieldRow>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid gap-4 md:grid-cols-2">
         <FieldRow label="Website">
           <Input
             name="website"
@@ -163,7 +163,7 @@ export default function TeamForm({
         </FieldRow>
       </div>
 
-      <div className="flex flex-col gap-3 border-t border-white/10 pt-6">
+      <div className="flex flex-col gap-3 border-t border-[var(--admin-border-soft)] pt-6">
         <FieldRow label="Photo (PNG / JPG / WebP, < 5 MB)">
           <Input name="photo_file" type="file" accept="image/png,image/jpeg,image/webp" />
         </FieldRow>
@@ -171,10 +171,10 @@ export default function TeamForm({
         {member?.photo_url ? (
           <div className="flex items-center gap-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={member.photo_url} alt="" className="h-16 w-16 border border-white/10 object-cover" />
-            <p className="text-[12.5px] text-white/50">
+            <img src={member.photo_url} alt="" className="h-16 w-16 border border-[var(--admin-border)] object-cover" />
+            <p className="text-[12.5px] text-[var(--admin-muted)]">
               Currently using{" "}
-              <a href={member.photo_url} target="_blank" rel="noreferrer" className="underline hover:text-[#ff6a00]">
+              <a href={member.photo_url} target="_blank" rel="noreferrer" className="underline hover:text-[var(--admin-accent)]">
                 {member.photo_url.split("/").pop()}
               </a>
               . Upload a new file to replace.
@@ -193,7 +193,7 @@ export default function TeamForm({
         <SaveButton mode={mode} />
         <Link
           href="/admin/team"
-          className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-white/55 hover:text-white"
+          className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-[var(--admin-muted)] hover:text-[var(--admin-text)]"
         >
           Cancel
         </Link>

@@ -473,6 +473,57 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 
 ---
 
+### [2026-05-25] Admin template bundle audit
+
+**Source inspected**
+- `html template/sadeem-new-design/project/SADEEM Admin.html` plus `admin-shared.jsx`, `admin-pages-1.jsx`, `admin-pages-2.jsx`, `admin.css`.
+- `html template/sadeem-new-design/project/SADEEM Admin v2.html` plus `admin-v2.jsx`, `admin-v2.css`.
+- `html template/sadeem-new-design/project/SADEEM Admin v3.html` plus `admin-v3.jsx`, `admin-v3.css`.
+- `sadeem-new-design` and `sadeem-new-design2` currently contain the same source files; the README in one points to v1 and the other points to v2.
+
+**Decision**
+- Do not import the standalone HTML/runtime files. They are prototypes with React/Babel globals and static mock data.
+- Rebuild the useful patterns as real Next.js/TypeScript admin components wired to Supabase and server actions.
+
+**What to borrow**
+- v1 = operational CRUD kit: filters, tables, detail grids, side panels, activity timelines, calendar view, email composer, and form grids.
+- v2 = operator terminal shell: global search/command palette, grouped rail navigation, activity feed, status bar, dashboard charts.
+- v3 = "The Brief": a premium editorial daily dashboard with natural-language summary, numbered sections, inline actions, and a command bar.
+
+**Implementation order**
+- First slice: command/search palette, activity pulse, dashboard status distribution panels.
+- Next: refactor Leads/Bookings into v1-style filterable tables plus detail drawers.
+- Then: rebuild Applications as a robust hiring OS with kanban columns, candidate drawer, notes, status history, resume preview, and email actions.
+- Later: dynamic form builder and private proposal/onboarding briefs with reminder automations.
+
+---
+
+### [2026-05-25] Admin OS - template ideas pass 1
+
+**Implemented**
+- Added `components/admin/AdminCommandCenter.tsx`: global admin command/search palette with `Ctrl K`, grouped commands, quick actions, and keyboard navigation.
+- The admin topbar now includes a live Pulse panel powered by recent leads, bookings, applications, and email campaigns.
+- `/admin` dashboard now includes a v3-inspired "The Brief" section plus v2-style status distribution panels for lead pipeline, booking health, and hiring funnel.
+- `/admin/applications` was rebuilt into a hiring OS board:
+  - fixed five-stage horizontal pipeline so columns do not wrap awkwardly,
+  - search + role + status filters,
+  - premium candidate cards with stage rail and derived signal score,
+  - candidate dossier drawer with cover note, contact details, resume link, timeline, status control, and delete action.
+- `/admin/leads` was rebuilt into a CRM OS board:
+  - fixed five-stage pipeline (`new/contacted/qualified/won/lost`),
+  - client search + source/status filters,
+  - lead cards with source, owner, message preview, email readiness, and derived intent score,
+  - lead dossier drawer with message, contact, timeline, owner assignment, status control, mailto action, and delete action.
+- `/admin/bookings` was rebuilt into a scheduling OS:
+  - agenda cards instead of a dense table,
+  - selected booking dossier with visitor context, topic, readiness timeline, status, manual meet-link save, and email-resend controls,
+  - availability rules are now presented as an operations section with summary metrics and responsive forms.
+
+**Template reference status**
+- Useful patterns extracted from the local `html template/` bundle: command palette, pulse feed, daily brief, cards-as-dossiers, board views, and responsive operations panels. The standalone prototype files are no longer needed in the repo after this pass.
+
+---
+
 ### [2026-05-23] P2 follow-ups + P3 (Team) + P4 (Careers/Applications) ✅
 
 Substantial second pass after the P2 baseline. Hardened the course experience, generalized the navbar, then built out P3 + P4 end-to-end.
@@ -638,6 +689,63 @@ Substantial second pass after the P2 baseline. Hardened the course experience, g
 - `npm audit --omit=dev` reports current Next.js 14 advisories. The automated fix jumps to Next 16, which is a framework-breaking upgrade and should be handled as a planned upgrade pass, not a silent patch.
 
 ---
+
+### [2026-05-25] Admin OS - Hiring 2.0 foundation
+
+**Implemented**
+- Added `supabase/migrations/0013_hiring_os_foundation.sql` for the next hiring layer:
+  - `applications.owner_id`, `score`, `portfolio_url`, `linkedin_url`, and `custom_answers`.
+  - `application_notes` for internal candidate notes.
+  - `application_status_history` for stage transitions with actor + optional note.
+- `types/database.ts` now includes the new application fields and hiring timeline tables.
+- `/admin/applications` now loads staff owners, notes, and status history alongside applications.
+- The Applications board drawer is now a real candidate dossier:
+  - owner assignment, manual score, portfolio/LinkedIn fields,
+  - stage update with optional note,
+  - internal notes feed,
+  - custom answers display for future form-builder fields,
+  - timeline built from submitted + status-history events.
+
+**Verification**
+- `npx tsc --noEmit` clean.
+- `npm run build` clean.
+- Local route guard smoke: `/admin/applications` redirects to login when unauthenticated, as expected.
+
+**One-time provisioning**
+- Run `supabase/migrations/0013_hiring_os_foundation.sql` in Supabase SQL Editor before using the new Hiring 2.0 controls on production.
+
+**Next**
+- Dynamic form builder should write per-job extra answers into `applications.custom_answers` first, then generalize into standalone `forms/form_fields/form_submissions` once proposal/onboarding starts.
+- Add email actions from the candidate drawer: interview invite, rejection with reason, hold/waitlist, and offer follow-up.
+- Add server pagination or cursor loading before the applications table gets large.
+
+### [2026-05-25] Admin OS - Form Builder foundation
+
+**Implemented**
+- Added `supabase/migrations/0014_form_builder_foundation.sql`:
+  - `forms` for reusable controlled form shells.
+  - `form_fields` for safe field definitions and options.
+  - `form_submissions` and `form_answers` for future public/private intake submissions.
+  - RLS enabled on every table, staff management policies, public read only for active forms/fields, and public insert only for active-form submissions.
+- `types/database.ts` now includes `FormPurpose`, `FormFieldType`, `FormSubmissionStatus`, and the four form-builder tables.
+- Added `lib/validation/formBuilder.ts` with clear zod validation and field-specific errors.
+- Added admin routes:
+  - `/admin/forms` list with metrics, active/draft state, field counts, and response counts.
+  - `/admin/forms/new` for creating the form shell.
+  - `/admin/forms/[id]` for editing definition + adding/updating/deleting controlled fields.
+- Admin sidebar, command palette, and dashboard quick actions now include Form Builder.
+
+**Verification**
+- `npx tsc --noEmit` clean.
+- `npm run build` clean.
+
+**One-time provisioning**
+- Run `supabase/migrations/0014_form_builder_foundation.sql` in Supabase SQL Editor before using `/admin/forms` on production.
+
+**Next**
+- Connect form definitions to hiring roles so a job can request portfolio/LinkedIn/custom questions without code changes.
+- Add public/private form renderer with rate limiting and honeypot protection.
+- Build proposal/onboarding private brief links on top of these form definitions.
 
 ## 11. Open / parked items
 

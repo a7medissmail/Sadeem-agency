@@ -2,7 +2,6 @@ import { Badge } from "@/components/admin/ui/Badge";
 import { Button } from "@/components/admin/ui/Button";
 import { FieldRow, Input, Select, Textarea } from "@/components/admin/ui/Field";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
-import { EmptyState, TableShell } from "@/components/admin/ui/Table";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import {
@@ -29,6 +28,16 @@ const statusTones: Record<CampaignStatus, "neutral" | "blue" | "green" | "red" |
   sent: "green",
   failed: "red",
 };
+
+function MetricCard({ label, value, hint }: { label: string; value: number | string; hint: string }) {
+  return (
+    <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
+      <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">{label}</p>
+      <div className="mt-3 text-[30px] font-semibold leading-none text-[var(--admin-text)]">{value}</div>
+      <p className="mt-3 text-[12.5px] text-[var(--admin-muted)]">{hint}</p>
+    </div>
+  );
+}
 
 function audienceFromJson(value: unknown): CampaignAudience {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
@@ -90,11 +99,7 @@ export default async function CampaignsAdminPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <PageHeader
-        eyebrow="P6"
-        title="Email Center"
-        description="Compose CRM campaigns, send to filtered leads, and track delivery attempts. Transactional automations stay tied to their workflows."
-      />
+      <PageHeader eyebrow="P6" title="Email Studio" description="Compose, target, and dispatch CRM updates from the same operating surface." />
 
       {error ? (
         <div className="rounded-md border border-amber-500/30 bg-amber-500/[0.06] px-4 py-3 text-[13px] text-amber-200">
@@ -102,27 +107,29 @@ export default async function CampaignsAdminPage() {
         </div>
       ) : null}
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="border border-white/10 bg-white/[0.025] p-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/45">Eligible leads</p>
-          <div className="mt-2 text-3xl font-semibold">{eligibleCount}</div>
+      <section className="grid gap-4 xl:grid-cols-[1fr_0.85fr]">
+        <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
+          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">Mailing OS</p>
+          <h2 className="mt-2 max-w-[13ch] text-[34px] font-semibold leading-[1.02] tracking-tight text-[var(--admin-text)]">
+            One studio for careful dispatch.
+          </h2>
+          <p className="mt-4 max-w-[68ch] text-[14.5px] leading-relaxed text-[var(--admin-muted)]">
+            Campaigns use the shared SADEEM email shell, audience filters, unsubscribe suppression, and delivery tracking.
+          </p>
         </div>
-        <div className="border border-white/10 bg-white/[0.025] p-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/45">Opted out</p>
-          <div className="mt-2 text-3xl font-semibold">{unsubscribedCount}</div>
+        <div className="grid grid-cols-3 gap-3">
+          <MetricCard label="Eligible" value={eligibleCount} hint="Can receive mail" />
+          <MetricCard label="Opted out" value={unsubscribedCount} hint="Suppressed leads" />
+          <MetricCard label="Drafts" value={campaigns.filter((campaign) => campaign.status === "draft").length} hint="Not sent yet" />
         </div>
-        <div className="border border-white/10 bg-white/[0.025] p-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/45">Campaigns</p>
-          <div className="mt-2 text-3xl font-semibold">{campaigns.length}</div>
-        </div>
-      </div>
+      </section>
 
       <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-        <form action={createCampaignAction} className="border border-white/10 bg-white/[0.025] p-5">
+        <form action={createCampaignAction} className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
           <div className="mb-5">
-            <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#ff6a00]">Compose</p>
+            <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--admin-accent)]">Compose</p>
             <h2 className="mt-2 text-xl font-semibold">New campaign</h2>
-            <p className="mt-1 text-[13px] text-white/45">
+            <p className="mt-1 text-[13px] text-[var(--admin-muted)]">
               Body is sent in the SADEEM email system. Plain text is safest; basic pasted HTML is cleaned before sending.
             </p>
           </div>
@@ -168,20 +175,11 @@ export default async function CampaignsAdminPage() {
           </div>
         </form>
 
-        <TableShell>
-          <div
-            className="grid gap-4 border-b border-white/10 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white/45"
-            style={{ gridTemplateColumns: "1.5fr 0.8fr 0.7fr 0.8fr 1fr" }}
-          >
-            <div>Campaign</div>
-            <div>Audience</div>
-            <div>Status</div>
-            <div>Sends</div>
-            <div></div>
-          </div>
-
+        <div className="flex flex-col gap-3">
           {campaigns.length === 0 ? (
-            <EmptyState title="No campaigns yet." hint="Create a draft, review the audience count, then send." />
+            <div className="border border-dashed border-[var(--admin-border)] bg-[var(--admin-panel)] px-5 py-12 text-center text-[13px] text-[var(--admin-subtle)]">
+              No campaigns yet. Create a draft, review the audience count, then send.
+            </div>
           ) : (
             campaigns.map((campaign) => {
               const campaignSends = sendsByCampaign.get(campaign.id) ?? [];
@@ -192,27 +190,37 @@ export default async function CampaignsAdminPage() {
               const canSend = campaign.status === "draft" || campaign.status === "failed";
 
               return (
-                <div
-                  key={campaign.id}
-                  className="grid items-center gap-4 border-b border-white/5 px-5 py-4 text-[13.5px] last:border-0"
-                  style={{ gridTemplateColumns: "1.5fr 0.8fr 0.7fr 0.8fr 1fr" }}
-                >
+                <article key={campaign.id} className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5 transition-colors hover:border-[var(--admin-accent)]">
                   <div className="min-w-0">
-                    <div className="truncate font-semibold text-white/95">{campaign.subject}</div>
-                    <div className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-white/35">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <h3 className="text-[20px] font-semibold leading-tight text-[var(--admin-text)]">{campaign.subject}</h3>
+                        <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-subtle)]">
                       {dateFmt.format(new Date(campaign.created_at))}
+                        </div>
+                      </div>
+                      <Badge tone={statusTones[campaign.status]}>{campaign.status}</Badge>
                     </div>
                   </div>
-                  <div>
-                    <div className="text-white/75">{count} leads</div>
-                    <div className="mt-1 text-[12px] text-white/40">{campaignAudienceLabel(audience)}</div>
+
+                  <div className="mt-5 grid grid-cols-3 gap-3 border-y border-[var(--admin-border-soft)] py-4">
+                    <div>
+                      <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Audience</p>
+                      <p className="mt-1 text-[13px] text-[var(--admin-muted)]">{count} leads</p>
+                    </div>
+                    <div>
+                      <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Filter</p>
+                      <p className="mt-1 text-[13px] text-[var(--admin-muted)]">{campaignAudienceLabel(audience)}</p>
+                    </div>
+                    <div>
+                      <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Delivery</p>
+                      <p className="mt-1 text-[13px] text-[var(--admin-muted)]">
+                        {sent} sent{failed ? <span className="text-red-300"> / {failed} failed</span> : null}
+                      </p>
+                    </div>
                   </div>
-                  <Badge tone={statusTones[campaign.status]}>{campaign.status}</Badge>
-                  <div className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/55">
-                    {sent} sent
-                    {failed ? <span className="text-red-300"> / {failed} failed</span> : null}
-                  </div>
-                  <div className="flex items-center justify-end gap-2">
+
+                  <div className="mt-5 flex items-center justify-end gap-2">
                     {canSend ? (
                       <form action={sendCampaignAction}>
                         <input type="hidden" name="id" value={campaign.id} />
@@ -228,11 +236,11 @@ export default async function CampaignsAdminPage() {
                       </Button>
                     </form>
                   </div>
-                </div>
+                </article>
               );
             })
           )}
-        </TableShell>
+        </div>
       </section>
     </div>
   );
