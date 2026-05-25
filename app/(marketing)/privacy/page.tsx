@@ -1,6 +1,7 @@
 import Footer from "@/components/Footer";
 import SectionAwareNavbar from "@/components/SectionAwareNavbar";
 import SectionLabel from "@/components/SectionLabel";
+import { getPublicSiteSettings } from "@/lib/site/settings";
 
 export const metadata = {
   title: "Privacy",
@@ -35,7 +36,8 @@ const sections = [
   },
 ];
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const settings = await getPublicSiteSettings();
   return (
     <>
       <SectionAwareNavbar initialOverDark />
@@ -61,7 +63,10 @@ export default function PrivacyPage() {
             <aside>
               <p className="team-brief-kicker">LAST UPDATED</p>
               <strong>May 25, 2026</strong>
-              <span>For privacy questions, contact hello@sadeem.agency.</span>
+              <span>
+                For privacy questions, contact{" "}
+                <a href={`mailto:${settings.footerEmail}`}>{settings.footerEmail}</a>.
+              </span>
             </aside>
             <div className="legal-copy">
               {sections.map((section, index) => (

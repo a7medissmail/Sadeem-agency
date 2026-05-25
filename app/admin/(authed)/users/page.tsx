@@ -17,24 +17,36 @@ type Row = {
   created_at: string;
 };
 
-async function loadUsers(): Promise<Row[]> {
-  const admin = getSupabaseAdmin();
-  const { data: profiles, error } = await admin
-    .from("profiles")
-    .select("id, full_name, role, created_at")
-    .order("created_at", { ascending: false });
-  if (error || !profiles) return [];
+async function loadUsers(): Promise<{ users: Row[]; error: string | null }> {
+  try {
+    const admin = getSupabaseAdmin();
+    const { data: profiles, error } = await admin
+      .from("profiles")
+      .select("id, full_name, role, created_at")
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    if (!profiles) return { users: [], error: null };
 
-  const { data: usersList } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 });
-  const emailById = new Map<string, string | null>((usersList?.users ?? []).map((user) => [user.id, user.email ?? null]));
+    const { data: usersList } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 });
+    const emailById = new Map<string, string | null>(
+      (usersList?.users ?? []).map((user) => [user.id, user.email ?? null]),
+    );
 
-  return profiles.map((profile) => ({
-    id: profile.id,
-    email: emailById.get(profile.id) ?? null,
-    full_name: profile.full_name,
-    role: profile.role,
-    created_at: profile.created_at,
-  }));
+    return {
+      users: profiles.map((profile) => ({
+        id: profile.id,
+        email: emailById.get(profile.id) ?? null,
+        full_name: profile.full_name,
+        role: profile.role,
+        created_at: profile.created_at,
+      })),
+      error: null,
+    };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("[admin/users] load failed:", message);
+    return { users: [], error: message };
+  }
 }
 
 function roleTone(role: Row["role"]) {
@@ -55,7 +67,7 @@ function MetricCard({ label, value, hint }: { label: string; value: number | str
 
 export default async function UsersPage() {
   const me = await requireRole(["admin"]);
-  const users = await loadUsers();
+  const { users, error: loadError } = await loadUsers();
   const adminCount = users.filter((user) => user.role === "admin").length;
   const editorCount = users.filter((user) => user.role === "editor").length;
 
@@ -66,6 +78,12 @@ export default async function UsersPage() {
         title="Users & Roles"
         description="Manage staff access. This is the beginning of the stronger RBAC layer."
       />
+
+      {loadError ? (
+        <div className="border border-amber-500/30 bg-amber-500/[0.06] text-amber-200 text-[13px] rounded-md px-4 py-3">
+          Couldn&apos;t load users: <code className="text-amber-100">{loadError}</code>
+        </div>
+      ) : null}
 
       <section className="grid gap-4 xl:grid-cols-[1fr_0.85fr]">
         <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
