@@ -7,7 +7,7 @@ const fallback: PublicSiteSettings = {
   logoDarkUrl: null,
   logoLightUrl: null,
   faviconUrl: null,
-  footerDescription: "Strategic growth advisory — helping ambitious companies achieve measurable results.",
+  footerDescription: "Strategic growth advisory - helping ambitious companies achieve measurable results.",
   footerEmail: "hello@sadeem.agency",
   footerPhone: null,
   footerLocation: null,
@@ -26,8 +26,14 @@ function updateFavicon(url: string) {
   if (!links.length) document.head.appendChild(link);
 }
 
-export function SiteSettingsProvider({ children }: { children: ReactNode }) {
-  const [settings, setSettings] = useState<PublicSiteSettings>(fallback);
+export function SiteSettingsProvider({
+  children,
+  initialSettings = fallback,
+}: {
+  children: ReactNode;
+  initialSettings?: PublicSiteSettings;
+}) {
+  const [settings, setSettings] = useState<PublicSiteSettings>(initialSettings);
 
   useEffect(() => {
     let cancelled = false;

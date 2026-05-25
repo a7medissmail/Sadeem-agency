@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { ReactNode } from "react";
 import { SiteSettingsProvider } from "@/components/SiteSettingsProvider";
+import { getPublicSiteSettings } from "@/lib/site/settings";
 
 export const metadata = {
   title: "SADEEM - Strategic Growth Advisory",
@@ -13,7 +14,9 @@ export const viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const siteSettings = await getPublicSiteSettings();
+
   return (
     <html lang="en">
       <head>
@@ -25,7 +28,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
       </head>
       <body>
-        <SiteSettingsProvider>{children}</SiteSettingsProvider>
+        <SiteSettingsProvider initialSettings={siteSettings}>{children}</SiteSettingsProvider>
       </body>
     </html>
   );

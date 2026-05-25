@@ -24,7 +24,7 @@ export const defaultSiteSettings: PublicSiteSettings = {
   logoDarkUrl: null,
   logoLightUrl: null,
   faviconUrl: null,
-  footerDescription: "Strategic growth advisory — helping ambitious companies achieve measurable results.",
+  footerDescription: "Strategic growth advisory - helping ambitious companies achieve measurable results.",
   footerEmail: "hello@sadeem.agency",
   footerPhone: null,
   footerLocation: null,
