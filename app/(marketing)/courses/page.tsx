@@ -75,7 +75,7 @@ export default async function CoursesIndex() {
     <>
       <SectionAwareNavbar initialOverDark={false} />
       <main className="page">
-        <RevealSection className="courses-hero light" data-section="01">
+        <section className="courses-hero light" data-section="01">
           <SectionLabel n="01" text="WORKSHOPS" />
           <div className="section-inner courses-hero-inner">
             <div className="section-eyebrow">COURSES &amp; WORKSHOPS</div>
@@ -88,7 +88,7 @@ export default async function CoursesIndex() {
               compound in your own business - not slide deck theatre.
             </p>
           </div>
-        </RevealSection>
+        </section>
 
         <RevealSection className="courses-list light" data-section="02">
           <div className="section-inner">

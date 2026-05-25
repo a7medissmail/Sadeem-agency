@@ -14,7 +14,7 @@ export default function ConsultationPage() {
     <>
       <SectionAwareNavbar initialOverDark />
       <main className="page consultation-page">
-        <RevealSection className="consult-hero dark" data-section="01">
+        <section className="consult-hero dark" data-section="01">
           <SectionLabel n="01" text="CONSULTATION" onDark />
           <div className="consult-hero-bg" aria-hidden="true" />
           <div className="section-inner consult-hero-inner">
@@ -35,7 +35,7 @@ export default function ConsultationPage() {
               </a>
             </div>
           </div>
-        </RevealSection>
+        </section>
 
         <RevealSection className="consult-booking light" data-section="02" id="booking">
           <div className="section-inner consult-booking-grid">

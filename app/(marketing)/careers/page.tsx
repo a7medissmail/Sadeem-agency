@@ -55,7 +55,7 @@ export default async function CareersPage() {
     <>
       <SectionAwareNavbar initialOverDark />
       <main className="page careers-page">
-        <RevealSection className="careers-hero dark" data-section="01">
+        <section className="careers-hero dark" data-section="01">
           <SectionLabel n="01" text="CAREERS" onDark />
           <div className="careers-hero-bg" aria-hidden="true" />
           <div className="section-inner careers-hero-inner">
@@ -76,7 +76,7 @@ export default async function CareersPage() {
               </a>
             </div>
           </div>
-        </RevealSection>
+        </section>
 
         <RevealSection className="careers-list light" data-section="02" id="open-roles">
           <div className="section-inner">

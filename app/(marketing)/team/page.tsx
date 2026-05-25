@@ -72,7 +72,7 @@ export default async function TeamPage() {
     <>
       <SectionAwareNavbar initialOverDark />
       <main className="page team-page">
-        <RevealSection className="team-brief-hero dark" data-section="01">
+        <section className="team-brief-hero dark" data-section="01">
           <SectionLabel n="01" text="TEAM" onDark />
           <div className="team-hero-bg" aria-hidden="true" />
           <div className="team-orbit team-orbit-hero" aria-hidden="true" />
@@ -93,7 +93,7 @@ export default async function TeamPage() {
               </a>
             </div>
           </div>
-        </RevealSection>
+        </section>
 
         <RevealSection className="team-founders light" data-section="02" id="founders">
           <div className="section-inner">
