@@ -3158,7 +3158,7 @@ section.course-register {
   inset: 0;
   background:
     linear-gradient(90deg, rgba(13,13,15,0.95), rgba(13,13,15,0.72), rgba(13,13,15,0.2)),
-    url("/team/team-hero.png") center / cover no-repeat;
+    url("/team/team-hero.jpg") center / cover no-repeat;
   opacity: 0.34;
 }
 .career-detail-grid {
@@ -3810,7 +3810,7 @@ section.team-roster {
   background:
     linear-gradient(90deg, rgba(13,13,15,0.96) 0%, rgba(13,13,15,0.68) 38%, rgba(13,13,15,0.22) 72%, rgba(13,13,15,0.18) 100%),
     linear-gradient(180deg, rgba(13,13,15,0.08) 0%, rgba(13,13,15,0.18) 54%, rgba(13,13,15,0.72) 100%),
-    url("/team/team-hero.png") center / cover no-repeat;
+    url("/team/team-hero.jpg") center / cover no-repeat;
   transform: scale(1.01);
 }
 .team-orbit {
@@ -3956,7 +3956,7 @@ section.team-roster {
   background:
     linear-gradient(180deg, rgba(9,10,12,0.05) 0%, rgba(9,10,12,0.44) 42%, rgba(9,10,12,0.96) 100%),
     radial-gradient(220px 280px at 58% 36%, rgba(245,243,240,0.08), transparent 70%),
-    url("/team/team-hero.png") center / cover no-repeat;
+    url("/team/team-hero.jpg") center / cover no-repeat;
   filter: saturate(0.78) contrast(1.02);
   transform: scale(1.12);
   transition: filter 0.38s ease;
@@ -4252,7 +4252,7 @@ section.team-roster {
   .team-hero-bg {
     background:
       linear-gradient(180deg, rgba(13,13,15,0.86) 0%, rgba(13,13,15,0.54) 42%, rgba(13,13,15,0.9) 100%),
-      url("/team/team-hero.png") 62% center / cover no-repeat;
+      url("/team/team-hero.jpg") 62% center / cover no-repeat;
   }
   .team-orbit-hero { width: 520px; right: -220px; top: 18vh; }
   .team-brief-title { font-size: clamp(48px, 15vw, 72px); }

@@ -600,10 +600,26 @@ Substantial second pass after the P2 baseline. Hardened the course experience, g
 
 ---
 
+### [2026-05-25] Performance / security pass
+
+**Performance**
+- Replaced the Team hero CSS background from `public/team/team-hero.png` (1.85 MB) to `public/team/team-hero.jpg` (about 160 KB) and updated all CSS references.
+- Removed the unused original PNG from the public bundle.
+
+**Security headers**
+- `next.config.mjs` now disables the `X-Powered-By` header.
+- Added baseline response headers: `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: DENY`, and a restrictive `Permissions-Policy`.
+
+**Audit note**
+- `npm audit --omit=dev` reports current Next.js 14 advisories. The automated fix jumps to Next 16, which is a framework-breaking upgrade and should be handled as a planned upgrade pass, not a silent patch.
+
+---
+
 ## 11. Open / parked items
 
 - **Success Stories follow-up**: apply migration `0012_success_stories.sql` on production, add the first real stories from admin, then remove/replace the homepage fallback cards once the content library is populated.
 - **Booking upgrade backlog**: add OAuth or Workspace Domain-Wide Delegation when official Google guest invites and automatic Meet creation become a priority.
+- **Security upgrade backlog**: plan/test a Next.js major upgrade path (likely 16.x) to clear the remaining framework audit advisories.
 - **Email automation backlog**: add booking reminders, post-consultation follow-up, course waitlist updates, new job alerts, application interview/offer updates, campaign test-send, saved templates, and bounce/complaint suppression handling.
 - **Slide-1 faint foreground wisp** in front of the figure for extra depth (backlog).
 - **Stale `.next/types/app/page.ts`** may need clearing once after the marketing route group move; `tsc` is clean now.
