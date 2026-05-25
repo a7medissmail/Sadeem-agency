@@ -2,12 +2,12 @@ import type { InputHTMLAttributes, SelectHTMLAttributes, TextareaHTMLAttributes,
 
 export function Label({ children }: { children: ReactNode }) {
   return (
-    <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-white/55">{children}</span>
+    <span className="font-mono text-[10px] tracking-[0.2em] uppercase text-[var(--admin-muted)]">{children}</span>
   );
 }
 
 const fieldBase =
-  "bg-transparent border border-white/15 px-3 py-2 outline-none focus:border-[#ff6a00] aria-[invalid=true]:border-red-400/70 text-white/95 placeholder:text-white/30 transition-colors";
+  "bg-transparent border border-[var(--admin-border)] px-3 py-2 outline-none focus:border-[var(--admin-accent)] aria-[invalid=true]:border-red-400/70 text-[var(--admin-text)] placeholder:text-[var(--admin-subtle)] transition-colors";
 
 export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   const { className, ...rest } = props;
@@ -24,7 +24,7 @@ export function Select({ className, children, ...rest }: SelectHTMLAttributes<HT
     <select
       {...rest}
       className={[
-        "bg-[#0a0b0d] border border-white/15 px-3 py-2 outline-none focus:border-[#ff6a00] text-white/95 transition-colors",
+        "bg-[var(--admin-surface-strong)] border border-[var(--admin-border)] px-3 py-2 outline-none focus:border-[var(--admin-accent)] text-[var(--admin-text)] transition-colors",
         className,
       ].filter(Boolean).join(" ")}
     >

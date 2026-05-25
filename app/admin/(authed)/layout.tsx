@@ -1,69 +1,101 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
 import { requireUser, getCurrentProfile } from "@/lib/auth";
 import { signOutAction } from "@/app/admin/login/actions";
+import { AdminNavLink } from "@/components/admin/AdminNavLink";
+import { AdminThemeToggle } from "@/components/admin/AdminThemeToggle";
 
-const nav = [
-  { href: "/admin", label: "Dashboard" },
-  { href: "/admin/leads", label: "Leads" },
-  { href: "/admin/campaigns", label: "Email" },
-  { href: "/admin/bookings", label: "Bookings" },
-  { href: "/admin/courses", label: "Courses" },
-  { href: "/admin/success-stories", label: "Stories" },
-  { href: "/admin/team", label: "Team" },
-  { href: "/admin/jobs", label: "Careers" },
-  { href: "/admin/applications", label: "Applications" },
-  { href: "/admin/settings", label: "Settings" },
-  { href: "/admin/users", label: "Users" },
-];
+const navGroups = [
+  {
+    label: "Command",
+    items: [
+      { href: "/admin", label: "Dashboard" },
+      { href: "/admin/leads", label: "CRM Leads" },
+      { href: "/admin/bookings", label: "Consultations" },
+      { href: "/admin/campaigns", label: "Email Studio" },
+    ],
+  },
+  {
+    label: "Content",
+    items: [
+      { href: "/admin/courses", label: "Workshops" },
+      { href: "/admin/success-stories", label: "Stories" },
+      { href: "/admin/team", label: "Team" },
+    ],
+  },
+  {
+    label: "Hiring",
+    items: [
+      { href: "/admin/jobs", label: "Roles" },
+      { href: "/admin/applications", label: "Applications" },
+    ],
+  },
+  {
+    label: "System",
+    items: [
+      { href: "/admin/settings", label: "Site Settings" },
+      { href: "/admin/users", label: "Users & Roles" },
+    ],
+  },
+] as const;
 
 export const dynamic = "force-dynamic";
 
 export default async function AuthedAdminLayout({ children }: { children: ReactNode }) {
   await requireUser();
   const profile = await getCurrentProfile();
+  const profileLabel = profile?.full_name || profile?.email || "SADEEM";
 
   return (
-    <div className="grid min-h-screen" style={{ gridTemplateColumns: "240px 1fr" }}>
-      <aside className="border-r border-white/10 bg-[#0a0b0d] p-6 flex flex-col gap-8">
-        <div>
-          <p className="font-mono text-[10px] tracking-[0.32em] uppercase text-[#ff6a00]">SADEEM</p>
-          <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-white/45 mt-1">Admin</p>
+    <div className="admin-shell">
+      <aside className="admin-sidebar">
+        <div className="admin-sidebar-brand">
+          <p className="admin-kicker">SADEEM</p>
+          <p className="admin-brand-title">Operating System</p>
         </div>
-        <nav className="flex flex-col gap-1.5">
-          {nav.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center justify-between px-3 py-2 text-[13.5px] text-white/75 hover:text-white hover:bg-white/5 rounded-md transition-colors"
-            >
-              <span>{item.label}</span>
-            </Link>
+
+        <nav className="admin-nav" aria-label="Admin navigation">
+          {navGroups.map((group) => (
+            <div key={group.label} className="admin-nav-group">
+              <p className="admin-nav-group-label">{group.label}</p>
+              <div className="admin-nav-group-links">
+                {group.items.map((item) => (
+                  <AdminNavLink key={item.href} href={item.href} label={item.label} />
+                ))}
+              </div>
+            </div>
           ))}
         </nav>
-        <div className="mt-auto pt-6 border-t border-white/10 flex flex-col gap-3">
-          <div className="text-[13px] leading-tight">
-            <div className="text-white/85">{profile?.full_name || profile?.email}</div>
-            <div className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#ff6a00]/85 mt-1">
-              {profile?.role ?? "viewer"}
+
+        <div className="admin-sidebar-footer">
+          <div className="admin-profile-card">
+            <div className="admin-profile-avatar" aria-hidden="true">
+              {profileLabel.slice(0, 1).toUpperCase()}
+            </div>
+            <div className="min-w-0">
+              <div className="admin-profile-name">{profileLabel}</div>
+              <div className="admin-profile-role">{profile?.role ?? "viewer"}</div>
             </div>
           </div>
           <form action={signOutAction}>
-            <button
-              type="submit"
-              className="text-[12px] text-white/55 hover:text-white underline-offset-4 hover:underline"
-            >
+            <button type="submit" className="admin-signout">
               Sign out
             </button>
           </form>
         </div>
       </aside>
 
-      <main className="bg-[#0d0e10]">
-        <header className="h-14 border-b border-white/10 flex items-center px-8 font-mono text-[10.5px] tracking-[0.22em] uppercase text-white/55">
-          Operations
+      <main className="admin-main">
+        <header className="admin-topbar">
+          <div>
+            <p className="admin-topbar-kicker">Admin command center</p>
+            <p className="admin-topbar-title">Operations</p>
+          </div>
+          <div className="admin-topbar-actions">
+            <span className="admin-role-pill">{profile?.role ?? "viewer"}</span>
+            <AdminThemeToggle />
+          </div>
         </header>
-        <div className="p-8 max-w-[1280px]">{children}</div>
+        <div className="admin-content">{children}</div>
       </main>
     </div>
   );

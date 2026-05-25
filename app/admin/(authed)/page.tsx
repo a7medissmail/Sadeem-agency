@@ -63,15 +63,15 @@ async function dashboardData() {
 const dateFmt = new Intl.DateTimeFormat("en", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 
 function EmptyMini({ text }: { text: string }) {
-  return <p className="px-4 py-6 text-[13px] text-white/35">{text}</p>;
+  return <p className="px-4 py-6 text-[13px] text-[var(--admin-subtle)]">{text}</p>;
 }
 
 function Panel({ title, href, children }: { title: string; href: string; children: ReactNode }) {
   return (
-    <section className="overflow-hidden rounded-xl border border-white/10 bg-white/[0.02]">
-      <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-        <h2 className="font-mono text-[10px] uppercase tracking-[0.22em] text-white/55">{title}</h2>
-        <Link href={href} className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#ff6a00] hover:text-[#ff8c3a]">
+    <section className="overflow-hidden rounded-xl border border-[var(--admin-border)] bg-[var(--admin-panel)]">
+      <div className="flex items-center justify-between border-b border-[var(--admin-border)] px-4 py-3">
+        <h2 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-muted)]">{title}</h2>
+        <Link href={href} className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)] hover:brightness-110">
           Open
         </Link>
       </div>
@@ -108,11 +108,11 @@ export default async function AdminDashboard() {
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[#ff6a00]">OVERVIEW</p>
+          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">OVERVIEW</p>
           <h1 className="mt-2 text-[32px] font-semibold tracking-tight">
             Hello, {profile?.full_name || profile?.email || "there"}.
           </h1>
-          <p className="mt-2 max-w-[62ch] text-[14.5px] leading-relaxed text-white/55">
+          <p className="mt-2 max-w-[62ch] text-[14.5px] leading-relaxed text-[var(--admin-muted)]">
             Your operational snapshot: new demand, upcoming conversations, content controls, and hiring activity.
           </p>
         </div>
@@ -121,7 +121,7 @@ export default async function AdminDashboard() {
             <Link
               key={action.href}
               href={action.href}
-              className="border border-white/10 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-white/65 transition-colors hover:border-[#ff6a00]/60 hover:text-white"
+              className="border border-[var(--admin-border)] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-muted)] transition-colors hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]"
             >
               {action.label}
             </Link>
@@ -137,8 +137,8 @@ export default async function AdminDashboard() {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         {tiles.map((tile) => (
-          <Link key={tile.label} href={tile.href} className="rounded-xl border border-white/10 bg-white/[0.02] px-5 py-5 transition-colors hover:border-[#ff6a00]/45 hover:bg-white/[0.04]">
-            <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/45">{tile.label}</div>
+          <Link key={tile.label} href={tile.href} className="rounded-xl border border-[var(--admin-border)] bg-[var(--admin-panel)] px-5 py-5 transition-colors hover:border-[var(--admin-accent)] hover:bg-[var(--admin-panel-hover)]">
+            <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--admin-subtle)]">{tile.label}</div>
             <div className="mt-3 text-[34px] font-semibold tracking-tight">{tile.value}</div>
           </Link>
         ))}
@@ -148,13 +148,13 @@ export default async function AdminDashboard() {
         <Panel title="Latest leads" href="/admin/leads">
           {data?.recentLeads.length ? (
             data.recentLeads.map((lead) => (
-              <div key={lead.id} className="border-b border-white/5 px-4 py-3 last:border-0">
+              <div key={lead.id} className="border-b border-[var(--admin-border-soft)] px-4 py-3 last:border-0">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="truncate text-[14px] text-white/90">{lead.name}</p>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#ff6a00]">{lead.status}</span>
+                  <p className="truncate text-[14px] text-[var(--admin-text)]">{lead.name}</p>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-accent)]">{lead.status}</span>
                 </div>
-                <p className="mt-1 truncate font-mono text-[11px] text-white/40">{lead.email}</p>
-                <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-white/30">
+                <p className="mt-1 truncate font-mono text-[11px] text-[var(--admin-subtle)]">{lead.email}</p>
+                <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-subtle)]">
                   {lead.source} / {dateFmt.format(new Date(lead.created_at))}
                 </p>
               </div>
@@ -167,15 +167,15 @@ export default async function AdminDashboard() {
         <Panel title="Upcoming bookings" href="/admin/bookings">
           {data?.upcomingBookings.length ? (
             data.upcomingBookings.map((booking) => (
-              <div key={booking.id} className="border-b border-white/5 px-4 py-3 last:border-0">
+              <div key={booking.id} className="border-b border-[var(--admin-border-soft)] px-4 py-3 last:border-0">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="truncate text-[14px] text-white/90">{booking.name}</p>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-white/35">
+                  <p className="truncate text-[14px] text-[var(--admin-text)]">{booking.name}</p>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-subtle)]">
                     {booking.meet_link ? "Linked" : "Pending"}
                   </span>
                 </div>
-                <p className="mt-1 truncate font-mono text-[11px] text-white/40">{booking.email}</p>
-                <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-[#ff6a00]">
+                <p className="mt-1 truncate font-mono text-[11px] text-[var(--admin-subtle)]">{booking.email}</p>
+                <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-accent)]">
                   {dateFmt.format(new Date(booking.slot_start))}
                 </p>
               </div>
@@ -188,13 +188,13 @@ export default async function AdminDashboard() {
         <Panel title="Recent applications" href="/admin/applications">
           {data?.recentApplications.length ? (
             data.recentApplications.map((application) => (
-              <div key={application.id} className="border-b border-white/5 px-4 py-3 last:border-0">
+              <div key={application.id} className="border-b border-[var(--admin-border-soft)] px-4 py-3 last:border-0">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="truncate text-[14px] text-white/90">{application.name}</p>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#ff6a00]">{application.status}</span>
+                  <p className="truncate text-[14px] text-[var(--admin-text)]">{application.name}</p>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-accent)]">{application.status}</span>
                 </div>
-                <p className="mt-1 truncate font-mono text-[11px] text-white/40">{application.email}</p>
-                <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-white/30">
+                <p className="mt-1 truncate font-mono text-[11px] text-[var(--admin-subtle)]">{application.email}</p>
+                <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-subtle)]">
                   {dateFmt.format(new Date(application.created_at))}
                 </p>
               </div>

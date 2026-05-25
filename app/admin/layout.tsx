@@ -8,5 +8,9 @@ export const metadata = {
 // Minimal wrapper: every /admin/* page renders into this.
 // The cinematic Lenis smooth-scroll is intentionally absent for admin work.
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  return <div className="admin-root min-h-screen bg-[#0d0e10] text-[#f5f3f0]">{children}</div>;
+  return (
+    <div className="admin-root min-h-screen" data-admin-theme="dark">
+      {children}
+    </div>
+  );
 }

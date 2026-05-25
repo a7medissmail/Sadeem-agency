@@ -127,6 +127,7 @@ HANDOFF.md                       # this file
 - **RLS is the source of truth**, not Next middleware. Middleware only handles session refresh and admin route gating.
 - **Role helpers** — `requireUser()` (any signed-in), `requireRole(['admin'])`. Profiles row is auto-created by a trigger; the bootstrap admin is set with raw SQL.
 - **Cinematic site untouched** by app-shell concerns. Marketing layout is the only place Lenis runs.
+- **Admin OS foundation** - CSS theme tokens, light/dark mode, active sidebar nav, and reusable primitives under `components/admin/ui/`. Keep moving admin screens away from inline hardcoded colors toward `--admin-*` tokens.
 - **Admin UI** — dark theme (`#0d0e10` / `#f5f3f0` / accent `#ff6a00`). Building a reusable primitives library (button, input, select, table, badge, dialog, toast) as we go. Currently inline Tailwind — will be extracted under `components/admin/ui/` in P1.
 
 ---
@@ -449,6 +450,26 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 **Possible later settings**
 - Structured multi-location contact data. SADEEM has two offices; Cairo, Egypt is the HQ, and Riyadh, KSA is the Saudi office. Model as `{ label, city, country, address, is_hq, maps_url }` rather than a single footer text field.
 - Site-wide SEO defaults (`title`, `description`, OG image), footer nav column management, legal links, analytics IDs, default email reply-to, and brand color tokens.
+
+---
+
+### [2026-05-25] Admin OS Foundation
+
+**Implemented**
+- `/admin` now uses a token-driven shell instead of hardcoded dark-only layout classes.
+- Added `components/admin/AdminThemeToggle.tsx` for persisted light/dark mode (`localStorage: sadeem-admin-theme`).
+- Added `components/admin/AdminNavLink.tsx` with active route detection through `usePathname()`.
+- Sidebar is grouped by Command, Content, Hiring, and System so the admin starts to feel like a real operating system rather than a long list.
+- Dashboard + shared primitives (`Button`, `Field`, `Badge`, `PageHeader`, `Table`) now use `--admin-*` CSS variables.
+
+**Next admin build plan**
+- Refactor Leads, Bookings, Applications, and content tables onto the tokenized primitives.
+- Build a Trello-style hiring pipeline with drag-and-drop, detail drawers, comments/notes, resume preview, rejection/next-step email actions, and status history.
+- Add dynamic form builder foundations: form definitions, form fields, form submissions, and per-job/per-client field configuration.
+- Add RBAC policy layer in UI + server actions: admin, editor, hiring, sales, viewer. Server-side checks stay mandatory.
+- Add settings for admin theme defaults, sender identities, locations, proposal templates, and automation intervals.
+- Add proposal/onboarding system: private per-client brief links, tokenized access, reminder emails, submitted answers, and admin review workflow.
+- Add charts/insights once the data shape is cleaner: lead source conversion, booking volume, hiring funnel, campaign performance.
 
 ---
 

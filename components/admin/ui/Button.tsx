@@ -10,10 +10,10 @@ const sizes: Record<Size, string> = {
   md: "px-5 py-2.5 text-[11px]",
 };
 const variants: Record<Variant, string> = {
-  primary: "bg-[#ff6a00] text-white hover:bg-[#ff7d20]",
+  primary: "bg-[var(--admin-accent)] text-white hover:brightness-110",
   outline:
-    "border border-[#ff6a00]/70 text-[#ff6a00] hover:bg-[#ff6a00]/10",
-  ghost: "text-white/60 hover:text-white hover:bg-white/5",
+    "border border-[var(--admin-accent)] text-[var(--admin-accent)] hover:bg-[var(--admin-accent-soft)]",
+  ghost: "text-[var(--admin-muted)] hover:text-[var(--admin-text)] hover:bg-[var(--admin-panel-hover)]",
   danger: "text-red-300 hover:text-red-200 hover:bg-red-500/10",
 };
 

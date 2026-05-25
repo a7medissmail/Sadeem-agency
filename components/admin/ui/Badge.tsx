@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 type Tone = "neutral" | "orange" | "blue" | "green" | "amber" | "red" | "violet";
 
 const tones: Record<Tone, string> = {
-  neutral: "text-white/65 border-white/15 bg-white/[0.03]",
-  orange: "text-[#ffb37a] border-[#ff6a00]/40 bg-[#ff6a00]/[0.08]",
+  neutral: "text-[var(--admin-muted)] border-[var(--admin-border)] bg-[var(--admin-panel)]",
+  orange: "text-[var(--admin-accent)] border-[var(--admin-accent)] bg-[var(--admin-accent-soft)]",
   blue: "text-sky-300 border-sky-400/30 bg-sky-400/[0.08]",
   green: "text-emerald-300 border-emerald-400/30 bg-emerald-400/[0.08]",
   amber: "text-amber-200 border-amber-400/30 bg-amber-400/[0.08]",
