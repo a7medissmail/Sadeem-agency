@@ -535,6 +535,70 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 
 ---
 
+### [2026-05-26] Hardening pass: rate limiting, dynamic-form file upload, smoke tests
+
+Tackled the two risks flagged in the audit and added the long-overdue test layer.
+
+**Rate limiting (migration 0016 + lib/security/rateLimit.ts)**
+- New `public.submission_attempts` table + a `prune_submission_attempts()` function for 24h GC. Service-role inserts attempts; RLS lets staff inspect.
+- `lib/security/rateLimit.ts` reads the visitor IP from `x-forwarded-for` / `x-vercel-forwarded-for` / `x-real-ip` (with `unknown` fallback) and **fails OPEN** on any DB error — never breaks a legit submission if the limiter is down.
+- Wired into every public submission action:
+  - `lib/actions/leads.ts` — **lead** 5 / 60s
+  - `lib/actions/applications.ts` — **application** 3 / 300s (uploads expensive)
+  - `lib/actions/bookings.ts` — **booking** 3 / 300s
+  - `lib/actions/dynamicForms.ts` — **form:{id}** 5 / 60s, scoped per form so spamming one doesn't throttle others
+- Honeypot remains the first line; rate limit is the second.
+
+**Dynamic-form file fields (migration 0017)**
+- Verified `is_active` is already enforced in `lib/actions/dynamicForms.ts` (the action checks `form.is_active`); RLS was just defense-in-depth.
+- New **private** `form-attachments` bucket (10 MB cap, MIME allowlist for PDF/DOC/DOCX/PNG/JPG/WebP) with staff-only object policies. Same private-bucket + signed-URL pattern as `application-resumes`.
+- `dynamicForms.ts` now: validates MIME + size per file in `validateField`, uploads each to `form-attachments/{formId}/{submissionId}/{fieldKey}-{ts}.{ext}` after the submission row exists, and **rolls back** the submission on upload failure. The stored answer becomes `{ path, name, size, type }` so admins can mint signed URLs to download.
+
+**Playwright smoke tests** (`@playwright/test`, 6 tests / 2 files)
+- `playwright.config.ts` — `PLAYWRIGHT_BASE_URL` env (defaults to `http://localhost:3000`), Chromium project, retries on CI.
+- `tests/e2e/marketing.spec.ts` — homepage hero, contact form interactivity (fill only, no submit so no DB writes), `/courses`, `/careers` indexes.
+- `tests/e2e/admin.spec.ts` — unauthenticated `/admin` → `/admin/login` redirect, login form fields render.
+- `npm run test:e2e` + `npm run test:e2e:ui`; `tests/README.md` walkthrough.
+- `/playwright-report`, `/test-results`, `/.playwright` gitignored.
+
+---
+
+### [2026-05-26] UI/UX + bug audit + admin polish
+
+Deep review of admin UI density and a hunt for real bugs. Three changes shipped, plus an inventory of what's healthy.
+
+**Bugs fixed (real, user-visible)**
+1. **`/admin/leads`, `/admin/applications`, `/admin/bookings` auto-opened a side drawer** for the first row on mount because `useState<string | null>(items[0]?.id ?? null)` defaulted to the first item. Reported as "بتفتح السايد بتاعها على طول". Drawer now stays closed until a card is clicked.
+2. **`/admin/users` could 500 on a Supabase hiccup** — `loadUsers()` had no try/catch (every other admin list had one). Wrapped + inline amber banner that surfaces the actual Postgres error.
+3. **Privacy page hardcoded `hello@sadeem.agency`** — now pulled from `getPublicSiteSettings().footerEmail` so swapping the brand email in `/admin/settings` reaches the legal pages too.
+
+**Admin density polish (reported as "صفحات بقت زحمة اوي")**
+- Removed **redundant `Open` / `Review` button** at the bottom of every kanban card (Leads, Applications, Bookings). The whole card was already a clickable button; the explicit button was a second click target and added a noisy row. Replaced with a static `Open →` / `Review →` hint that brightens on hover.
+
+**Verdict on the rest of the UI** (no changes needed, but documented so the next pass has a baseline):
+
+| Concern | Status |
+|---|---|
+| Mobile nav | ✅ Solid — hamburger, `aria-controls`, `aria-expanded`, staggered transitions |
+| Admin sidebar responsive | ✅ Collapses on `max-width: 1080px`; nav becomes 2-col grid; mobile = 1 col |
+| Kanban overflow | ✅ Boards have `overflow-x-auto` wrapping a `min-w-[1320px]` grid — scrolls horizontally on narrow screens (acceptable for kanban) |
+| Empty states | ✅ Every admin list has one; per-column "No leads / candidates / bookings" present in the boards |
+| Error handling | ✅ Every `loadX()` now has try/catch + inline amber banner |
+| Reduced motion | ✅ Respected in 5 CSS blocks + `SmoothScroll.tsx` |
+| Form labels / ARIA | ✅ All forms use `<label htmlFor>` + `aria-invalid` + `role="alert"` |
+| Honeypot | ✅ On every public form (`website` hidden field) |
+| `useFormStatus` pending | ✅ Prevents double-submit on every submit button |
+| Site settings (logos, footer email, social links) | ✅ Reads from DB, no hardcoded brand values left |
+
+**Open polish items** (small, not blockers — listed so they're not lost):
+- Skip-to-content link missing (a11y baseline).
+- `text-white/35` may sit below WCAG AA on `#0a0b0d` — sidebar muted state and "soon" labels. Bumping to `/55` lifts contrast.
+- Some submit buttons use `→` (HTML entity) instead of the `Icon.Arrow` SVG; cosmetic inconsistency.
+- Course / Team slug-conflict error in the admin shows the raw Postgres message. Jobs already maps `jobs_slug_key` → "A role with this slug already exists." — same helper can be reused on courses + team.
+- Kanban cards still show email/phone on the card itself; could be drawer-only to reduce density further. Deferred — that's a design call.
+
+---
+
 ### [2026-05-23] Post-P1 fixes
 
 - **`supabase/migrations/0002_grants.sql`** — added explicit GRANTs on `public.*` for `anon` + `authenticated` (plus default privileges on future tables). Without this, the project's "Automatically expose new tables" being disabled meant RLS policies were correct but the role had no table-level privilege → lead inserts and profile reads silently failed (form said "Could not save", admin pages ping-ponged through the login redirect).

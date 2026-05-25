@@ -160,7 +160,7 @@ function BookingCard({
 
       <div className="flex flex-row items-center justify-between gap-4 md:flex-col md:items-end">
         <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">{meetingState(booking)}</span>
-        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)]">Open</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)]/70 transition-colors group-hover:text-[var(--admin-accent)]">Open →</span>
       </div>
     </button>
   );
@@ -355,7 +355,9 @@ function AvailabilityRules({ rules }: { rules: AvailabilityRuleRow[] }) {
 export function BookingsBoard({ bookings, rules }: { bookings: BookingBoardRow[]; rules: AvailabilityRuleRow[] }) {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<BookingStatus | "all">("all");
-  const [selectedId, setSelectedId] = useState<string | null>(bookings[0]?.id ?? null);
+  // Drawer stays closed on mount — auto-opening the first booking was
+  // disorienting (especially on a fresh page load).
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();

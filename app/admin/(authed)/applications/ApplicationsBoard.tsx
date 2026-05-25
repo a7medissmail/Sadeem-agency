@@ -216,17 +216,11 @@ function CandidateCard({
         )}
       </button>
 
-      <div className="mt-4 flex items-center justify-between gap-3 border-t border-[var(--admin-border-soft)] pt-3">
-        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">
-          {application.notes.length > 0 ? `${application.notes.length} note${application.notes.length === 1 ? "" : "s"}` : "No notes"}
+      <div className="mt-4 flex items-center justify-between gap-3 border-t border-[var(--admin-border-soft)] pt-3 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">
+        <span>{application.notes.length > 0 ? `${application.notes.length} note${application.notes.length === 1 ? "" : "s"}` : "No notes"}</span>
+        <span className="text-[var(--admin-accent)]/70 transition-colors group-hover:text-[var(--admin-accent)]" aria-hidden="true">
+          Review →
         </span>
-        <button
-          type="button"
-          onClick={onOpen}
-          className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)] transition-colors group-hover:text-[var(--admin-text)]"
-        >
-          Review
-        </button>
       </div>
     </article>
   );
@@ -493,7 +487,9 @@ export function ApplicationsBoard({ applications, staff }: { applications: Appli
   const [role, setRole] = useState("all");
   const [owner, setOwner] = useState("all");
   const [status, setStatus] = useState<ApplicationStatus | "all">("all");
-  const [selectedId, setSelectedId] = useState<string | null>(applications[0]?.id ?? null);
+  // Drawer stays closed on mount — auto-opening the first application was
+  // disorienting (especially on a fresh page load).
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const roles = useMemo(() => {
     return Array.from(new Set(applications.map((application) => roleName(application)))).sort((a, b) => a.localeCompare(b));

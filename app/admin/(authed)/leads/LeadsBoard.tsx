@@ -168,17 +168,11 @@ function LeadCard({
         )}
       </button>
 
-      <div className="mt-4 flex items-center justify-between gap-3 border-t border-[var(--admin-border-soft)] pt-3">
-        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">
-          {lead.marketing_unsubscribed_at ? "Unsubscribed" : "Can email"}
+      <div className="mt-4 flex items-center justify-between gap-3 border-t border-[var(--admin-border-soft)] pt-3 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">
+        <span>{lead.marketing_unsubscribed_at ? "Unsubscribed" : "Can email"}</span>
+        <span className="text-[var(--admin-accent)]/70 transition-colors group-hover:text-[var(--admin-accent)]" aria-hidden="true">
+          Open →
         </span>
-        <button
-          type="button"
-          onClick={onOpen}
-          className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)] transition-colors group-hover:text-[var(--admin-text)]"
-        >
-          Open
-        </button>
       </div>
     </article>
   );
@@ -337,7 +331,9 @@ export function LeadsBoard({ leads, staff }: { leads: LeadBoardRow[]; staff: Sta
   const [query, setQuery] = useState("");
   const [source, setSource] = useState<LeadSource | "all">("all");
   const [status, setStatus] = useState<LeadStatus | "all">("all");
-  const [selectedId, setSelectedId] = useState<string | null>(leads[0]?.id ?? null);
+  // Drawer stays closed on mount — auto-opening the first lead was disorienting
+  // (especially on a fresh page load).
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
