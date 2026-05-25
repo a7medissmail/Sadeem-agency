@@ -119,8 +119,8 @@ export default function Footer() {
         <div className="footer-base">
           <span>Copyright 2026 Sadeem. All rights reserved.</span>
           <span className="footer-base-right">
-            <span>Privacy</span>
-            <span>Terms</span>
+            <Link href="/privacy">Privacy</Link>
+            <Link href="/terms">Terms</Link>
           </span>
         </div>
       </div>

@@ -538,6 +538,26 @@ Substantial second pass after the P2 baseline. Hardened the course experience, g
 
 ---
 
+### [2026-05-25] Legal / SEO baseline
+
+**SEO**
+- Root metadata now includes `metadataBase`, title template, Open Graph, Twitter card metadata, robots defaults, and a default OG image from the existing hero assets.
+- Site settings favicon is rendered in `<head>` when configured in `/admin/settings`.
+- Added `app/sitemap.ts` with static public routes plus active courses, open jobs, and published success stories from Supabase.
+- Added `app/robots.ts` allowing public pages while excluding `/admin/` and `/api/`.
+
+**Legal pages**
+- Added `/privacy` and `/terms` with SADEEM-styled dark heroes and warm-white editorial content sections.
+- Footer Privacy / Terms labels are now real links.
+
+**Verification**
+- `npx tsc --noEmit` clean.
+- `npm run build` clean.
+- Local smoke: `/privacy`, `/terms`, `/sitemap.xml`, `/robots.txt`.
+- Visual screenshots checked for `/privacy` desktop/mobile.
+
+---
+
 ## 11. Open / parked items
 
 - **Success Stories follow-up**: apply migration `0012_success_stories.sql` on production, add the first real stories from admin, then remove/replace the homepage fallback cards once the content library is populated.
