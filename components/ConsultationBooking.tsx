@@ -102,7 +102,7 @@ export default function ConsultationBooking() {
         </div>
         <div>
           <p>FORMAT</p>
-          <strong>45 min / Meet</strong>
+          <strong>45 min / Online</strong>
         </div>
       </div>
 

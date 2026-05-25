@@ -44,7 +44,7 @@ export function createBookingIcs(input: IcsBooking) {
     `DTEND:${stamp(new Date(input.end))}`,
     `SUMMARY:${escapeIcs(input.summary)}`,
     `DESCRIPTION:${escapeIcs(input.description)}`,
-    `LOCATION:${escapeIcs(input.location || "Google Meet")}`,
+    `LOCATION:${escapeIcs(input.location || "Meeting details to follow")}`,
     "END:VEVENT",
     "END:VCALENDAR",
   ];

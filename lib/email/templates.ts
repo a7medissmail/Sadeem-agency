@@ -164,7 +164,7 @@ export function bookingConfirmation({
     ${
       meetLink
         ? `<p style="margin:0 0 16px;color:${dark}">Join link: <a href="${esc(meetLink)}" style="color:${accent}">${esc(meetLink)}</a></p>`
-        : `<p style="margin:0 0 16px;color:${muted}">We'll send the meeting link shortly.</p>`
+        : `<p style="margin:0 0 16px;color:${muted}">We'll follow up with the meeting details shortly.</p>`
     }
     <p style="margin:0;color:${muted}">We attached a calendar invite so the session lands in your calendar cleanly.</p>
   </div>

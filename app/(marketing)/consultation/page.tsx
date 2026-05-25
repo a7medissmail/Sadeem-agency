@@ -47,8 +47,8 @@ export default function ConsultationPage() {
                 <span>operating window.</span>
               </h2>
               <p>
-                The calendar below reads SADEEM availability, removes busy time, and reserves a Google Meet once you
-                submit.
+                The calendar below reads SADEEM availability, removes busy time, and sends a clean calendar invite once
+                you submit.
               </p>
               <div className="consult-booking-notes">
                 <div>

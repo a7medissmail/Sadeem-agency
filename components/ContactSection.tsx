@@ -3,8 +3,12 @@
 import RevealSection from "./RevealSection";
 import SectionLabel from "./SectionLabel";
 import LeadForm from "./LeadForm";
+import { useSiteSettings } from "./SiteSettingsProvider";
 
 export default function ContactSection() {
+  const settings = useSiteSettings();
+  const email = settings.footerEmail || "hello@sadeem.agency";
+
   return (
     <RevealSection className="contact light" data-section="10" id="contact">
       <SectionLabel n="10" text="GET IN TOUCH" />
@@ -22,7 +26,7 @@ export default function ContactSection() {
           <ul className="contact-meta">
             <li>
               <span>Reach</span>
-              <a href="mailto:hello@sadeem.agency">hello@sadeem.agency</a>
+              <a href={`mailto:${email}`}>{email}</a>
             </li>
             <li>
               <span>HQ</span>
