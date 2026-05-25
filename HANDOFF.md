@@ -558,9 +558,27 @@ Substantial second pass after the P2 baseline. Hardened the course experience, g
 
 ---
 
+### [2026-05-25] Email template polish
+
+**Transactional + campaign templates**
+- `lib/email/templates.ts` now uses a shared SADEEM email shell instead of one-off minimal cards.
+- All templates share the same dark masthead, orange rule, warm-white background, card body, mobile-safe inline styles, hidden preview text, and consistent footer.
+- Internal notifications now use cleaner label/value tables for leads, applications, and bookings.
+- Visitor-facing templates were rewritten for lead confirmations, booking confirmations, application received, application rejected, and CRM campaign updates.
+- Campaign emails still support unsubscribe links and plain-text authoring from the admin Email Center.
+
+**Later automation ideas**
+- Booking reminder: send 24 hours before the consultation.
+- Post-consultation follow-up: send next steps / recap manually or by status.
+- Course waitlist: notify interested leads when a cohort opens or capacity changes.
+- Careers lifecycle: application received, moved to interview, offer, rejected, plus new job alerts for opted-in leads.
+- Campaign tooling: preview/test-send, saved branded templates, audience suppression rules, and bounce/complaint handling.
+
+---
+
 ## 11. Open / parked items
 
 - **Success Stories follow-up**: apply migration `0012_success_stories.sql` on production, add the first real stories from admin, then remove/replace the homepage fallback cards once the content library is populated.
-- **Email template polish backlog**: build branded templates for lead confirmation, internal lead notification, course registration, consultation booking, application received, application rejected, and campaign updates. Add stronger sender copy, logo header, footer social links, unsubscribe/legal text, and a consistent CTA slot. Automation ideas: new job alert to opted-in leads, application status changes, booking reminder, post-consultation follow-up, and course waitlist updates.
+- **Email automation backlog**: add booking reminders, post-consultation follow-up, course waitlist updates, new job alerts, application interview/offer updates, campaign test-send, saved templates, and bounce/complaint suppression handling.
 - **Slide-1 faint foreground wisp** in front of the figure for extra depth (backlog).
 - **Stale `.next/types/app/page.ts`** may need clearing once after the marketing route group move; `tsc` is clean now.
