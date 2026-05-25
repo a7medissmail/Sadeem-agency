@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/resend";
-import { campaignEmail } from "@/lib/email/templates";
+import { campaignEmail, getEmailBranding } from "@/lib/email/templates";
 import { unsubscribeUrl } from "@/lib/email/unsubscribe";
 import { campaignSchema, type CampaignAudience } from "@/lib/validation/campaign";
 import type { CampaignStatus, Database, Json, LeadSource, LeadStatus } from "@/types/database";
@@ -98,12 +98,14 @@ export async function sendCampaignAction(formData: FormData): Promise<void> {
   await admin.from("email_campaigns").update({ status: "sending" as CampaignStatus }).eq("id", id);
 
   let failures = 0;
+  const brand = await getEmailBranding();
   for (const lead of leads) {
     const email = campaignEmail({
       subject: campaign.subject,
       body: campaign.body,
       leadName: lead.name,
       unsubscribeUrl: unsubscribeUrl(lead.id),
+      brand,
     });
 
     const result = await sendEmail({

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
 import { createBookingIcs } from "@/lib/calendar/ics";
-import { bookingConfirmation, bookingNotification } from "@/lib/email/templates";
+import { bookingConfirmation, bookingNotification, getEmailBranding } from "@/lib/email/templates";
 import { sendEmail } from "@/lib/email/resend";
 import { bookingTimeZone } from "@/lib/google/calendar";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -97,7 +97,8 @@ export async function sendBookingDetailsAction(formData: FormData): Promise<void
     contentType: "text/calendar; charset=utf-8; method=REQUEST",
   };
   const team = process.env.TEAM_NOTIFY_TO;
-  const confirmation = bookingConfirmation({ name: booking.name, slotLabel: label, meetLink });
+  const brand = await getEmailBranding();
+  const confirmation = bookingConfirmation({ name: booking.name, slotLabel: label, meetLink, brand });
   const notification = bookingNotification({
     name: booking.name,
     email: booking.email,
@@ -105,6 +106,7 @@ export async function sendBookingDetailsAction(formData: FormData): Promise<void
     topic: booking.topic,
     slotLabel: label,
     meetLink,
+    brand,
   });
 
   await Promise.allSettled([

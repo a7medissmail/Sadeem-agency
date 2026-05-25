@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/resend";
-import { applicationRejection } from "@/lib/email/templates";
+import { applicationRejection, getEmailBranding } from "@/lib/email/templates";
 import { applicationStatuses } from "@/lib/validation/careers";
 import type { ApplicationStatus } from "@/types/database";
 
@@ -31,9 +31,11 @@ export async function updateApplicationStatusAction(formData: FormData): Promise
 
   if (application.status !== status && status === "rejected") {
     const { data: job } = await admin.from("jobs").select("title").eq("id", application.job_id).maybeSingle();
+    const brand = await getEmailBranding();
     const email = applicationRejection({
       name: application.name,
       jobTitle: job?.title ?? "the role",
+      brand,
     });
 
     await sendEmail({

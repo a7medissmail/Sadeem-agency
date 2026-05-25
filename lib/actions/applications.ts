@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/resend";
-import { applicationConfirmation, applicationNotification } from "@/lib/email/templates";
+import { applicationConfirmation, applicationNotification, getEmailBranding } from "@/lib/email/templates";
 import {
   applicationSchema,
   formatApplicationValidationError,
@@ -117,8 +117,9 @@ export async function submitApplicationAction(
   }
 
   const team = process.env.TEAM_NOTIFY_TO;
-  const confirmation = applicationConfirmation({ name, jobTitle: job.title });
-  const notification = applicationNotification({ name, email, phone, jobTitle: job.title, coverNote: cover_note });
+  const brand = await getEmailBranding();
+  const confirmation = applicationConfirmation({ name, jobTitle: job.title, brand });
+  const notification = applicationNotification({ name, email, phone, jobTitle: job.title, coverNote: cover_note, brand });
 
   await Promise.allSettled([
     sendEmail({ to: email, subject: confirmation.subject, html: confirmation.html, replyTo: team }),

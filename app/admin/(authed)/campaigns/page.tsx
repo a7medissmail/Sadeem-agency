@@ -123,7 +123,7 @@ export default async function CampaignsAdminPage() {
             <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[#ff6a00]">Compose</p>
             <h2 className="mt-2 text-xl font-semibold">New campaign</h2>
             <p className="mt-1 text-[13px] text-white/45">
-              Body is sent as branded text email. HTML is intentionally not accepted here.
+              Body is sent in the SADEEM email system. Plain text is safest; basic pasted HTML is cleaned before sending.
             </p>
           </div>
 

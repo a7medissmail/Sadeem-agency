@@ -11,7 +11,7 @@ import {
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { createGoogleCalendarEvent, isGoogleCalendarConfigured, bookingTimeZone } from "@/lib/google/calendar";
 import { sendEmail } from "@/lib/email/resend";
-import { bookingConfirmation, bookingNotification } from "@/lib/email/templates";
+import { bookingConfirmation, bookingNotification, getEmailBranding } from "@/lib/email/templates";
 
 export type SubmitBookingState =
   | { status: "idle" }
@@ -189,8 +189,9 @@ export async function submitBookingAction(
     contentType: "text/calendar; charset=utf-8; method=REQUEST",
   };
   const team = process.env.TEAM_NOTIFY_TO;
-  const confirmation = bookingConfirmation({ name, slotLabel: label, meetLink });
-  const notification = bookingNotification({ name, email, phone, topic, slotLabel: label, meetLink });
+  const brand = await getEmailBranding();
+  const confirmation = bookingConfirmation({ name, slotLabel: label, meetLink, brand });
+  const notification = bookingNotification({ name, email, phone, topic, slotLabel: label, meetLink, brand });
 
   await Promise.allSettled([
     sendEmail({

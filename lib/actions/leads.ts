@@ -3,7 +3,7 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { leadSchema, type LeadInput } from "@/lib/validation/lead";
 import { sendEmail } from "@/lib/email/resend";
-import { leadConfirmation, leadNotification } from "@/lib/email/templates";
+import { getEmailBranding, leadConfirmation, leadNotification } from "@/lib/email/templates";
 
 export type SubmitLeadState =
   | { status: "idle" }
@@ -56,8 +56,9 @@ export async function submitLeadAction(
 
   // Best-effort emails — never block success.
   const team = process.env.TEAM_NOTIFY_TO;
-  const confirmation = leadConfirmation({ name });
-  const notification = leadNotification({ name, email, phone, company, message, source });
+  const brand = await getEmailBranding();
+  const confirmation = leadConfirmation({ name, brand });
+  const notification = leadNotification({ name, email, phone, company, message, source, brand });
 
   await Promise.allSettled([
     sendEmail({ to: email, subject: confirmation.subject, html: confirmation.html, replyTo: team }),

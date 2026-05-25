@@ -562,7 +562,10 @@ Substantial second pass after the P2 baseline. Hardened the course experience, g
 
 **Transactional + campaign templates**
 - `lib/email/templates.ts` now uses a shared SADEEM email shell instead of one-off minimal cards.
-- All templates share the same dark masthead, orange rule, warm-white background, card body, mobile-safe inline styles, hidden preview text, and consistent footer.
+- All templates share the same dark masthead, orange rule, mobile-safe inline styles, hidden preview text, and consistent footer.
+- Email mastheads now use the configured site logo from `/admin/settings` when available, preferring the white logo for dark email headers and falling back to text when images are blocked.
+- Campaign bodies now accept basic pasted HTML safely: allowed tags are sanitized and styled instead of showing literal `<p>` text to recipients.
+- Mobile title sizing was tightened so long campaign subjects do not dominate Gmail mobile.
 - Internal notifications now use cleaner label/value tables for leads, applications, and bookings.
 - Visitor-facing templates were rewritten for lead confirmations, booking confirmations, application received, application rejected, and CRM campaign updates.
 - Campaign emails still support unsubscribe links and plain-text authoring from the admin Email Center.
