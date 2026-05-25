@@ -17,7 +17,7 @@ export default function ContactSection() {
           </h2>
           <p className="body">
             We work with a small number of ambitious teams at a time. Share a few details
-            and the right person will reach out — usually within one business day.
+            and the right person will reach out, usually within one business day.
           </p>
           <ul className="contact-meta">
             <li>

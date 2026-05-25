@@ -117,7 +117,7 @@ export default function Footer() {
         </div>
         <div className="footer-rule" />
         <div className="footer-base">
-          <span>© 2026 Sadeem. All rights reserved.</span>
+          <span>Copyright 2026 Sadeem. All rights reserved.</span>
           <span className="footer-base-right">
             <span>Privacy</span>
             <span>Terms</span>

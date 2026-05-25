@@ -37,7 +37,7 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
 
     // Only treat the hash as a scroll target if it's a plain element id
     // (e.g. "#about"). Supabase auth flows append tokens like
-    // "#access_token=…" which are not valid selectors and would crash Lenis.
+    // "#access_token=..." which are not valid selectors and would crash Lenis.
     const isPlainId = /^#[A-Za-z][\w-]*$/.test(initialHash);
     if (isPlainId && document.querySelector(initialHash)) {
       requestAnimationFrame(() => lenis.scrollTo(initialHash, { immediate: true }));

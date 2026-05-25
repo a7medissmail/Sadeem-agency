@@ -1,4 +1,5 @@
 import "server-only";
+import { unstable_noStore as noStore } from "next/cache";
 import type { Json } from "@/types/database";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
@@ -44,6 +45,8 @@ export function normalizeSocialLinks(value: Json | null | undefined): SiteSocial
 }
 
 export async function getPublicSiteSettings(): Promise<PublicSiteSettings> {
+  noStore();
+
   try {
     const admin = getSupabaseAdmin();
     const { data, error } = await admin.from("site_settings").select("*").eq("id", true).maybeSingle();
