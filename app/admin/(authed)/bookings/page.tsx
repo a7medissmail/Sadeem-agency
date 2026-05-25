@@ -10,7 +10,9 @@ import type { BookingStatus } from "@/types/database";
 import {
   createAvailabilityRuleAction,
   deleteAvailabilityRuleAction,
+  sendBookingDetailsAction,
   updateAvailabilityRuleAction,
+  updateBookingDetailsAction,
   updateBookingStatusAction,
 } from "./actions";
 
@@ -111,14 +113,14 @@ export default async function BookingsAdminPage() {
 
       <TableShell>
         <div
-          style={{ gridTemplateColumns: "1.2fr 1.2fr 1fr 0.85fr 0.7fr 0.55fr" }}
+          style={{ gridTemplateColumns: "1.1fr 1fr 1fr 0.9fr 1.35fr 0.55fr" }}
           className="grid gap-4 border-b border-white/10 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.2em] text-white/45"
         >
           <div>Visitor</div>
           <div>When</div>
           <div>Topic</div>
           <div>Status</div>
-          <div>Meet</div>
+          <div>Meeting details</div>
           <div></div>
         </div>
 
@@ -128,8 +130,8 @@ export default async function BookingsAdminPage() {
           bookings.map((booking) => (
             <div
               key={booking.id}
-              style={{ gridTemplateColumns: "1.2fr 1.2fr 1fr 0.85fr 0.7fr 0.55fr" }}
-              className="grid items-center gap-4 border-b border-white/5 px-5 py-3 text-[13.5px] last:border-0"
+              style={{ gridTemplateColumns: "1.1fr 1fr 1fr 0.9fr 1.35fr 0.55fr" }}
+              className="grid items-center gap-4 border-b border-white/5 px-5 py-4 text-[13.5px] last:border-0"
             >
               <div className="min-w-0">
                 <div className="truncate text-white/95">{booking.name}</div>
@@ -152,7 +154,7 @@ export default async function BookingsAdminPage() {
                 </Select>
                 <Button type="submit" variant="ghost" size="sm">Save</Button>
               </form>
-              <div>
+              <div className="flex flex-col gap-2">
                 {booking.meet_link ? (
                   <a
                     href={booking.meet_link}
@@ -165,8 +167,29 @@ export default async function BookingsAdminPage() {
                 ) : (
                   <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/30">Pending</span>
                 )}
+                <form action={updateBookingDetailsAction} className="flex gap-2">
+                  <input type="hidden" name="id" value={booking.id} />
+                  <Input
+                    name="meet_link"
+                    type="url"
+                    placeholder="https://meet.google.com/..."
+                    defaultValue={booking.meet_link ?? ""}
+                    className="min-w-0 px-2 py-1 text-[12px]"
+                  />
+                  <Button type="submit" variant="ghost" size="sm">
+                    Save
+                  </Button>
+                </form>
               </div>
-              <div className="font-mono text-[10px] text-white/30">{booking.google_event_id ? "Google" : "Local"}</div>
+              <div className="flex flex-col items-start gap-2">
+                <span className="font-mono text-[10px] text-white/30">{booking.google_event_id ? "Google" : "Local"}</span>
+                <form action={sendBookingDetailsAction}>
+                  <input type="hidden" name="id" value={booking.id} />
+                  <Button type="submit" variant="ghost" size="sm">
+                    Email
+                  </Button>
+                </form>
+              </div>
             </div>
           ))
         )}

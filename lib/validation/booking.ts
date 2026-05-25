@@ -35,6 +35,28 @@ const optionalPhone = z
 const booleanFromForm = (value: unknown): boolean =>
   value === true || value === "on" || value === "true" || value === "1";
 
+function isHttpUrl(value: string) {
+  if (!value) return true;
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+const nullableUrl = (label: string, max: number) =>
+  z
+    .preprocess(asString, z.string())
+    .transform((value) => value.trim())
+    .pipe(
+      z
+        .string()
+        .max(max, `${label} must be ${max} characters or fewer`)
+        .refine(isHttpUrl, `${label} must be a valid http(s) URL`),
+    )
+    .transform((value) => (value.length > 0 ? value : null));
+
 const numberFromForm = (value: unknown) => {
   if (typeof value === "number") return value;
   const parsed = Number(String(value ?? "").trim());
@@ -57,6 +79,10 @@ export const bookingSchema = z.object({
 export type BookingInput = z.infer<typeof bookingSchema>;
 export type BookingFieldName = keyof BookingInput;
 export type BookingFieldErrors = Partial<Record<BookingFieldName, string[]>>;
+
+export const bookingDetailsSchema = z.object({
+  meet_link: nullableUrl("Meet link", 500),
+});
 
 const BOOKING_LABELS: Record<BookingFieldName, string> = {
   slot_start: "Time",

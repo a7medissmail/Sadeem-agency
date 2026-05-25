@@ -576,9 +576,23 @@ Substantial second pass after the P2 baseline. Hardened the course experience, g
 
 ---
 
+### [2026-05-25] Booking operations polish
+
+**Admin booking tools**
+- `/admin/bookings` now lets staff add or edit a manual meeting link for each booking.
+- Staff can resend the booking details email from the booking row. The resend uses the current meeting link, regenerates the `.ics` invite, and sends both visitor confirmation and team notification.
+- Manual meeting links are validated as `http(s)` URLs before saving.
+
+**Why**
+- This keeps the current service-account booking flow simple while covering the practical case where the team adds Google Meet/Zoom details after the visitor books.
+- Full Google OAuth / Workspace Domain-Wide Delegation remains parked until the business wants official guest invites and automatic Meet creation from a delegated SADEEM mailbox.
+
+---
+
 ## 11. Open / parked items
 
 - **Success Stories follow-up**: apply migration `0012_success_stories.sql` on production, add the first real stories from admin, then remove/replace the homepage fallback cards once the content library is populated.
+- **Booking upgrade backlog**: add OAuth or Workspace Domain-Wide Delegation when official Google guest invites and automatic Meet creation become a priority.
 - **Email automation backlog**: add booking reminders, post-consultation follow-up, course waitlist updates, new job alerts, application interview/offer updates, campaign test-send, saved templates, and bounce/complaint suppression handling.
 - **Slide-1 faint foreground wisp** in front of the figure for extra depth (backlog).
 - **Stale `.next/types/app/page.ts`** may need clearing once after the marketing route group move; `tsc` is clean now.
