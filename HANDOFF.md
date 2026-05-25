@@ -589,6 +589,17 @@ Substantial second pass after the P2 baseline. Hardened the course experience, g
 
 ---
 
+### [2026-05-25] Admin dashboard polish
+
+**Dashboard**
+- `/admin` is now an operational cockpit instead of the old foundation placeholder.
+- Added responsive count tiles linking to Leads, Bookings, Active Courses, and Applications.
+- Added quick action links for writing campaigns, adding workshops, adding stories, adding jobs, and editing site settings.
+- Added compact live panels for latest leads, upcoming bookings, and recent applications.
+- Removed the stale "foundation is in place" copy and fixed the dashboard metadata title.
+
+---
+
 ## 11. Open / parked items
 
 - **Success Stories follow-up**: apply migration `0012_success_stories.sql` on production, add the first real stories from admin, then remove/replace the homepage fallback cards once the content library is populated.
