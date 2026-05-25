@@ -37,6 +37,13 @@ const jobTypeFromForm = (value: unknown): JobType => {
   return jobTypes.includes(normalized as JobType) ? (normalized as JobType) : "job";
 };
 
+const nullableUuid = (label: string) =>
+  z
+    .preprocess(asString, z.string())
+    .transform((value) => value.trim())
+    .pipe(z.string().uuid(`${label} is invalid`).or(z.literal("")))
+    .transform((value) => (value ? value : null));
+
 export const jobSchema = z.object({
   title: requiredText("Title", 160),
   slug: requiredText("Slug", 80).refine(
@@ -48,6 +55,7 @@ export const jobSchema = z.object({
   location: nullableText("Location", 180),
   body: nullableText("Body", 20000),
   requirements: nullableText("Requirements", 12000),
+  application_form_id: nullableUuid("Application form"),
   is_open: z.preprocess(booleanFromForm, z.boolean()),
 });
 
@@ -62,6 +70,7 @@ const JOB_FIELD_LABELS: Record<keyof JobInput, string> = {
   location: "Location",
   body: "Body",
   requirements: "Requirements",
+  application_form_id: "Application form",
   is_open: "Open setting",
 };
 

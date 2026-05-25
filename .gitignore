@@ -16,3 +16,8 @@ tsconfig.tsbuildinfo
 # dev server logs
 dev-server.log
 dev-server.err.log
+
+# Playwright
+/playwright-report
+/test-results
+/.playwright

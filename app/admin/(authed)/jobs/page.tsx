@@ -13,12 +13,20 @@ async function loadJobs() {
     const admin = getSupabaseAdmin();
     const { data, error } = await admin
       .from("jobs")
-      .select("id, slug, title, type, department, location, is_open, created_at")
+      .select("id, slug, title, type, department, location, application_form_id, is_open, created_at")
       .order("created_at", { ascending: false });
     if (error) throw error;
-    return { jobs: data ?? [], error: null as string | null };
+
+    const formIds = Array.from(new Set((data ?? []).map((job) => job.application_form_id).filter(Boolean))) as string[];
+    const formsById = new Map<string, { name: string; is_active: boolean }>();
+    if (formIds.length > 0) {
+      const { data: forms } = await admin.from("forms").select("id, name, is_active").in("id", formIds);
+      for (const form of forms ?? []) formsById.set(form.id, { name: form.name, is_active: form.is_active });
+    }
+
+    return { jobs: data ?? [], formsById, error: null as string | null };
   } catch (err) {
-    return { jobs: [], error: err instanceof Error ? err.message : "Unknown error" };
+    return { jobs: [], formsById: new Map<string, { name: string; is_active: boolean }>(), error: err instanceof Error ? err.message : "Unknown error" };
   }
 }
 
@@ -34,7 +42,7 @@ function MetricCard({ label, value, hint }: { label: string; value: number | str
 
 export default async function JobsAdminPage() {
   await requireRole(["admin", "editor", "viewer"]);
-  const { jobs, error } = await loadJobs();
+  const { jobs, formsById, error } = await loadJobs();
   const openCount = jobs.filter((job) => job.is_open).length;
   const internshipCount = jobs.filter((job) => job.type === "internship").length;
 
@@ -104,6 +112,12 @@ export default async function JobsAdminPage() {
                 <div>
                   <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Location</dt>
                   <dd className="mt-1 truncate text-[var(--admin-muted)]">{job.location || "-"}</dd>
+                </div>
+                <div>
+                  <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Form</dt>
+                  <dd className="mt-1 truncate text-[var(--admin-muted)]">
+                    {job.application_form_id ? formsById.get(job.application_form_id)?.name ?? "Custom form" : "Default"}
+                  </dd>
                 </div>
                 <div>
                   <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Created</dt>

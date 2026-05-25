@@ -31,6 +31,7 @@ function readForm(formData: FormData) {
     location: formData.get("location") ?? "",
     body: formData.get("body") ?? "",
     requirements: formData.get("requirements") ?? "",
+    application_form_id: formData.get("application_form_id") ?? "",
     is_open: formData.get("is_open") || false,
   };
 }

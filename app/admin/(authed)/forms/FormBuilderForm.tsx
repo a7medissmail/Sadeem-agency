@@ -341,6 +341,16 @@ export function FormDefinitionForm({ mode, form }: { mode: "create" | "edit"; fo
 
       <div className="flex flex-wrap items-center gap-3 md:col-span-2">
         <SaveButton>{mode === "create" ? "Create form" : "Save form"}</SaveButton>
+        {form?.id ? (
+          <Link href={`/admin/forms/${form.id}/preview`} className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)] hover:text-[var(--admin-text)]">
+            Preview
+          </Link>
+        ) : null}
+        {form?.is_active ? (
+          <Link href={`/forms/${form.slug}`} target="_blank" className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)] hover:text-[var(--admin-text)]">
+            Open live
+          </Link>
+        ) : null}
         <Link href="/admin/forms" className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-muted)] hover:text-[var(--admin-text)]">
           Back to forms
         </Link>
@@ -357,6 +367,16 @@ export function FormBuilderEditor({ form, fields }: { form: FormRow; fields: Fie
         <div>
           <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">Definition</p>
           <h2 className="mt-2 text-[28px] font-semibold tracking-tight text-[var(--admin-text)]">Form shell</h2>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link href={`/admin/forms/${form.id}/preview`} className="border border-[var(--admin-border)] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-muted)] hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]">
+              Preview
+            </Link>
+            {form.is_active ? (
+              <Link href={`/forms/${form.slug}`} target="_blank" className="border border-[var(--admin-accent)] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)] hover:bg-[var(--admin-accent-soft)]">
+                Open live
+              </Link>
+            ) : null}
+          </div>
         </div>
         <FormDefinitionForm mode="edit" form={form} />
       </section>

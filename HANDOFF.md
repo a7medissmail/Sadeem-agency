@@ -148,10 +148,11 @@ HANDOFF.md                       # this file
 | **P0** | TS migration, Supabase wiring, auth, admin shell, Users CRUD | ✅ Done |
 | **P1** | Homepage lead form, CRM list/board, Resend transactional email | ✅ Done |
 | **P2** | Courses/Workshops (public + admin toggle/CRUD + image upload) | ✅ Done |
-| **P3** | Team page + admin CRUD + photo upload | Done |
-| **P4** | Careers + applications (resume upload, pipeline) | Done |
-| **P5** | Consultation booking (custom UI + Google Calendar API) | Done |
-| **P6** | Email Center: CRM campaigns + transactional automation | Done |
+| **P3** | Team page + admin CRUD + photo upload | ✅ Done |
+| **P4** | Careers + applications (resume upload, pipeline) | ✅ Done |
+| **P5** | Consultation booking (custom UI + Google Calendar API) | ✅ Done |
+| **P6** | Email Center: CRM campaigns + transactional automation | ✅ Done |
+| **P7+** | Site Settings · Success Stories · Hiring OS · Form Builder | ✅ Done |
 
 Each phase ends in a working deployable state. See the full plan: `C:\Users\ahmed\.claude\plans\ok-now-lets-plan-flickering-lampson.md`.
 
@@ -524,47 +525,13 @@ Without these, the form still works: rows save, emails are skipped with a warn l
 
 ---
 
-### [2026-05-23] P2 follow-ups + P3 (Team) + P4 (Careers/Applications) ✅
+### [2026-05-26] Audit pass + handoff sync
 
-Substantial second pass after the P2 baseline. Hardened the course experience, generalized the navbar, then built out P3 + P4 end-to-end.
+- Reviewed the post-P4 work (P5 booking, P6 email center, site settings, success stories, hiring OS, form builder, custom job forms — migrations 0005–0015).
+- Found **2 production risks** worth fixing before high-traffic launch (tracked separately): (1) **no rate-limiting on public submissions**, (2) **`dynamicForms.ts` uses service-role so RLS `is_active` policy on form_submissions is moot — needs explicit guard in the action**.
+- Roadmap normalised; P3–P7+ all reflect ✅. `tsconfig.tsbuildinfo` untracked and gitignored.
 
-**Validation + content infra**
-- All new schemas (`course`, `team`, `careers`) follow a single pattern: `requiredText` / `nullableText` / `nullableUrl` / `nullableDateTime` / `nullableNumber` / `booleanFromForm` preprocess helpers piped through `z.string()`/`z.number()`, plus a `format<Thing>ValidationError(error)` helper returning `{ error, fieldErrors }` so admin forms render per-field hints (not just a single "Invalid input").
-- Course schema gained `currency` (enum of SAR/USD/EUR/AED/EGP/GBP) and a `superRefine` that requires `ends_at > starts_at`.
-- Added `sanitize-html` + `@types/sanitize-html`. New `lib/content/sanitizeCourseHtml.ts` accepts either HTML or plain text — if no tags, paragraph-splits and escapes; if HTML, runs through `sanitize-html` with a curated allowlist (safe styles, `rel=noopener noreferrer` on links, lazy `img`).
-
-**Navigation**
-- New `components/SectionAwareNavbar.tsx` replaces the homepage-only navbar state. It samples `document.elementsFromPoint` (with side fallbacks and a rect-based safety pass) to detect whether the section under the navbar is dark/light and flips `<MainNavbar overDark>` accordingly. Works on every marketing route, not just `/`.
-- `MainNavbar` link list extended: Workshops `/courses` + Team `/team` + Careers `/careers`. All anchors use `/#…`.
-
-**Course page (P2 follow-ups)**
-- Detail page rewritten: dark hero with cohort dossier kicker, two-column layout, dedicated facts strip (When / Where / Cohort / Investment with formatted currency), sticky "About the workshop" sidebar paired with parallax body (`CourseBodyParallax`), and a dedicated "Reserve seat" dark section using `CourseRegistrationForm` (course-specific lead form, posts with `source=course` plus the course id/title surfaced in the email).
-- Index page picks up currency + price in card meta.
-- 0005_course_currency.sql adds the `currency` column with a `check` constraint covering the supported codes.
-
-**P3 — Team page + admin CRUD + photo upload** ✅
-- 0006_team_photos.sql creates the public `team-photos` bucket with the same policy shape as `course-images`.
-- `lib/validation/team.ts` — nested `socials` object (website/linkedin/x/instagram) that collapses to `null` when empty, integer `sort_order`, photo URL.
-- Admin: `/admin/team` list (sort_order + active badge), `/admin/team/new`, `/admin/team/[id]` with one `TeamForm` (photo upload + previews). Actions in `app/admin/(authed)/team/actions.ts`.
-- Public `/team` page with `TeamFounderCard` and `TeamBeliefItem` components matching the brand voice.
-
-**P4 — Careers + applications (resume upload + pipeline)** ✅
-- 0007_application_resumes.sql creates a **private** `application-resumes` bucket (5 MB cap, PDF/DOC/DOCX MIME allowlist) plus staff-only object policies, and tightens the `applications_public_insert` policy so submissions are only accepted when the parent job is `is_open = true`.
-- `lib/validation/careers.ts` — `jobSchema` (with `type` enum job/internship), `applicationSchema` (email + cover note + honeypot), and shared `applicationStatuses`.
-- Admin: `/admin/jobs` (list with open/closed badge), `/admin/jobs/new`, `/admin/jobs/[id]` editing via `JobForm`; `/admin/applications` list with status pipeline (`new → review → interview → offer / rejected`), resume signed-URL download (service-role generates short-lived link).
-- Public: `/careers` (list of `is_open` postings), `/careers/[slug]` (detail + body + requirements + `JobApplicationForm` that uploads resume to the private bucket, inserts the row, fires confirmation + team notification via Resend).
-- `lib/actions/applications.ts` orchestrates the public submit (validate → upload → insert → email).
-
-**Admin sidebar** now exposes Dashboard, Leads, Bookings, Courses, Team, Careers, Applications, and Users as live routes.
-
-**Tooling**
-- `tsconfig.tsbuildinfo` is now gitignored and untracked (was getting included on every typecheck).
-
-**Audit checklist** (done):
-- `npx tsc --noEmit` clean across the full surface.
-- Migrations 0005–0007 idempotent; safe to re-run.
-- All new admin forms gated by `requireRole`; deletes restricted to `admin`.
-- Public form submissions go through anon-key cookie client (RLS-policed) or service-role inside server actions (for storage writes).
+(Detailed P3/P4 work is documented in the dedicated entries above — `### [2026-05-23] P3 - Team page` and `### [2026-05-24] P4 - Careers + applications`.)
 
 ---
 
@@ -746,6 +713,28 @@ Substantial second pass after the P2 baseline. Hardened the course experience, g
 - Connect form definitions to hiring roles so a job can request portfolio/LinkedIn/custom questions without code changes.
 - Add public/private form renderer with rate limiting and honeypot protection.
 - Build proposal/onboarding private brief links on top of these form definitions.
+
+### [2026-05-26] Form Builder preview + temporary public renderer
+
+**Implemented**
+- Added `components/DynamicFormRenderer.tsx`, a shared controlled renderer for form-builder definitions.
+- Added `lib/actions/dynamicForms.ts` so active forms can submit into `form_submissions` + `form_answers` with dynamic required/email/url/option validation and honeypot protection.
+- Added admin visual preview route: `/admin/forms/[id]/preview`.
+  - Works for draft and active forms.
+  - Submit is disabled; this is for visual QA.
+- Added temporary public route: `/forms/[slug]`.
+  - Only active forms render publicly.
+  - Submissions save to the form-builder tables.
+  - Uses SADEEM marketing navbar/footer and a cinematic form page layout.
+- Added Preview / Live links to `/admin/forms`, `/admin/forms/[id]`, and the form shell controls.
+
+**Notes**
+- File fields are shown but currently preview-only; full file upload needs a bucket and field-level storage policy before it is safe for production.
+- Public `/forms/[slug]` is intentionally temporary until forms are attached to specific workflows such as jobs or proposal briefs.
+
+**Verification**
+- `npx tsc --noEmit` clean.
+- `npm run build` clean.
 
 ## 11. Open / parked items
 

@@ -20,7 +20,15 @@ type JobFormValues = {
   location?: string | null;
   body?: string | null;
   requirements?: string | null;
+  application_form_id?: string | null;
   is_open?: boolean;
+};
+
+type ApplicationFormOption = {
+  id: string;
+  name: string;
+  purpose: string;
+  is_active: boolean;
 };
 
 function toSlug(value: string): string {
@@ -58,7 +66,15 @@ function onCodeEditorKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
   textarea.dispatchEvent(new Event("input", { bubbles: true }));
 }
 
-export default function JobForm({ mode, job }: { mode: "create" | "edit"; job?: JobFormValues }) {
+export default function JobForm({
+  mode,
+  job,
+  forms = [],
+}: {
+  mode: "create" | "edit";
+  job?: JobFormValues;
+  forms?: ApplicationFormOption[];
+}) {
   const action = mode === "create" ? createJobAction : updateJobAction;
   const [state, formAction] = useFormState(action, initial);
   const [slug, setSlug] = useState(job?.slug ?? "");
@@ -142,6 +158,21 @@ export default function JobForm({ mode, job }: { mode: "create" | "edit"; job?: 
             <input type="checkbox" name="is_open" defaultChecked={job?.is_open ?? false} className="h-4 w-4 accent-[var(--admin-accent)]" />
             <span className="text-[13.5px] text-[var(--admin-muted)]">Accept applications</span>
           </span>
+        </FieldRow>
+
+        <FieldRow label="Application form">
+          <Select name="application_form_id" defaultValue={job?.application_form_id ?? ""} aria-invalid={Boolean(errors.application_form_id)}>
+            <option value="">Default SADEEM application</option>
+            {forms.map((form) => (
+              <option key={form.id} value={form.id}>
+                {form.name} {form.is_active ? "" : "(draft)"}
+              </option>
+            ))}
+          </Select>
+          <p className="text-[12.5px] leading-relaxed text-[var(--admin-subtle)]">
+            Attach a Form Builder application form to ask role-specific questions.
+          </p>
+          <FieldError messages={errors.application_form_id} />
         </FieldRow>
       </div>
 

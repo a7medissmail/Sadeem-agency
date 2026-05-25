@@ -5417,3 +5417,343 @@ section.team-roster {
     flex-wrap: wrap;
   }
 }
+
+/* ========== DYNAMIC FORM RENDERER ========== */
+.dynamic-form-page {
+  background: var(--warm-white);
+  color: var(--black);
+}
+
+.dynamic-form-hero {
+  position: relative;
+  min-height: 68vh;
+  overflow: hidden;
+  background: #0d0d0f;
+}
+
+.dynamic-form-hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(13, 13, 15, 0.96) 0%, rgba(13, 13, 15, 0.76) 42%, rgba(13, 13, 15, 0.38) 100%),
+    radial-gradient(circle at 78% 32%, rgba(255, 106, 0, 0.18), transparent 34%),
+    url("/team/team-hero.jpg") center / cover no-repeat;
+  transform: scale(1.02);
+}
+
+.dynamic-form-hero-bg::after {
+  content: "";
+  position: absolute;
+  right: 8vw;
+  top: 12vh;
+  width: min(54vw, 760px);
+  aspect-ratio: 1.65;
+  border: 1px solid rgba(255, 106, 0, 0.22);
+  border-radius: 50%;
+  transform: rotate(-8deg);
+}
+
+.dynamic-form-hero-inner {
+  position: relative;
+  z-index: 1;
+  min-height: 68vh;
+  display: flex;
+  align-items: center;
+  padding-top: 90px;
+}
+
+.dynamic-form-hero-inner > div {
+  max-width: 880px;
+}
+
+.dynamic-form-hero-title {
+  margin-top: 18px;
+  color: #fff;
+  font-size: clamp(64px, 9vw, 138px);
+  line-height: 0.9;
+  letter-spacing: 0;
+}
+
+.dynamic-form-hero-title span {
+  color: var(--accent);
+}
+
+.dynamic-form-hero-inner p:not(.team-brief-kicker) {
+  margin-top: 28px;
+  max-width: 620px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: clamp(17px, 1.4vw, 22px);
+  line-height: 1.65;
+}
+
+.dynamic-form-live {
+  padding: clamp(72px, 9vw, 140px) 0;
+  background: var(--warm-white);
+}
+
+.dynamic-form-live-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.7fr) minmax(0, 1.1fr);
+  gap: clamp(48px, 7vw, 120px);
+  align-items: start;
+}
+
+.dynamic-form-live aside {
+  position: sticky;
+  top: 120px;
+}
+
+.dynamic-form-live h2 {
+  margin-top: 18px;
+  font-size: clamp(42px, 6vw, 92px);
+  line-height: 0.95;
+  letter-spacing: 0;
+}
+
+.dynamic-form-live h2 span {
+  color: var(--accent);
+}
+
+.dynamic-form-live aside > p:not(.team-brief-kicker) {
+  margin-top: 24px;
+  max-width: 420px;
+  color: rgba(13, 13, 15, 0.62);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.dynamic-form-shell {
+  border: 1px solid rgba(13, 13, 15, 0.16);
+  background: rgba(255, 255, 255, 0.48);
+  box-shadow: 0 34px 90px rgba(13, 13, 15, 0.08);
+  padding: clamp(24px, 4vw, 46px);
+}
+
+.dynamic-form-head {
+  border-bottom: 1px solid rgba(13, 13, 15, 0.12);
+  padding-bottom: 28px;
+  margin-bottom: 28px;
+}
+
+.dynamic-form-head p {
+  margin: 0;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.dynamic-form-head h2 {
+  margin-top: 14px;
+  font-size: clamp(34px, 4vw, 58px);
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.dynamic-form-head span {
+  display: block;
+  margin-top: 16px;
+  max-width: 620px;
+  color: rgba(13, 13, 15, 0.62);
+  font-size: 15.5px;
+  line-height: 1.65;
+}
+
+.dynamic-form-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.dynamic-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dynamic-form-field:has(textarea),
+.dynamic-form-field:has(.dynamic-form-options),
+.dynamic-form-empty {
+  grid-column: 1 / -1;
+}
+
+.dynamic-form-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: rgba(13, 13, 15, 0.72);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.dynamic-form-label b {
+  color: var(--accent);
+}
+
+.dynamic-form-label em {
+  color: rgba(13, 13, 15, 0.34);
+  font-style: normal;
+}
+
+.dynamic-form-input {
+  width: 100%;
+  border: 1px solid rgba(13, 13, 15, 0.16);
+  background: rgba(255, 255, 255, 0.68);
+  color: var(--black);
+  padding: 16px 15px;
+  outline: none;
+  font: inherit;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.dynamic-form-input:focus {
+  border-color: var(--accent);
+  background: #fff;
+}
+
+.dynamic-form-input[aria-invalid="true"] {
+  border-color: #ef4444;
+}
+
+.dynamic-form-textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.dynamic-form-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.dynamic-form-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(13, 13, 15, 0.12);
+  background: rgba(255, 255, 255, 0.5);
+  padding: 13px 14px;
+  color: rgba(13, 13, 15, 0.72);
+  font-size: 14px;
+}
+
+.dynamic-form-option input {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--accent);
+}
+
+.dynamic-form-field small {
+  color: rgba(13, 13, 15, 0.46);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.dynamic-form-field strong,
+.dynamic-form-error {
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.dynamic-form-submit {
+  margin-top: 30px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 18px 22px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: filter 0.2s ease, opacity 0.2s ease;
+}
+
+.dynamic-form-submit:hover {
+  filter: brightness(1.08);
+}
+
+.dynamic-form-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.dynamic-form-success,
+.dynamic-form-empty {
+  border: 1px solid rgba(255, 106, 0, 0.34);
+  background: rgba(255, 106, 0, 0.05);
+  padding: clamp(24px, 4vw, 42px);
+}
+
+.dynamic-form-success p {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+}
+
+.dynamic-form-success h2 {
+  margin-top: 16px;
+  font-size: clamp(28px, 4vw, 48px);
+}
+
+.admin-form-preview-wrap {
+  max-width: 980px;
+}
+
+.admin-form-preview-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid var(--admin-border);
+  border-bottom: 0;
+  background: var(--admin-panel);
+  padding: 12px 14px;
+}
+
+.admin-form-preview-toolbar span,
+.admin-form-preview-toolbar code {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.admin-form-preview-toolbar span {
+  color: var(--admin-accent);
+}
+
+.admin-form-preview-toolbar code {
+  color: var(--admin-muted);
+}
+
+.admin-form-preview-wrap .dynamic-form-shell {
+  border-color: var(--admin-border);
+  background: color-mix(in srgb, var(--admin-panel) 82%, transparent);
+}
+
+@media (max-width: 900px) {
+  .dynamic-form-live-grid,
+  .dynamic-form-fields,
+  .dynamic-form-options {
+    grid-template-columns: 1fr;
+  }
+  .dynamic-form-live aside {
+    position: static;
+  }
+  .dynamic-form-hero {
+    min-height: 58vh;
+  }
+  .dynamic-form-hero-inner {
+    min-height: 58vh;
+  }
+}

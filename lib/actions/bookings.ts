@@ -12,6 +12,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { createGoogleCalendarEvent, isGoogleCalendarConfigured, bookingTimeZone } from "@/lib/google/calendar";
 import { sendEmail } from "@/lib/email/resend";
 import { bookingConfirmation, bookingNotification, getEmailBranding } from "@/lib/email/templates";
+import { checkRateLimit } from "@/lib/security/rateLimit";
 
 export type SubmitBookingState =
   | { status: "idle" }
@@ -46,6 +47,10 @@ export async function submitBookingAction(
   formData: FormData,
 ): Promise<SubmitBookingState> {
   if ((formData.get("website") as string)?.length) return { status: "success", slotLabel: "" };
+
+  // Rate limit: max 3 booking attempts per visitor IP per 5 minutes.
+  const limit = await checkRateLimit({ action: "booking", max: 3, windowSeconds: 300 });
+  if (!limit.ok) return { status: "error", message: limit.reason };
 
   const parsed = bookingSchema.safeParse({
     slot_start: formData.get("slot_start"),
