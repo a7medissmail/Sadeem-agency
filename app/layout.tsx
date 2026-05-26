@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { ReactNode } from "react";
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { SiteSettingsProvider } from "@/components/SiteSettingsProvider";
 import { getPublicSiteSettings } from "@/lib/site/settings";
 
@@ -61,6 +62,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       </head>
       <body>
         <SiteSettingsProvider initialSettings={siteSettings}>{children}</SiteSettingsProvider>
+        <Analytics />
       </body>
     </html>
   );
