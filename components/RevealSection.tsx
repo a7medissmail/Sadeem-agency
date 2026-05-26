@@ -23,9 +23,15 @@ export default function RevealSection({ as = "section", className, children, ...
   const [forceShow, setForceShow] = useState(false);
 
   useEffect(() => {
+    // Show immediately for hash-targeted sections
     if (rest.id && window.location.hash === `#${rest.id}`) {
       setForceShow(true);
+      return;
     }
+    // Safety net: if whileInView hasn't fired after 3 s (slow devices,
+    // IntersectionObserver edge cases with Lenis), reveal content anyway.
+    const t = setTimeout(() => setForceShow(true), 3000);
+    return () => clearTimeout(t);
   }, [rest.id]);
 
   return (
@@ -34,7 +40,7 @@ export default function RevealSection({ as = "section", className, children, ...
       initial="hidden"
       animate={forceShow ? "show" : undefined}
       whileInView="show"
-      viewport={{ once: true, amount: 0.12 }}
+      viewport={{ once: true, amount: 0.08 }}
       variants={variants}
       transition={{ duration: 1.1, ease: [0.2, 0.7, 0.2, 1] }}
       {...rest}

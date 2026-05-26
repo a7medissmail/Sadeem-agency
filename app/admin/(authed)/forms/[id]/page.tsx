@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Button } from "@/components/admin/ui/Button";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -43,9 +45,10 @@ async function loadForm(id: string) {
   }
 }
 
-export default async function EditFormPage({ params }: { params: { id: string } }) {
+export default async function EditFormPage({ params }: { params: Promise<{ id: string }> }) {
   await requireRole(["admin", "editor"]);
-  const { form, fields, error } = await loadForm(params.id);
+  const { id } = await params;
+  const { form, fields, error } = await loadForm(id);
   if (!form && !error) notFound();
 
   return (
@@ -54,6 +57,16 @@ export default async function EditFormPage({ params }: { params: { id: string } 
         eyebrow="FORM BUILDER"
         title={form?.name ?? "Form unavailable"}
         description="Define the shell, then compose safe field blocks for the workflow."
+        actions={
+          <div className="flex items-center gap-2">
+            <Link href={`/admin/forms/${id}/submissions`}>
+              <Button variant="outline" size="sm">View responses</Button>
+            </Link>
+            <Link href={`/admin/forms/${id}/preview`}>
+              <Button variant="ghost" size="sm">Preview</Button>
+            </Link>
+          </div>
+        }
       />
 
       {error ? (

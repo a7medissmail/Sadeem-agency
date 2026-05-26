@@ -162,3 +162,18 @@ export async function deleteFormAction(formData: FormData): Promise<void> {
   if (error) throw new Error(formDatabaseError(error.message));
   revalidatePath("/admin/forms");
 }
+
+// ─── Submission status ────────────────────────────────────────────────────────
+
+export async function updateSubmissionStatusAction(formData: FormData): Promise<void> {
+  await requireRole(["admin", "editor"]);
+  const id = formData.get("id") as string;
+  const form_id = formData.get("form_id") as string;
+  const status = formData.get("status") as import("@/types/database").FormSubmissionStatus;
+  if (!id || !status) throw new Error("Missing id or status");
+
+  const admin = getSupabaseAdmin();
+  const { error } = await admin.from("form_submissions").update({ status }).eq("id", id);
+  if (error) throw new Error(error.message);
+  if (form_id) revalidatePath(`/admin/forms/${form_id}/submissions`);
+}

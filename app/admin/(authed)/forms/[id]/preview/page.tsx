@@ -41,9 +41,10 @@ async function loadForm(id: string) {
   }
 }
 
-export default async function FormPreviewPage({ params }: { params: { id: string } }) {
+export default async function FormPreviewPage({ params }: { params: Promise<{ id: string }> }) {
   await requireRole(["admin", "editor", "viewer"]);
-  const { form, fields, error } = await loadForm(params.id);
+  const { id } = await params;
+  const { form, fields, error } = await loadForm(id);
   if (!form && !error) notFound();
 
   return (

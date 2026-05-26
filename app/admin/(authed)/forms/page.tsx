@@ -146,6 +146,11 @@ export default async function FormsAdminPage() {
                 <Link href={`/admin/forms/${form.id}`}>
                   <Button variant="outline" size="sm">Edit</Button>
                 </Link>
+                <Link href={`/admin/forms/${form.id}/submissions`}>
+                  <Button variant="ghost" size="sm">
+                    Responses{form.submissionCount > 0 ? ` (${form.submissionCount})` : ""}
+                  </Button>
+                </Link>
                 <Link href={`/admin/forms/${form.id}/preview`}>
                   <Button variant="ghost" size="sm">Preview</Button>
                 </Link>
