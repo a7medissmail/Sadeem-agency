@@ -3,6 +3,17 @@
 import { useEffect, useRef } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { submitApplicationAction, type SubmitApplicationState } from "@/lib/actions/applications";
+import type { Database, FormFieldType, Json } from "@/types/database";
+
+type ApplicationForm = Pick<
+  Database["public"]["Tables"]["forms"]["Row"],
+  "id" | "name" | "description" | "submit_label" | "success_message"
+>;
+
+type ApplicationField = Pick<
+  Database["public"]["Tables"]["form_fields"]["Row"],
+  "id" | "label" | "field_key" | "type" | "placeholder" | "help_text" | "options" | "is_required" | "sort_order"
+>;
 
 const initial: SubmitApplicationState = { status: "idle" };
 
@@ -22,7 +33,103 @@ function FieldError({ message }: { message?: string[] }) {
   return <p className="career-apply-field-error">{message[0]}</p>;
 }
 
-export default function JobApplicationForm({ jobId, jobTitle }: { jobId: string; jobTitle: string }) {
+const fieldTypeLabels: Record<FormFieldType, string> = {
+  text: "Text",
+  textarea: "Long answer",
+  email: "Email",
+  phone: "Phone",
+  url: "Link",
+  select: "Select",
+  multiselect: "Choose many",
+  checkbox: "Checklist",
+  file: "File",
+  date: "Date",
+};
+
+function customName(field: ApplicationField) {
+  return `custom__${field.field_key}`;
+}
+
+function optionList(options: Json) {
+  if (!Array.isArray(options)) return [];
+  return options
+    .map((option) => {
+      if (!option || typeof option !== "object" || Array.isArray(option)) return null;
+      const label = "label" in option ? String(option.label ?? "") : "";
+      const value = "value" in option ? String(option.value ?? "") : "";
+      return label && value ? { label, value } : null;
+    })
+    .filter((option): option is { label: string; value: string } => Boolean(option));
+}
+
+function CustomFieldControl({ field, error }: { field: ApplicationField; error?: string[] }) {
+  const name = customName(field);
+  const common = {
+    id: name,
+    name,
+    required: field.is_required,
+    "aria-invalid": Boolean(error?.length),
+  };
+  const placeholder = field.placeholder ?? undefined;
+  const options = optionList(field.options);
+
+  if (field.type === "textarea") {
+    return <textarea {...common} rows={5} placeholder={placeholder} />;
+  }
+
+  if (field.type === "select") {
+    return (
+      <select {...common} defaultValue="">
+        <option value="" disabled>
+          {placeholder || "Choose one"}
+        </option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    );
+  }
+
+  if (field.type === "multiselect" || field.type === "checkbox") {
+    return (
+      <div className="career-apply-options">
+        {options.map((option) => (
+          <label key={option.value} className="career-apply-option">
+            <input name={name} value={option.value} type="checkbox" />
+            <span>{option.label}</span>
+          </label>
+        ))}
+      </div>
+    );
+  }
+
+  if (field.type === "file") {
+    return <p className="career-apply-note">Extra file uploads are not enabled for this form yet.</p>;
+  }
+
+  const inputType =
+    field.type === "email" || field.type === "url" || field.type === "date"
+      ? field.type
+      : field.type === "phone"
+        ? "tel"
+        : "text";
+
+  return <input {...common} type={inputType} placeholder={placeholder} />;
+}
+
+export default function JobApplicationForm({
+  jobId,
+  jobTitle,
+  customForm,
+  customFields = [],
+}: {
+  jobId: string;
+  jobTitle: string;
+  customForm?: ApplicationForm | null;
+  customFields?: ApplicationField[];
+}) {
   const [state, formAction] = useFormState(submitApplicationAction, initial);
   const formRef = useRef<HTMLFormElement>(null);
   const errors = state.status === "error" ? state.fieldErrors ?? {} : {};
@@ -89,6 +196,30 @@ export default function JobApplicationForm({ jobId, jobTitle }: { jobId: string;
         />
         <FieldError message={errors.cover_note} />
       </label>
+
+      {customForm && customFields.length > 0 ? (
+        <div className="career-apply-custom">
+          <div className="career-apply-custom-head">
+            <p>{customForm.name}</p>
+            {customForm.description ? <span>{customForm.description}</span> : null}
+          </div>
+          {customFields.map((field) => {
+            const name = customName(field);
+            return (
+              <label key={field.id} htmlFor={name}>
+                <span>
+                  {field.label}
+                  {field.is_required ? " *" : ""}
+                  <em>{fieldTypeLabels[field.type]}</em>
+                </span>
+                <CustomFieldControl field={field} error={errors[name]} />
+                {field.help_text ? <small>{field.help_text}</small> : null}
+                <FieldError message={errors[name]} />
+              </label>
+            );
+          })}
+        </div>
+      ) : null}
 
       {state.status === "error" ? (
         <p className="course-register-error" role="alert">

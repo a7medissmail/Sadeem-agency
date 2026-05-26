@@ -7,7 +7,7 @@ import RevealSection from "@/components/RevealSection";
 import SectionAwareNavbar from "@/components/SectionAwareNavbar";
 import SectionLabel from "@/components/SectionLabel";
 import { sanitizeCourseHtml } from "@/lib/content/sanitizeCourseHtml";
-import type { JobType } from "@/types/database";
+import type { Database, JobType } from "@/types/database";
 
 type Props = { params: { slug: string } };
 
@@ -20,14 +20,25 @@ type CareerDetailRow = {
   location: string | null;
   body: string | null;
   requirements: string | null;
+  application_form_id: string | null;
 };
+
+type ApplicationFormRow = Pick<
+  Database["public"]["Tables"]["forms"]["Row"],
+  "id" | "name" | "description" | "submit_label" | "success_message"
+>;
+
+type ApplicationFormField = Pick<
+  Database["public"]["Tables"]["form_fields"]["Row"],
+  "id" | "label" | "field_key" | "type" | "placeholder" | "help_text" | "options" | "is_required" | "sort_order"
+>;
 
 async function loadJob(slug: string): Promise<CareerDetailRow | null> {
   try {
     const supabase = createSupabaseServerClient();
     const { data, error } = await supabase
       .from("jobs")
-      .select("id, slug, title, type, department, location, body, requirements")
+      .select("id, slug, title, type, department, location, body, requirements, application_form_id")
       .eq("slug", slug)
       .eq("is_open", true)
       .single();
@@ -36,6 +47,35 @@ async function loadJob(slug: string): Promise<CareerDetailRow | null> {
     return data;
   } catch {
     return null;
+  }
+}
+
+async function loadApplicationForm(formId: string | null): Promise<{ form: ApplicationFormRow | null; fields: ApplicationFormField[] }> {
+  if (!formId) return { form: null, fields: [] };
+
+  try {
+    const supabase = createSupabaseServerClient();
+    const { data: form, error: formError } = await supabase
+      .from("forms")
+      .select("id, name, description, submit_label, success_message")
+      .eq("id", formId)
+      .in("purpose", ["application", "generic"])
+      .eq("is_active", true)
+      .maybeSingle();
+
+    if (formError || !form) return { form: null, fields: [] };
+
+    const { data: fields, error: fieldsError } = await supabase
+      .from("form_fields")
+      .select("id, label, field_key, type, placeholder, help_text, options, is_required, sort_order")
+      .eq("form_id", form.id)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
+
+    if (fieldsError) return { form: null, fields: [] };
+    return { form, fields: fields ?? [] };
+  } catch {
+    return { form: null, fields: [] };
   }
 }
 
@@ -51,6 +91,7 @@ export async function generateMetadata({ params }: Props) {
 export default async function CareerDetailPage({ params }: Props) {
   const job = await loadJob(params.slug);
   if (!job) notFound();
+  const { form: applicationForm, fields: applicationFields } = await loadApplicationForm(job.application_form_id);
 
   const bodyHtml = sanitizeCourseHtml(job.body);
   const requirementsHtml = sanitizeCourseHtml(job.requirements);
@@ -154,7 +195,12 @@ export default async function CareerDetailPage({ params }: Props) {
               </div>
             </div>
 
-            <JobApplicationForm jobId={job.id} jobTitle={job.title} />
+            <JobApplicationForm
+              jobId={job.id}
+              jobTitle={job.title}
+              customForm={applicationForm}
+              customFields={applicationFields}
+            />
           </div>
         </RevealSection>
       </main>

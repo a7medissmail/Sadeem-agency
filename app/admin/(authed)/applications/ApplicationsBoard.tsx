@@ -123,11 +123,17 @@ function nextStep(status: ApplicationStatus) {
 function jsonEntries(value: Json) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return [];
   return Object.entries(value)
-    .filter(([, answer]) => answer != null && String(answer).trim().length > 0)
-    .map(([key, answer]) => ({
-      key,
-      value: Array.isArray(answer) ? answer.join(", ") : String(answer),
-    }));
+    .map(([key, answer]) => {
+      if (!answer || typeof answer !== "object" || Array.isArray(answer)) {
+        return { key, label: key, value: answer == null ? "" : String(answer) };
+      }
+
+      const label = "label" in answer ? String(answer.label ?? key) : key;
+      const rawValue = "value" in answer ? answer.value : answer;
+      const value = Array.isArray(rawValue) ? rawValue.join(", ") : String(rawValue ?? "");
+      return { key, label, value };
+    })
+    .filter((answer) => answer.value.trim().length > 0);
 }
 
 function StageRail({ status }: { status: ApplicationStatus }) {
@@ -320,7 +326,7 @@ function CandidateDrawer({
                   <div className="mt-4 divide-y divide-[var(--admin-border-soft)]">
                     {answers.map((answer) => (
                       <div key={answer.key} className="grid gap-2 py-3 md:grid-cols-[0.38fr_1fr]">
-                        <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-accent)]">{answer.key}</p>
+                        <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-accent)]">{answer.label}</p>
                         <p className="text-[13px] leading-relaxed text-[var(--admin-muted)]">{answer.value}</p>
                       </div>
                     ))}
