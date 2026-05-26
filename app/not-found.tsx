@@ -163,7 +163,7 @@ function NotFoundContent() {
             <span>·</span>
             <span>COORDINATES LOST</span>
             <span>·</span>
-            <span ref={clockRef}>00:00:00 UTC</span>
+            <span ref={clockRef} className="nf-eyebrow-clock">00:00:00 UTC</span>
           </div>
 
           <h1 className="nf-glyph" aria-label="404 — page not found">
