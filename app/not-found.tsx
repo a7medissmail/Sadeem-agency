@@ -2,6 +2,9 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
+import { SiteSettingsProvider } from "@/components/SiteSettingsProvider";
+import MainNavbar from "@/components/MainNavbar";
+import Footer from "@/components/Footer";
 
 const ArrowRight = () => (
   <svg width="22" height="14" viewBox="0 0 22 14" fill="none" aria-hidden="true">
@@ -22,7 +25,7 @@ const marqueeItems = [
   "Last sync 00:00:14 ago",
 ];
 
-export default function NotFound() {
+function NotFoundContent() {
   const clockRef = useRef<HTMLSpanElement>(null);
   const topoRef = useRef<SVGGElement>(null);
 
@@ -134,35 +137,6 @@ export default function NotFound() {
         <div className="nf-vignette" />
       </div>
 
-      {/* ── Top nav ── */}
-      <header className="nf-top">
-        <Link href="/" className="nf-brand" aria-label="SADEEM home">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="12" cy="12" r="10" stroke="#FF6A00" strokeWidth="1.2" />
-            <circle cx="12" cy="12" r="3" fill="#FF6A00" />
-            <line x1="12" y1="1.5" x2="12" y2="5" stroke="#FF6A00" strokeWidth="1.2" />
-            <line x1="12" y1="19" x2="12" y2="22.5" stroke="#FF6A00" strokeWidth="1.2" />
-            <line x1="1.5" y1="12" x2="5" y2="12" stroke="#FF6A00" strokeWidth="1.2" />
-            <line x1="19" y1="12" x2="22.5" y2="12" stroke="#FF6A00" strokeWidth="1.2" />
-          </svg>
-          <span className="nf-brand-word">SADEEM / NAVIGATOR</span>
-        </Link>
-
-        <div className="nf-top-meta">
-          <span>
-            <span className="nf-live-dot" />
-            SIGNAL · WEAK
-          </span>
-          <span ref={clockRef}>00:00:00 UTC</span>
-          <Link href="/" className="nf-chip">
-            <span>Return to base</span>
-            <svg width="14" height="10" viewBox="0 0 14 10" fill="none" aria-hidden="true">
-              <path d="M1 5 H13 M9 1 L13 5 L9 9" stroke="currentColor" strokeWidth="1.2" />
-            </svg>
-          </Link>
-        </div>
-      </header>
-
       {/* ── "You are here" pins ── */}
       <div className="nf-pin" aria-hidden="true">
         <div style={{ position: "relative" }}>
@@ -188,6 +162,8 @@ export default function NotFound() {
             <span className="e-code">ERR / 404</span>
             <span>·</span>
             <span>COORDINATES LOST</span>
+            <span>·</span>
+            <span ref={clockRef}>00:00:00 UTC</span>
           </div>
 
           <h1 className="nf-glyph" aria-label="404 — page not found">
@@ -319,5 +295,15 @@ export default function NotFound() {
       </footer>
 
     </main>
+  );
+}
+
+export default function NotFound() {
+  return (
+    <SiteSettingsProvider>
+      <MainNavbar overDark={true} />
+      <NotFoundContent />
+      <Footer />
+    </SiteSettingsProvider>
   );
 }
