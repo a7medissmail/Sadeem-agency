@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useFormState } from "react-dom";
 import { Badge } from "@/components/admin/ui/Badge";
 import { Button } from "@/components/admin/ui/Button";
 import { FieldRow, Input, Select, Textarea } from "@/components/admin/ui/Field";
@@ -206,7 +207,7 @@ function ProposalDrawer({
   forms: FormLite[];
   onClose: () => void;
 }) {
-  const [regenState, regenAction] = useActionState<RegenerateTokenState, FormData>(
+  const [regenState, regenAction] = useFormState<RegenerateTokenState, FormData>(
     regenerateProposalTokenAction,
     {},
   );
@@ -455,7 +456,7 @@ function CreateProposalPanel({
   forms: FormLite[];
   onCreated: (token: string) => void;
 }) {
-  const [state, action] = useActionState<CreateProposalState, FormData>(createProposalAction, {});
+  const [state, action] = useFormState<CreateProposalState, FormData>(createProposalAction, {});
   const didCreate = useRef(false);
 
   useEffect(() => {
