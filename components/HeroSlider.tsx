@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import HeroPhoto from "./HeroPhoto";
 import SectionLabel from "./SectionLabel";
 import { Icon } from "./Icons";
+import { useScrollY } from "./SmoothScroll";
 
 const slides = [
   {
@@ -46,7 +47,9 @@ const slides = [
   },
 ];
 
-export default function HeroSlider({ scrollY }: { scrollY: number }) {
+export default function HeroSlider({ scrollY: scrollYProp }: { scrollY?: number } = {}) {
+  const internalScrollY = useScrollY();
+  const scrollY = scrollYProp ?? internalScrollY;
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);
   const total = slides.length;

@@ -1,6 +1,3 @@
-"use client";
-
-import { useScrollY } from "@/components/SmoothScroll";
 import SectionAwareNavbar from "@/components/SectionAwareNavbar";
 import HeroSlider from "@/components/HeroSlider";
 import AboutSection from "@/components/AboutSection";
@@ -13,22 +10,23 @@ import ClientsSection from "@/components/ClientsSection";
 import FinalCTA from "@/components/FinalCTA";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
+import { getPublicClientSection } from "@/lib/site/clients";
 
-export default function Home() {
-  const scrollY = useScrollY();
+export default async function Home() {
+  const { section, anchor, grid } = await getPublicClientSection();
 
   return (
     <div className="page">
       <SectionAwareNavbar initialOverDark />
       <main>
-        <HeroSlider scrollY={scrollY} />
+        <HeroSlider />
         <AboutSection />
         <ProblemSection />
         <ApproachSection />
         <ServicesSection />
         <WhySadeem />
         <CasesSection />
-        <ClientsSection />
+        <ClientsSection section={section} anchor={anchor} grid={grid} />
         <FinalCTA />
         <ContactSection />
         <Footer />

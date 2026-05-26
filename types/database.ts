@@ -25,6 +25,7 @@ export type FormFieldType =
   | "file"
   | "date";
 export type FormSubmissionStatus = "new" | "reviewed" | "converted" | "archived";
+export type ClientPartnerRole = "anchor" | "grid";
 
 export type Database = {
   public: {
@@ -437,6 +438,40 @@ export type Database = {
         Insert: Partial<Database["public"]["Tables"]["site_settings"]["Row"]>;
         Relationships: [];
         Update: Partial<Database["public"]["Tables"]["site_settings"]["Insert"]>;
+      };
+      client_section: {
+        Row: {
+          id: boolean;
+          eyebrow: string;
+          meta_accent: string;
+          meta_value: string;
+          foot: string;
+          nda_count: number;
+          nda_label: string;
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["client_section"]["Row"]>;
+        Relationships: [];
+        Update: Partial<Database["public"]["Tables"]["client_section"]["Insert"]>;
+      };
+      client_partners: {
+        Row: {
+          id: string;
+          name: string;
+          caption: string | null;
+          logo_url: string;
+          role: ClientPartnerRole;
+          sort_order: number;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<
+          Database["public"]["Tables"]["client_partners"]["Row"],
+          "id" | "created_at" | "updated_at"
+        > & { id?: string; created_at?: string; updated_at?: string };
+        Relationships: [];
+        Update: Partial<Database["public"]["Tables"]["client_partners"]["Insert"]>;
       };
     };
     Views: Record<string, never>;

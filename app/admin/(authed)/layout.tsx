@@ -21,6 +21,7 @@ const navGroups = [
       { href: "/admin/courses", label: "Workshops" },
       { href: "/admin/success-stories", label: "Stories" },
       { href: "/admin/team", label: "Team" },
+      { href: "/admin/clients", label: "Clients" },
     ],
   },
   {
