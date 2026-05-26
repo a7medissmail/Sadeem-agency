@@ -73,7 +73,7 @@ export async function updateJobAction(_prev: JobFormState, formData: FormData): 
   revalidatePath("/admin/jobs");
   revalidatePath("/careers");
   revalidatePath(`/careers/${parsed.data.slug}`);
-  redirect("/admin/jobs");
+  return { ok: true };
 }
 
 export async function toggleJobOpenAction(formData: FormData): Promise<void> {

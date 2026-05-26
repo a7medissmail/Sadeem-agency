@@ -1,33 +1,18 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
-import { Button } from "@/components/admin/ui/Button";
+import { useAutoSave } from "@/components/admin/hooks/useAutoSave";
+import { SaveStatus } from "@/components/admin/ui/SaveStatus";
 import { FieldRow, Input, Textarea } from "@/components/admin/ui/Field";
-import type { Database, Json } from "@/types/database";
+import type { Database } from "@/types/database";
 import { socialPlatformLabels } from "@/lib/validation/siteSettings";
 import type { SocialPlatform } from "@/lib/site/settings";
 import { updateSiteSettingsAction, type SiteSettingsState } from "./actions";
+import type { Json } from "@/types/database";
 
 const initial: SiteSettingsState = {};
 const platforms = Object.keys(socialPlatformLabels) as SocialPlatform[];
 
 type SettingsRow = Database["public"]["Tables"]["site_settings"]["Row"];
-
-function FieldError({ messages }: { messages?: string[] }) {
-  if (!messages?.length) return null;
-  return <p className="text-[12.5px] leading-snug text-red-300">{messages[0]}</p>;
-}
-
-function SaveButton() {
-  const { pending } = useFormStatus();
-  return <Button type="submit" disabled={pending}>{pending ? "Saving..." : "Save settings"}</Button>;
-}
-
-function socialValue(socials: Json | null | undefined, platform: SocialPlatform) {
-  if (!socials || typeof socials !== "object" || Array.isArray(socials)) return "";
-  const value = socials[platform];
-  return typeof value === "string" ? value : "";
-}
 
 function PreviewLogo({ url, tone }: { url: string | null; tone: "dark" | "light" }) {
   if (!url) return null;
@@ -39,12 +24,26 @@ function PreviewLogo({ url, tone }: { url: string | null; tone: "dark" | "light"
   );
 }
 
+function socialValue(socials: Json | null | undefined, platform: SocialPlatform) {
+  if (!socials || typeof socials !== "object" || Array.isArray(socials)) return "";
+  const value = (socials as Record<string, unknown>)[platform];
+  return typeof value === "string" ? value : "";
+}
+
 export default function SettingsForm({ settings }: { settings: SettingsRow }) {
-  const [state, formAction] = useFormState(updateSiteSettingsAction, initial);
-  const errors = state.fieldErrors ?? {};
+  const { formRef, status, errorMsg, onFormChange } = useAutoSave(
+    updateSiteSettingsAction,
+    initial,
+  );
 
   return (
-    <form action={formAction} encType="multipart/form-data" className="grid gap-8 xl:grid-cols-[1fr_0.9fr]">
+    <form
+      ref={formRef}
+      onChange={onFormChange}
+      onSubmit={(e) => e.preventDefault()}
+      encType="multipart/form-data"
+      className="grid gap-8 xl:grid-cols-[1fr_0.9fr]"
+    >
       <div className="flex flex-col gap-6">
         <section className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
           <div className="mb-5">
@@ -58,7 +57,6 @@ export default function SettingsForm({ settings }: { settings: SettingsRow }) {
           <div className="grid gap-4 md:grid-cols-2">
             <FieldRow label="Dark logo URL">
               <Input name="logo_dark_url" type="url" defaultValue={settings.logo_dark_url ?? ""} />
-              <FieldError messages={errors.logo_dark_url} />
             </FieldRow>
             <FieldRow label="Upload dark logo">
               <Input name="logo_dark_file" type="file" accept="image/svg+xml,image/png,image/jpeg,image/webp" />
@@ -69,7 +67,6 @@ export default function SettingsForm({ settings }: { settings: SettingsRow }) {
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <FieldRow label="White logo URL">
               <Input name="logo_light_url" type="url" defaultValue={settings.logo_light_url ?? ""} />
-              <FieldError messages={errors.logo_light_url} />
             </FieldRow>
             <FieldRow label="Upload white logo">
               <Input name="logo_light_file" type="file" accept="image/svg+xml,image/png,image/jpeg,image/webp" />
@@ -80,7 +77,6 @@ export default function SettingsForm({ settings }: { settings: SettingsRow }) {
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <FieldRow label="Favicon URL">
               <Input name="favicon_url" type="url" defaultValue={settings.favicon_url ?? ""} />
-              <FieldError messages={errors.favicon_url} />
             </FieldRow>
             <FieldRow label="Upload favicon">
               <Input name="favicon_file" type="file" accept="image/svg+xml,image/png,image/x-icon" />
@@ -97,20 +93,16 @@ export default function SettingsForm({ settings }: { settings: SettingsRow }) {
           <div className="grid gap-4">
             <FieldRow label="Footer description">
               <Textarea name="footer_description" rows={4} defaultValue={settings.footer_description} />
-              <FieldError messages={errors.footer_description} />
             </FieldRow>
             <div className="grid gap-4 md:grid-cols-3">
               <FieldRow label="Email">
                 <Input name="footer_email" type="email" defaultValue={settings.footer_email} />
-                <FieldError messages={errors.footer_email} />
               </FieldRow>
               <FieldRow label="Phone">
                 <Input name="footer_phone" defaultValue={settings.footer_phone ?? ""} />
-                <FieldError messages={errors.footer_phone} />
               </FieldRow>
               <FieldRow label="Location">
                 <Input name="footer_location" defaultValue={settings.footer_location ?? ""} />
-                <FieldError messages={errors.footer_location} />
               </FieldRow>
             </div>
           </div>
@@ -124,7 +116,6 @@ export default function SettingsForm({ settings }: { settings: SettingsRow }) {
                   defaultValue={socialValue(settings.social_links, platform)}
                   placeholder={`https://${platform === "x" ? "x.com" : `${platform}.com`}/sadeem`}
                 />
-                <FieldError messages={errors[`social_links.${platform}`]} />
               </FieldRow>
             ))}
           </div>
@@ -139,20 +130,16 @@ export default function SettingsForm({ settings }: { settings: SettingsRow }) {
           <p>Favicon changes update on the client and will be picked up by browsers after cache refresh.</p>
         </div>
 
-        {state.error ? (
-          <div className="mt-5 border border-red-400/25 bg-red-500/[0.08] px-4 py-3 text-[13px] text-red-200">
-            {state.error}
-          </div>
-        ) : null}
-        {state.ok ? (
-          <div className="mt-5 border border-emerald-400/25 bg-emerald-500/[0.08] px-4 py-3 text-[13px] text-emerald-200">
-            Settings saved.
-          </div>
-        ) : null}
-
-        <div className="mt-6">
-          <SaveButton />
+        <div className="mt-6 flex items-center justify-between gap-3 border-t border-[var(--admin-border-soft)] pt-4">
+          <p className="text-[12px] text-[var(--admin-subtle)]">Changes save automatically.</p>
+          <SaveStatus status={status} error={errorMsg} />
         </div>
+
+        {status === "error" ? (
+          <div className="mt-4 border border-red-400/25 bg-red-500/[0.08] px-4 py-3 text-[13px] text-red-200">
+            {errorMsg}
+          </div>
+        ) : null}
       </aside>
     </form>
   );

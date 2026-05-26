@@ -126,7 +126,7 @@ export async function updateTeamMemberAction(
 
   revalidatePath("/admin/team");
   revalidatePath("/team");
-  redirect("/admin/team");
+  return { ok: true };
 }
 
 export async function toggleTeamMemberActiveAction(formData: FormData): Promise<void> {

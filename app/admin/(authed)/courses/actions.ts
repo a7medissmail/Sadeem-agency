@@ -142,7 +142,7 @@ export async function updateCourseAction(
   revalidatePath("/admin/courses");
   revalidatePath("/courses");
   revalidatePath(`/courses/${parsed.data.slug}`);
-  redirect("/admin/courses");
+  return { ok: true };
 }
 
 export async function toggleCourseActiveAction(formData: FormData): Promise<void> {

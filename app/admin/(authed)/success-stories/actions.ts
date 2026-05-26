@@ -12,6 +12,7 @@ import {
 } from "@/lib/validation/successStory";
 
 export type SuccessStoryFormState = {
+  ok?: boolean;
   error?: string;
   fieldErrors?: SuccessStoryFieldErrors;
 };
@@ -135,7 +136,7 @@ export async function updateSuccessStoryAction(
   revalidatePath("/success-stories");
   revalidatePath(`/success-stories/${parsed.data.slug}`);
   revalidatePath("/");
-  redirect("/admin/success-stories");
+  return { ok: true };
 }
 
 export async function toggleSuccessStoryPublishedAction(formData: FormData): Promise<void> {

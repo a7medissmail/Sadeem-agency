@@ -98,7 +98,7 @@ export async function updateClientSectionAction(
 
   revalidatePath("/");
   revalidatePath("/admin/clients");
-  redirect("/admin/clients?updated=section");
+  return { ok: true };
 }
 
 // ============================================================
@@ -218,7 +218,7 @@ export async function updateClientPartnerAction(
 
   revalidatePath("/");
   revalidatePath("/admin/clients");
-  redirect("/admin/clients?updated=updated");
+  return { ok: true };
 }
 
 export async function deleteClientPartnerAction(formData: FormData): Promise<void> {

@@ -9,6 +9,8 @@ import {
   type SuccessStoryFormState,
 } from "./actions";
 import { Button } from "@/components/admin/ui/Button";
+import { SaveStatus } from "@/components/admin/ui/SaveStatus";
+import { useAutoSave } from "@/components/admin/hooks/useAutoSave";
 import { FieldRow, Input, Textarea } from "@/components/admin/ui/Field";
 
 const initial: SuccessStoryFormState = {};
@@ -34,7 +36,7 @@ type StoryValues = {
 function toSlug(value: string): string {
   return value
     .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[̀-ͯ]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
@@ -46,46 +48,38 @@ function FieldError({ messages }: { messages?: string[] }) {
   return <p className="text-[12.5px] leading-snug text-red-300">{messages[0]}</p>;
 }
 
-function SaveButton({ mode }: { mode: "create" | "edit" }) {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" disabled={pending}>
-      {pending ? "Saving..." : mode === "create" ? "Create story" : "Save changes"}
-    </Button>
-  );
-}
-
 function onCodeEditorKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
   if (event.key !== "Tab" || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return;
-
   event.preventDefault();
   const textarea = event.currentTarget;
   const start = textarea.selectionStart;
   const end = textarea.selectionEnd;
   const nextValue = `${textarea.value.slice(0, start)}  ${textarea.value.slice(end)}`;
-
   textarea.value = nextValue;
   textarea.selectionStart = start + 2;
   textarea.selectionEnd = start + 2;
   textarea.dispatchEvent(new Event("input", { bubbles: true }));
 }
 
-export default function StoryForm({ mode, story }: { mode: "create" | "edit"; story?: StoryValues }) {
-  const action = mode === "create" ? createSuccessStoryAction : updateSuccessStoryAction;
-  const [state, formAction] = useFormState(action, initial);
-  const [title, setTitle] = useState(story?.title ?? "");
-  const [slug, setSlug] = useState(story?.slug ?? "");
-  const [slugTouched, setSlugTouched] = useState(Boolean(story?.slug));
-  const errors = state.fieldErrors ?? {};
-
-  function onTitleChange(value: string) {
-    setTitle(value);
-    if (!slugTouched) setSlug(toSlug(value));
-  }
-
+function Fields({
+  story,
+  errors = {},
+  title,
+  slug,
+  onTitleChange,
+  setSlug,
+  setSlugTouched,
+}: {
+  story?: StoryValues;
+  errors?: Record<string, string[]>;
+  title: string;
+  slug: string;
+  onTitleChange: (v: string) => void;
+  setSlug: (v: string) => void;
+  setSlugTouched: (v: boolean) => void;
+}) {
   return (
-    <form action={formAction} encType="multipart/form-data" className="flex max-w-[980px] flex-col gap-6 border border-[var(--admin-border)] bg-[var(--admin-panel)] p-6">
-      {story?.id ? <input type="hidden" name="id" value={story.id} /> : null}
+    <>
       {story?.image_url ? <input type="hidden" name="image_url" value={story.image_url} /> : null}
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -94,7 +88,7 @@ export default function StoryForm({ mode, story }: { mode: "create" | "edit"; st
             name="title"
             required
             value={title}
-            onChange={(event) => onTitleChange(event.target.value)}
+            onChange={(e) => onTitleChange(e.target.value)}
             aria-invalid={Boolean(errors.title)}
             placeholder="From scattered demand to predictable growth"
           />
@@ -106,11 +100,8 @@ export default function StoryForm({ mode, story }: { mode: "create" | "edit"; st
             name="slug"
             required
             value={slug}
-            onChange={(event) => {
-              setSlug(event.target.value);
-              setSlugTouched(true);
-            }}
-            onBlur={(event) => setSlug(toSlug(event.target.value) || event.target.value.trim())}
+            onChange={(e) => { setSlug(e.target.value); setSlugTouched(true); }}
+            onBlur={(e) => setSlug(toSlug(e.target.value) || e.target.value.trim())}
             aria-invalid={Boolean(errors.slug)}
             placeholder="predictable-growth-system"
           />
@@ -118,59 +109,28 @@ export default function StoryForm({ mode, story }: { mode: "create" | "edit"; st
         </FieldRow>
 
         <FieldRow label="Client name">
-          <Input
-            name="client_name"
-            defaultValue={story?.client_name ?? ""}
-            maxLength={140}
-            aria-invalid={Boolean(errors.client_name)}
-            placeholder="Confidential operator"
-          />
+          <Input name="client_name" defaultValue={story?.client_name ?? ""} maxLength={140} aria-invalid={Boolean(errors.client_name)} placeholder="Confidential operator" />
           <FieldError messages={errors.client_name} />
         </FieldRow>
 
         <FieldRow label="Industry">
-          <Input
-            name="industry"
-            defaultValue={story?.industry ?? ""}
-            maxLength={100}
-            aria-invalid={Boolean(errors.industry)}
-            placeholder="Retail / Technology / Manufacturing"
-          />
+          <Input name="industry" defaultValue={story?.industry ?? ""} maxLength={100} aria-invalid={Boolean(errors.industry)} placeholder="Retail / Technology / Manufacturing" />
           <FieldError messages={errors.industry} />
         </FieldRow>
 
         <FieldRow label="Metric value">
-          <Input
-            name="metric_value"
-            defaultValue={story?.metric_value ?? ""}
-            maxLength={40}
-            aria-invalid={Boolean(errors.metric_value)}
-            placeholder="+28%"
-          />
+          <Input name="metric_value" defaultValue={story?.metric_value ?? ""} maxLength={40} aria-invalid={Boolean(errors.metric_value)} placeholder="+28%" />
           <FieldError messages={errors.metric_value} />
         </FieldRow>
 
         <FieldRow label="Metric label">
-          <Input
-            name="metric_label"
-            defaultValue={story?.metric_label ?? ""}
-            maxLength={100}
-            aria-invalid={Boolean(errors.metric_label)}
-            placeholder="profitability lift"
-          />
+          <Input name="metric_label" defaultValue={story?.metric_label ?? ""} maxLength={100} aria-invalid={Boolean(errors.metric_label)} placeholder="profitability lift" />
           <FieldError messages={errors.metric_label} />
         </FieldRow>
       </div>
 
       <FieldRow label="Summary">
-        <Textarea
-          name="summary"
-          rows={3}
-          defaultValue={story?.summary ?? ""}
-          maxLength={320}
-          aria-invalid={Boolean(errors.summary)}
-          placeholder="Short homepage/card summary. Keep it measurable and concrete."
-        />
+        <Textarea name="summary" rows={3} defaultValue={story?.summary ?? ""} maxLength={320} aria-invalid={Boolean(errors.summary)} placeholder="Short homepage/card summary. Keep it measurable and concrete." />
         <FieldError messages={errors.summary} />
       </FieldRow>
 
@@ -199,7 +159,7 @@ export default function StoryForm({ mode, story }: { mode: "create" | "edit"; st
           spellCheck={false}
           onKeyDown={onCodeEditorKeyDown}
           className="min-h-[320px] font-mono text-[13px] leading-relaxed text-[var(--admin-text)] [tab-size:2]"
-          placeholder={`<p>Write the full case narrative.</p>\n<h3>Operating moves</h3>\n<ul><li>What changed</li><li>What became measurable</li></ul>`}
+          placeholder={`<p>Write the full case narrative.</p>`}
         />
         <p className="text-[12px] leading-relaxed text-[var(--admin-subtle)]">
           Public output is sanitized. Use safe HTML and small inline style attributes only.
@@ -209,29 +169,18 @@ export default function StoryForm({ mode, story }: { mode: "create" | "edit"; st
 
       <div className="grid gap-4 border-t border-[var(--admin-border-soft)] pt-6 md:grid-cols-2">
         <FieldRow label="Sort order">
-          <Input
-            name="sort_order"
-            type="number"
-            step={1}
-            defaultValue={story?.sort_order ?? 0}
-            aria-invalid={Boolean(errors.sort_order)}
-          />
+          <Input name="sort_order" type="number" step={1} defaultValue={story?.sort_order ?? 0} aria-invalid={Boolean(errors.sort_order)} />
           <FieldError messages={errors.sort_order} />
         </FieldRow>
 
         <FieldRow label="Published">
           <span className="mt-1 inline-flex cursor-pointer select-none items-center gap-3">
-            <input
-              type="checkbox"
-              name="is_published"
-              defaultChecked={story?.is_published ?? false}
-              className="h-4 w-4 accent-[var(--admin-accent)]"
-            />
+            <input type="checkbox" name="is_published" defaultChecked={story?.is_published ?? false} className="h-4 w-4 accent-[var(--admin-accent)]" />
             <span className="text-[13.5px] text-[var(--admin-muted)]">Show on public site</span>
           </span>
         </FieldRow>
 
-        <FieldRow label="Cover image (PNG / JPG / WebP, < 5 MB)">
+        <FieldRow label="Cover image (PNG / JPG / WebP, &lt; 5 MB)">
           <Input name="image_file" type="file" accept="image/png,image/jpeg,image/webp" />
         </FieldRow>
 
@@ -245,22 +194,80 @@ export default function StoryForm({ mode, story }: { mode: "create" | "edit"; st
           </p>
         ) : null}
       </div>
+    </>
+  );
+}
+
+// ─── Create (keeps submit button) ────────────────────────────────────────────
+
+function CreateButton() {
+  const { pending } = useFormStatus();
+  return <Button type="submit" disabled={pending}>{pending ? "Saving..." : "Create story"}</Button>;
+}
+
+function StoryCreateInner({ story }: { story?: StoryValues }) {
+  const [state, formAction] = useFormState(createSuccessStoryAction, initial);
+  const [title, setTitle] = useState(story?.title ?? "");
+  const [slug, setSlug] = useState(story?.slug ?? "");
+  const [slugTouched, setSlugTouched] = useState(Boolean(story?.slug));
+  const errors = (state.fieldErrors ?? {}) as Record<string, string[]>;
+
+  function onTitleChange(value: string) {
+    setTitle(value);
+    if (!slugTouched) setSlug(toSlug(value));
+  }
+
+  return (
+    <form action={formAction} encType="multipart/form-data" className="flex max-w-[980px] flex-col gap-6 border border-[var(--admin-border)] bg-[var(--admin-panel)] p-6">
+      <Fields story={story} errors={errors} title={title} slug={slug} onTitleChange={onTitleChange} setSlug={setSlug} setSlugTouched={setSlugTouched} />
 
       {state.error ? (
-        <div className="border border-red-400/25 bg-red-500/[0.08] px-4 py-3 text-[13px] text-red-200" role="alert">
-          {state.error}
-        </div>
+        <div className="border border-red-400/25 bg-red-500/[0.08] px-4 py-3 text-[13px] text-red-200" role="alert">{state.error}</div>
       ) : null}
 
       <div className="flex items-center gap-4 pt-2">
-        <SaveButton mode={mode} />
-        <Link
-          href="/admin/success-stories"
-          className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-[var(--admin-muted)] hover:text-[var(--admin-text)]"
-        >
-          Cancel
-        </Link>
+        <CreateButton />
+        <Link href="/admin/success-stories" className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-[var(--admin-muted)] hover:text-[var(--admin-text)]">Cancel</Link>
       </div>
     </form>
   );
+}
+
+// ─── Edit (auto-save) ─────────────────────────────────────────────────────────
+
+function StoryEditInner({ story }: { story?: StoryValues }) {
+  const { formRef, status, errorMsg, onFormChange } = useAutoSave(updateSuccessStoryAction, initial);
+  const [title, setTitle] = useState(story?.title ?? "");
+  const [slug, setSlug] = useState(story?.slug ?? "");
+  const [slugTouched, setSlugTouched] = useState(Boolean(story?.slug));
+
+  function onTitleChange(value: string) {
+    setTitle(value);
+    if (!slugTouched) setSlug(toSlug(value));
+  }
+
+  return (
+    <form
+      ref={formRef}
+      onChange={onFormChange}
+      onSubmit={(e) => e.preventDefault()}
+      encType="multipart/form-data"
+      className="flex max-w-[980px] flex-col gap-6 border border-[var(--admin-border)] bg-[var(--admin-panel)] p-6"
+    >
+      {story?.id ? <input type="hidden" name="id" value={story.id} /> : null}
+      <Fields story={story} title={title} slug={slug} onTitleChange={onTitleChange} setSlug={setSlug} setSlugTouched={setSlugTouched} />
+
+      <div className="flex items-center justify-between gap-4 border-t border-[var(--admin-border-soft)] pt-4">
+        <Link href="/admin/success-stories" className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-[var(--admin-muted)] hover:text-[var(--admin-text)]">← Back to stories</Link>
+        <SaveStatus status={status} error={errorMsg} />
+      </div>
+    </form>
+  );
+}
+
+// ─── Public export ────────────────────────────────────────────────────────────
+
+export default function StoryForm({ mode, story }: { mode: "create" | "edit"; story?: StoryValues }) {
+  if (mode === "create") return <StoryCreateInner story={story} />;
+  return <StoryEditInner story={story} />;
 }
