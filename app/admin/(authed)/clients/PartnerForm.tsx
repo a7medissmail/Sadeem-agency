@@ -59,7 +59,6 @@ export default function PartnerForm({
       className="flex max-w-[900px] flex-col gap-6 border border-[var(--admin-border)] bg-[var(--admin-panel)] p-6"
     >
       {partner?.id ? <input type="hidden" name="id" value={partner.id} /> : null}
-      {partner?.logo_url ? <input type="hidden" name="logo_url" value={partner.logo_url} /> : null}
 
       <div className="grid gap-4 md:grid-cols-2">
         <FieldRow label="Name">
@@ -99,7 +98,18 @@ export default function PartnerForm({
       </FieldRow>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <FieldRow label="Logo URL">
+        <FieldRow label="Upload logo">
+          <Input
+            name="logo_file"
+            type="file"
+            accept="image/svg+xml,image/png,image/jpeg,image/webp"
+          />
+          <p className="mt-1 text-[12px] text-[var(--admin-muted)]">
+            Transparent PNG preferred. Under 2 MB. Overrides the URL field.
+          </p>
+        </FieldRow>
+
+        <FieldRow label="Logo URL (if not uploading)">
           <Input
             name="logo_url"
             type="url"
@@ -109,18 +119,7 @@ export default function PartnerForm({
           />
           <FieldError messages={errors.logo_url} />
           <p className="mt-1 text-[12px] text-[var(--admin-muted)]">
-            Use a transparent PNG so the silhouette filter reads cleanly.
-          </p>
-        </FieldRow>
-
-        <FieldRow label="Upload logo">
-          <Input
-            name="logo_file"
-            type="file"
-            accept="image/svg+xml,image/png,image/jpeg,image/webp"
-          />
-          <p className="mt-1 text-[12px] text-[var(--admin-muted)]">
-            Uploads overwrite the URL above. Under 2 MB.
+            Leave blank when uploading a file above.
           </p>
         </FieldRow>
       </div>

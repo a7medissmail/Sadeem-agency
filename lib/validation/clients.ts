@@ -96,7 +96,12 @@ export function formatClientSectionError(error: z.ZodError): {
 export const clientPartnerSchema = z.object({
   name: requiredText("Name", 140),
   caption: nullableText("Caption", 280),
-  logo_url: requiredText("Logo URL", 2048),
+  // Optional at validation time — the action enforces "file OR url" together
+  // so we don't fail when the user only picks a file without typing a URL.
+  logo_url: z
+    .preprocess(asString, z.string())
+    .transform((value) => value.trim())
+    .pipe(z.string().max(2048, "Logo URL must be 2048 characters or fewer")),
   role: z.preprocess(roleFromForm, z.enum(["anchor", "grid"])),
   sort_order: intFromForm("Sort order", -10000, 10000),
   is_active: z.preprocess(booleanFromForm, z.boolean()),

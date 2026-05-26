@@ -134,11 +134,21 @@ export async function createClientPartnerAction(
   const parsed = clientPartnerSchema.safeParse(readPartnerForm(formData));
   if (!parsed.success) return formatClientPartnerError(parsed.error);
 
+  const file = formData.get("logo_file") as File | null;
+  const hasFile = Boolean(file && file.size > 0);
+
+  // Require at least one logo source
+  if (!parsed.data.logo_url && !hasFile) {
+    return {
+      error: "Logo: Upload a file or enter a URL.",
+      fieldErrors: { logo_url: ["Required when no file is uploaded"] },
+    };
+  }
+
   let logo_url = parsed.data.logo_url;
   try {
-    const file = formData.get("logo_file") as File | null;
-    if (file && file.size > 0) {
-      const uploaded = await uploadLogo(file);
+    if (hasFile) {
+      const uploaded = await uploadLogo(file!);
       if (uploaded) logo_url = uploaded;
     }
   } catch (err) {
@@ -173,11 +183,21 @@ export async function updateClientPartnerAction(
   const parsed = clientPartnerSchema.safeParse(readPartnerForm(formData));
   if (!parsed.success) return formatClientPartnerError(parsed.error);
 
+  const file = formData.get("logo_file") as File | null;
+  const hasFile = Boolean(file && file.size > 0);
+
+  // Require at least one logo source
+  if (!parsed.data.logo_url && !hasFile) {
+    return {
+      error: "Logo: Upload a file or enter a URL.",
+      fieldErrors: { logo_url: ["Required when no file is uploaded"] },
+    };
+  }
+
   let logo_url = parsed.data.logo_url;
   try {
-    const file = formData.get("logo_file") as File | null;
-    if (file && file.size > 0) {
-      const uploaded = await uploadLogo(file);
+    if (hasFile) {
+      const uploaded = await uploadLogo(file!);
       if (uploaded) logo_url = uploaded;
     }
   } catch (err) {
