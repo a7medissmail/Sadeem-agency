@@ -16,10 +16,6 @@ function generateToken(): { raw: string; hash: string; prefix: string } {
   return { raw, hash, prefix };
 }
 
-export function hashToken(raw: string): string {
-  return crypto.createHash("sha256").update(raw).digest("hex");
-}
-
 // ─── Create ───────────────────────────────────────────────────────────────────
 
 export type CreateProposalState = {
