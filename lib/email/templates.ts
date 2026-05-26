@@ -335,20 +335,40 @@ function shell({
 }
 
 export function leadConfirmation({ name, brand }: { name: string; brand?: EmailBranding }) {
-  const subject = "We received your message - SADEEM";
-  const html = shell({
-    eyebrow: "Message received",
-    title: `Thanks, ${name}.`,
-    intro:
-      "Your message reached us. A member of the team will come back shortly, usually within one business day.",
-    preview: "Your message reached SADEEM.",
-    brand,
-    children: `
-      <p style="margin:0 0 18px;color:${ink};font-size:16px;line-height:1.7">Before we speak, it helps to think through the outcome you want, the constraint slowing you down, and what would make the next 90 days valuable.</p>
-      <div style="background:#18181b;border-left:3px solid ${accent};padding:16px 18px;margin-top:22px">
-        <p style="margin:0;color:${ink};font-size:15px;line-height:1.6">We work best when the ambition is clear and the operating reality is honest. Bring both.</p>
-      </div>`,
+  const subject = "We received your message — SADEEM";
+
+  const body = `
+<tr>
+  <td class="lp" style="padding:44px 40px 8px 40px;">
+    <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.28em;color:${L.accent};text-transform:uppercase;margin-bottom:18px;">Message received</div>
+    <h1 class="lt" style="margin:0 0 20px;font-family:${L.sans};font-weight:700;font-size:32px;line-height:1.05;letter-spacing:-0.025em;color:${L.text};">
+      Thanks, ${esc(name)}.
+    </h1>
+    <p style="margin:0;font-family:${L.sans};font-size:14.5px;line-height:1.6;color:${L.gray};max-width:46ch;">
+      Your message reached us. A member of the team will come back shortly — usually within one business day.
+    </p>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:32px 40px 0 40px;">
+    <div style="height:1px;background:${L.rule};font-size:0;line-height:0;">&nbsp;</div>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:28px 40px 44px 40px;">
+    <p style="margin:0;font-family:${L.sans};font-size:13.5px;line-height:1.65;color:${L.gray};">
+      Before we speak, it helps to think through the outcome you want, the constraint slowing you down, and what would make the next 90 days valuable. We work best when the ambition is clear and the operating reality is honest.
+    </p>
+  </td>
+</tr>`;
+
+  const html = lightShell({
+    preview: "Your message reached SADEEM — we'll be in touch.",
+    masthead: lMasthead("SADEEM", "Contact"),
+    body,
+    footerLines: `SADEEM · Strategic growth advisory<br />${brand?.footerEmail ?? "hello@sadeem.agency"}`,
   });
+
   return { subject, html };
 }
 
@@ -397,17 +417,42 @@ export function applicationConfirmation({
   jobTitle: string;
   brand?: EmailBranding;
 }) {
-  const subject = `Application received - ${jobTitle}`;
-  const html = shell({
-    eyebrow: "Application received",
-    title: `Thanks, ${name}.`,
-    intro: `We received your application for ${jobTitle}.`,
+  const subject = `Application received — ${jobTitle}`;
+
+  const body = `
+<tr>
+  <td class="lp" style="padding:44px 40px 8px 40px;">
+    <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.28em;color:${L.accent};text-transform:uppercase;margin-bottom:18px;">Application received</div>
+    <h1 class="lt" style="margin:0 0 20px;font-family:${L.sans};font-weight:700;font-size:32px;line-height:1.05;letter-spacing:-0.025em;color:${L.text};">
+      Thanks, ${esc(name)}.
+    </h1>
+    <p style="margin:0;font-family:${L.sans};font-size:14.5px;line-height:1.6;color:${L.gray};max-width:48ch;">
+      We received your application. The team will review your profile against the role, the work ahead, and the operating rhythm we need.
+    </p>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:28px 40px 0 40px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${L.rule};">
+      ${lTableRow("Role", jobTitle, true)}
+    </table>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:28px 40px 44px 40px;">
+    <p style="margin:0;font-family:${L.sans};font-size:13.5px;line-height:1.65;color:${L.gray};">
+      If there is a strong fit, we will follow up with next steps. We appreciate your interest.
+    </p>
+  </td>
+</tr>`;
+
+  const html = lightShell({
     preview: `SADEEM received your application for ${jobTitle}.`,
-    brand,
-    children: `
-      <p style="margin:0 0 18px;color:${ink};font-size:16px;line-height:1.7">The team will review your profile against the role, the work ahead, and the operating rhythm we need.</p>
-      <p style="margin:0;color:${muted};font-size:15px;line-height:1.7">If there is a strong fit, we will follow up with next steps.</p>`,
+    masthead: lMasthead("SADEEM", "Careers"),
+    body,
+    footerLines: `SADEEM · Strategic growth advisory<br />${brand?.footerEmail ?? "hello@sadeem.agency"}`,
   });
+
   return { subject, html };
 }
 
@@ -453,17 +498,43 @@ export function applicationRejection({
   jobTitle: string;
   brand?: EmailBranding;
 }) {
-  const subject = `Update on your SADEEM application - ${jobTitle}`;
-  const html = shell({
-    eyebrow: "Application update",
-    title: `Thank you, ${name}.`,
-    intro: `We reviewed your application for ${jobTitle}.`,
+  const subject = `Update on your SADEEM application — ${jobTitle}`;
+
+  const body = `
+<tr>
+  <td class="lp" style="padding:44px 40px 8px 40px;">
+    <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.28em;color:${L.gray};text-transform:uppercase;margin-bottom:18px;">Application update</div>
+    <h1 class="lt" style="margin:0 0 20px;font-family:${L.sans};font-weight:700;font-size:32px;line-height:1.05;letter-spacing:-0.025em;color:${L.text};">
+      Thank you, ${esc(name)}.
+    </h1>
+    <p style="margin:0;font-family:${L.sans};font-size:14.5px;line-height:1.6;color:${L.gray};max-width:48ch;">
+      We reviewed your application for ${esc(jobTitle)}.
+    </p>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:32px 40px 0 40px;">
+    <div style="height:1px;background:${L.rule};font-size:0;line-height:0;">&nbsp;</div>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:28px 40px 44px 40px;">
+    <p style="margin:0 0 16px;font-family:${L.sans};font-size:14.5px;line-height:1.6;color:${L.sub};">
+      We will not be moving forward with this role right now, but we appreciate the time and care you put into applying.
+    </p>
+    <p style="margin:0;font-family:${L.sans};font-size:13.5px;line-height:1.65;color:${L.gray};">
+      We are building the team deliberately, and we hope our paths cross again.
+    </p>
+  </td>
+</tr>`;
+
+  const html = lightShell({
     preview: `An update on your SADEEM application for ${jobTitle}.`,
-    brand,
-    children: `
-      <p style="margin:0 0 18px;color:${ink};font-size:16px;line-height:1.7">We will not be moving forward with this role right now, but we appreciate the time and care you put into applying.</p>
-      <p style="margin:0;color:${muted};font-size:15px;line-height:1.7">We are building the team deliberately, and we hope our paths cross again.</p>`,
+    masthead: lMasthead("SADEEM", "Careers"),
+    body,
+    footerLines: `SADEEM · Strategic growth advisory<br />${brand?.footerEmail ?? "hello@sadeem.agency"}`,
   });
+
   return { subject, html };
 }
 
@@ -478,23 +549,60 @@ export function bookingConfirmation({
   meetLink?: string | null;
   brand?: EmailBranding;
 }) {
-  const subject = "Consultation booked - SADEEM";
-  const html = shell({
-    eyebrow: "Consultation booked",
-    title: `You're booked, ${name}.`,
-    intro: `Your SADEEM consultation is scheduled for ${slotLabel}.`,
+  const subject = "Consultation booked — SADEEM";
+
+  const detailsBlock = lDarkBlock(`
+    <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.28em;color:${L.accent};text-transform:uppercase;margin-bottom:14px;">Session details</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid rgba(245,243,240,0.12);">
+      <tr>
+        <td width="38%" valign="top" style="padding:12px 12px 12px 0;font-family:${L.mono};font-size:10.5px;letter-spacing:0.22em;color:rgba(245,243,240,0.5);text-transform:uppercase;">When</td>
+        <td valign="top" style="padding:12px 0;font-family:${L.sans};font-size:14px;color:${L.white};line-height:1.5;">${esc(slotLabel)}</td>
+      </tr>
+    </table>
+    ${meetLink ? `
+    <div style="margin-top:20px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="background:${L.accent};">
+            <a href="${esc(meetLink)}" style="display:inline-block;padding:14px 22px;font-family:${L.mono};font-size:10.5px;letter-spacing:0.24em;color:${L.white};text-decoration:none;text-transform:uppercase;">Join session →</a>
+          </td>
+        </tr>
+      </table>
+    </div>` : `<p style="margin:16px 0 0;font-family:${L.sans};font-size:13.5px;line-height:1.55;color:rgba(245,243,240,0.55);">We will follow up with the meeting details shortly.</p>`}
+  `);
+
+  const body = `
+<tr>
+  <td class="lp" style="padding:44px 40px 8px 40px;">
+    <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.28em;color:${L.accent};text-transform:uppercase;margin-bottom:18px;">Consultation booked</div>
+    <h1 class="lt" style="margin:0 0 20px;font-family:${L.sans};font-weight:700;font-size:32px;line-height:1.05;letter-spacing:-0.025em;color:${L.text};">
+      You're booked,<br />${esc(name)}.
+    </h1>
+    <p style="margin:0;font-family:${L.sans};font-size:14.5px;line-height:1.6;color:${L.gray};max-width:46ch;">
+      Your SADEEM consultation is confirmed. We look forward to the conversation.
+    </p>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:28px 40px 0 40px;">
+    ${detailsBlock}
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:28px 40px 44px 40px;">
+    <p style="margin:0;font-family:${L.sans};font-size:13.5px;line-height:1.65;color:${L.gray};">
+      Come prepared with a clear view of where you are, where you want to be, and what's standing between the two.
+    </p>
+  </td>
+</tr>`;
+
+  const html = lightShell({
     preview: `Your SADEEM consultation is booked for ${slotLabel}.`,
-    brand,
-    children: `
-      ${
-        meetLink
-          ? `<p style="margin:0 0 18px;color:${ink};font-size:16px;line-height:1.7">Join link: <a href="${esc(meetLink)}" style="color:${accent};font-weight:700">${esc(
-              meetLink,
-            )}</a></p>${actionLink(meetLink, "Join session")}`
-          : `<p style="margin:0 0 18px;color:${ink};font-size:16px;line-height:1.7">We will follow up with the meeting details shortly.</p>`
-      }
-      <p style="margin:0;color:${muted};font-size:15px;line-height:1.7">We attached a calendar invite so the session lands in your calendar cleanly.</p>`,
+    masthead: lMasthead("SADEEM", "Consultation"),
+    body,
+    footerLines: `SADEEM · Strategic growth advisory<br />${brand?.footerEmail ?? "hello@sadeem.agency"}`,
   });
+
   return { subject, html };
 }
 
