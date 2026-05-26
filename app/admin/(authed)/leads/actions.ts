@@ -43,3 +43,19 @@ export async function deleteLeadAction(formData: FormData): Promise<void> {
   revalidatePath("/admin/leads");
   revalidatePath("/admin");
 }
+
+export async function addLeadNoteAction(formData: FormData): Promise<void> {
+  const profile = await requireRole(["admin", "editor"]);
+  const lead_id = formData.get("id") as string;
+  const note = (formData.get("note") as string | null)?.trim() ?? "";
+  if (!lead_id || !note) throw new Error("Missing lead id or note");
+
+  const admin = getSupabaseAdmin();
+  const { error } = await admin.from("lead_notes").insert({
+    lead_id,
+    author_id: profile.id,
+    note,
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/leads");
+}

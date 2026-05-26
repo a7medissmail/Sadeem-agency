@@ -5,12 +5,24 @@ import { Badge } from "@/components/admin/ui/Badge";
 import { Button } from "@/components/admin/ui/Button";
 import { Select } from "@/components/admin/ui/Field";
 import type { Database, LeadSource, LeadStatus } from "@/types/database";
-import { assignLeadOwnerAction, deleteLeadAction, updateLeadStatusAction } from "./actions";
+import { addLeadNoteAction, assignLeadOwnerAction, deleteLeadAction, updateLeadStatusAction } from "./actions";
+import { Textarea } from "@/components/admin/ui/Field";
+
+type LeadNote = {
+  id: string;
+  lead_id: string;
+  author_id: string | null;
+  note: string;
+  created_at: string;
+  author: { full_name: string | null } | null;
+};
 
 export type LeadBoardRow = Pick<
   Database["public"]["Tables"]["leads"]["Row"],
   "id" | "name" | "email" | "phone" | "company" | "message" | "source" | "status" | "owner_id" | "marketing_unsubscribed_at" | "created_at"
->;
+> & {
+  notes: LeadNote[];
+};
 
 export type StaffRow = {
   id: string;
@@ -169,7 +181,7 @@ function LeadCard({
       </button>
 
       <div className="mt-4 flex items-center justify-between gap-3 border-t border-[var(--admin-border-soft)] pt-3 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">
-        <span>{lead.marketing_unsubscribed_at ? "Unsubscribed" : "Can email"}</span>
+        <span>{lead.notes.length > 0 ? `${lead.notes.length} note${lead.notes.length === 1 ? "" : "s"}` : lead.marketing_unsubscribed_at ? "Unsubscribed" : "Can email"}</span>
         <span className="text-[var(--admin-accent)]/70 transition-colors group-hover:text-[var(--admin-accent)]" aria-hidden="true">
           Open →
         </span>
@@ -238,6 +250,38 @@ function LeadDrawer({
                 <p className="mt-4 whitespace-pre-wrap text-[14px] leading-relaxed text-[var(--admin-muted)]">
                   {lead.message || "No message was submitted."}
                 </p>
+              </div>
+
+              <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Notes</h3>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)]">
+                    {String(lead.notes.length).padStart(2, "0")}
+                  </span>
+                </div>
+                <form action={addLeadNoteAction} className="mt-4 space-y-3">
+                  <input type="hidden" name="id" value={lead.id} />
+                  <Textarea name="note" placeholder="Conversation summary, budget signal, next move..." required />
+                  <Button type="submit" variant="outline" className="w-full justify-center">
+                    Add note
+                  </Button>
+                </form>
+                <div className="mt-5 space-y-3">
+                  {lead.notes.length === 0 ? (
+                    <p className="border border-dashed border-[var(--admin-border)] p-4 text-[12.5px] text-[var(--admin-subtle)]">
+                      No internal notes yet.
+                    </p>
+                  ) : (
+                    lead.notes.map((note) => (
+                      <article key={note.id} className="border border-[var(--admin-border-soft)] bg-[var(--admin-surface-strong)] p-4">
+                        <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-[var(--admin-muted)]">{note.note}</p>
+                        <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-subtle)]">
+                          {note.author?.full_name ?? "Staff"} / {dateFmt.format(new Date(note.created_at))}
+                        </p>
+                      </article>
+                    ))
+                  )}
+                </div>
               </div>
 
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">

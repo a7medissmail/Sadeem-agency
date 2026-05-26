@@ -26,6 +26,15 @@ export type FormFieldType =
   | "date";
 export type FormSubmissionStatus = "new" | "reviewed" | "converted" | "archived";
 export type ClientPartnerRole = "anchor" | "grid";
+export type ProposalStatus =
+  | "draft"
+  | "sent"
+  | "opened"
+  | "in_progress"
+  | "submitted"
+  | "reviewed"
+  | "converted"
+  | "expired";
 
 export type Database = {
   public: {
@@ -97,6 +106,21 @@ export type Database = {
         };
         Relationships: [];
         Update: Partial<Database["public"]["Tables"]["leads"]["Insert"]>;
+      };
+      lead_notes: {
+        Row: {
+          id: string;
+          lead_id: string;
+          author_id: string | null;
+          note: string;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["lead_notes"]["Row"], "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+        Update: Partial<Database["public"]["Tables"]["lead_notes"]["Insert"]>;
       };
       lead_activities: {
         Row: {
@@ -474,6 +498,50 @@ export type Database = {
         > & { id?: string; created_at?: string; updated_at?: string };
         Relationships: [];
         Update: Partial<Database["public"]["Tables"]["client_partners"]["Insert"]>;
+      };
+      proposals: {
+        Row: {
+          id: string;
+          form_id: string | null;
+          title: string;
+          client_name: string;
+          client_email: string;
+          client_company: string | null;
+          token_hash: string;
+          token_prefix: string;
+          status: ProposalStatus;
+          expires_at: string;
+          sent_at: string | null;
+          opened_at: string | null;
+          submitted_at: string | null;
+          reviewed_at: string | null;
+          created_by: string | null;
+          internal_notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          form_id?: string | null;
+          title: string;
+          client_name: string;
+          client_email: string;
+          client_company?: string | null;
+          token_hash: string;
+          token_prefix: string;
+          status?: ProposalStatus;
+          expires_at?: string;
+          sent_at?: string | null;
+          opened_at?: string | null;
+          submitted_at?: string | null;
+          reviewed_at?: string | null;
+          created_by?: string | null;
+          internal_notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+        Update: Partial<Database["public"]["Tables"]["proposals"]["Insert"]>;
       };
     };
     Views: Record<string, never>;

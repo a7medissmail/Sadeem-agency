@@ -11,7 +11,12 @@ async function loadData() {
     const [leads, staff] = await Promise.all([
       admin
         .from("leads")
-        .select("id, name, email, phone, company, message, source, status, owner_id, marketing_unsubscribed_at, created_at")
+        .select(`
+          id, name, email, phone, company, message, source, status,
+          owner_id, marketing_unsubscribed_at, created_at,
+          notes:lead_notes(id, lead_id, author_id, note, created_at,
+            author:profiles!lead_notes_author_id_fkey(full_name))
+        `)
         .order("created_at", { ascending: false })
         .limit(300),
       admin

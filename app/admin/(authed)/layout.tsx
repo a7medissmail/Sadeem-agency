@@ -34,6 +34,7 @@ const navGroups = [
   {
     label: "System",
     items: [
+      { href: "/admin/proposals", label: "Proposals" },
       { href: "/admin/forms", label: "Form Builder" },
       { href: "/admin/settings", label: "Site Settings" },
       { href: "/admin/users", label: "Users & Roles" },
