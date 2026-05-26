@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { Database } from "@/types/database";
 import SettingsForm from "./SettingsForm";
+import { toggleMaintenanceModeAction } from "./actions";
 
 export const metadata = { title: "Website Settings - SADEEM Admin" };
 
@@ -19,6 +20,8 @@ const fallback: SettingsRow = {
   footer_location: null,
   social_links: {},
   updated_at: new Date().toISOString(),
+  is_maintenance_mode: false,
+  maintenance_message: null,
 };
 
 async function loadSettings() {
@@ -44,6 +47,54 @@ export default async function SettingsPage() {
         description="Control the public brand system: logos, favicon, footer contact details, locations, and social links."
       />
 
+      {/* ── Maintenance mode ─────────────────────────────────────── */}
+      <section className={`flex items-start justify-between gap-6 border p-5 ${settings.is_maintenance_mode ? "border-red-500/40 bg-red-500/[0.06]" : "border-[var(--admin-border)] bg-[var(--admin-panel)]"}`}>
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">Site Status</p>
+          <h2 className="mt-1 text-[22px] font-semibold leading-snug tracking-tight text-[var(--admin-text)]">
+            Maintenance Mode
+          </h2>
+          <p className="mt-2 max-w-[52ch] text-[13.5px] leading-relaxed text-[var(--admin-muted)]">
+            When enabled, <strong className="text-[var(--admin-text)]">all public pages</strong> redirect to the maintenance page.
+            Admin routes (<code className="text-[11px]">/admin</code>) stay accessible.
+            The middleware cache refreshes within 30 seconds of toggling.
+          </p>
+          {settings.is_maintenance_mode ? (
+            <div className="mt-3 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-red-400">
+              <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-red-400" />
+              Site is offline — maintenance page is live
+            </div>
+          ) : (
+            <div className="mt-3 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-emerald-400">
+              <span className="inline-block h-2 w-2 rounded-full bg-emerald-400" />
+              Site is online
+            </div>
+          )}
+        </div>
+
+        <form action={toggleMaintenanceModeAction} className="flex shrink-0 flex-col items-end gap-3">
+          <input type="hidden" name="enable" value={settings.is_maintenance_mode ? "false" : "true"} />
+          <input
+            type="text"
+            name="maintenance_message"
+            defaultValue={settings.maintenance_message ?? ""}
+            placeholder="Custom message for visitors (optional)"
+            className="w-72 border border-[var(--admin-border)] bg-[var(--admin-input)] px-3 py-2 text-[13px] text-[var(--admin-text)] placeholder:text-[var(--admin-subtle)] focus:outline-none focus:ring-1 focus:ring-[var(--admin-accent)]"
+          />
+          <button
+            type="submit"
+            className={`px-5 py-2 font-mono text-[11px] uppercase tracking-[0.2em] transition-colors ${
+              settings.is_maintenance_mode
+                ? "bg-emerald-600 text-white hover:bg-emerald-500"
+                : "bg-red-600 text-white hover:bg-red-500"
+            }`}
+          >
+            {settings.is_maintenance_mode ? "Bring site online" : "Enable maintenance mode"}
+          </button>
+        </form>
+      </section>
+
+      {/* ── Brand settings ───────────────────────────────────────── */}
       <section className="grid gap-4 xl:grid-cols-[1fr_0.85fr]">
         <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
           <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">Site OS</p>

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import {
@@ -107,4 +108,27 @@ export async function updateSiteSettingsAction(
   revalidatePath("/consultation");
   revalidatePath("/admin/settings");
   return { ok: true };
+}
+
+// ─── Maintenance mode toggle ──────────────────────────────────────────────────
+
+export async function toggleMaintenanceModeAction(formData: FormData): Promise<void> {
+  await requireRole(["admin"]);
+  const enable = formData.get("enable") === "true";
+  const message = (formData.get("maintenance_message") as string | null)?.trim() || null;
+
+  const admin = getSupabaseAdmin();
+  const { error } = await admin.from("site_settings").upsert({
+    id: true,
+    is_maintenance_mode: enable,
+    maintenance_message: message,
+    updated_at: new Date().toISOString(),
+  });
+  if (error) throw new Error(error.message);
+
+  // Revalidate everything so the middleware cache reflects the change within
+  // the next fetch cycle (module-level cache refreshes within ~30 s).
+  revalidatePath("/", "layout");
+  revalidatePath("/admin/settings");
+  redirect("/admin/settings");
 }

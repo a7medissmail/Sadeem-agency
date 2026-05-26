@@ -434,6 +434,8 @@ export type Database = {
           footer_location: string | null;
           social_links: Json;
           updated_at: string;
+          is_maintenance_mode: boolean;
+          maintenance_message: string | null;
         };
         Insert: Partial<Database["public"]["Tables"]["site_settings"]["Row"]>;
         Relationships: [];
