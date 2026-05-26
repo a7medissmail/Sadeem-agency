@@ -4,6 +4,8 @@ import crypto from "crypto";
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { sendEmail } from "@/lib/email/resend";
+import { quotationAcceptedClient, getEmailBranding } from "@/lib/email/templates";
 import type { QuotationStatus } from "@/types/database";
 
 // ─── Token helpers (same pattern as proposals) ────────────────────────────────
@@ -232,7 +234,7 @@ export async function clientRespondQuotationAction(
   // Re-verify the quotation is in a respondable state
   const { data: q } = await admin
     .from("quotations")
-    .select("id, status, accepted_at, declined_at")
+    .select("id, status, accepted_at, declined_at, title, total, currency, token_prefix, proposal_id")
     .eq("id", quotationId)
     .single();
 
@@ -253,5 +255,34 @@ export async function clientRespondQuotationAction(
   if (error) return { error: error.message };
 
   revalidatePath("/admin/proposals");
+
+  // Fire-and-forget confirmation email when client accepts
+  if (action === "accepted" && q.proposal_id) {
+    void (async () => {
+      try {
+        const { data: proposal } = await admin
+          .from("proposals")
+          .select("client_name, client_email, title")
+          .eq("id", q.proposal_id!)
+          .single();
+        if (!proposal) return;
+
+        const brand = await getEmailBranding();
+        const { subject, html } = quotationAcceptedClient({
+          clientName: proposal.client_name,
+          proposalTitle: proposal.title,
+          quotationTitle: q.title,
+          engagementRef: q.token_prefix ?? quotationId.slice(0, 8),
+          total: q.total,
+          currency: q.currency ?? "SAR",
+          brand,
+        });
+        await sendEmail({ to: proposal.client_email, subject, html });
+      } catch (err) {
+        console.error("[email] quotation accepted email failed:", err);
+      }
+    })();
+  }
+
   return { ok: true, action };
 }

@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { sendEmail } from "@/lib/email/resend";
+import { briefReceivedClient, briefSubmittedAdmin, getEmailBranding } from "@/lib/email/templates";
 import type { ProposalStatus } from "@/types/database";
 
 // ─── Token helpers ────────────────────────────────────────────────────────────
@@ -194,7 +196,7 @@ export async function submitProposalAction(
   // Verify proposal is still open & not expired
   const { data: proposal } = await admin
     .from("proposals")
-    .select("id, status, expires_at, form_id")
+    .select("id, status, expires_at, form_id, title, client_company")
     .eq("id", proposalId)
     .single();
 
@@ -240,5 +242,32 @@ export async function submitProposalAction(
 
   if (updateError) return { error: updateError.message };
   revalidatePath("/admin/proposals");
+
+  // Fire-and-forget emails — never block or fail the action
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://sadeem.agency";
+  void (async () => {
+    try {
+      const brand = await getEmailBranding();
+      const proposalTitle = proposal.title;
+
+      // 1. Client confirmation
+      const { subject: cs, html: ch } = briefReceivedClient({ clientName, proposalTitle, brand });
+      await sendEmail({ to: clientEmail, subject: cs, html: ch });
+
+      // 2. Admin notification
+      const { subject: as_, html: ah } = briefSubmittedAdmin({
+        clientName,
+        clientEmail,
+        clientCompany: proposal.client_company,
+        proposalTitle,
+        adminUrl: `${baseUrl}/admin/proposals`,
+        brand,
+      });
+      await sendEmail({ to: brand.footerEmail ?? "hello@sadeem.agency", subject: as_, html: ah });
+    } catch (err) {
+      console.error("[email] brief submission emails failed:", err);
+    }
+  })();
+
   return { ok: true };
 }

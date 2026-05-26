@@ -4,6 +4,7 @@ import { getPublicSiteSettings } from "@/lib/site/settings";
 
 // Inline-styled HTML email templates for Gmail/Outlook compatibility.
 
+// ─── Dark shell tokens (existing templates) ───────────────────────────────────
 const accent = "#FF6A00";
 const dark = "#0D0D0F";
 const panel = "#111113";
@@ -11,6 +12,126 @@ const ink = "#F5F3F0";
 const muted = "#B8B8B8";
 const soft = "#F5F3F0";
 const line = "rgba(245,243,240,0.12)";
+
+// ─── Light shell tokens (new editorial templates) ─────────────────────────────
+const L = {
+  outer:  "#f0eee9",
+  bg:     "#fafaf7",
+  text:   "#0D0D0F",
+  sub:    "#1f1f24",
+  gray:   "#6b6b6e",
+  rule:   "#e6e4df",
+  accent: "#FF6A00",
+  dark:   "#0D0D0F",
+  white:  "#F5F3F0",
+  mono:   "'Geist Mono',Menlo,Consolas,monospace",
+  sans:   "'Geist',Helvetica,Arial,sans-serif",
+} as const;
+
+// ─── Light shell helpers ──────────────────────────────────────────────────────
+
+function lightShellHidden(text: string) {
+  return `<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent">${esc(text)}</div>`;
+}
+
+/**
+ * Light editorial email shell — matches the SADEEM Email Templates design.
+ * Light background (#fafaf7), Geist Mono masthead, orange accent.
+ */
+function lightShell({
+  preview,
+  masthead,
+  body,
+  footerLines,
+  width = 640,
+}: {
+  preview: string;
+  masthead: string;        // prebuilt masthead row HTML
+  body: string;            // main content HTML
+  footerLines: string;     // plain footer text (Geist Mono, small)
+  width?: number;
+}) {
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="color-scheme" content="light" />
+<style>
+@media only screen and (max-width:640px){
+  .lw{width:100%!important;max-width:100%!important;}
+  .lp{padding-left:22px!important;padding-right:22px!important;}
+  .lt{font-size:30px!important;}
+}
+</style>
+</head>
+<body style="margin:0;padding:0;background:${L.outer};font-family:${L.sans};-webkit-font-smoothing:antialiased;">
+${lightShellHidden(preview)}
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:${L.outer};">
+  <tr>
+    <td align="center" style="padding:0;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="${width}" class="lw" style="width:${width}px;max-width:${width}px;background:${L.bg};">
+        ${masthead}
+        ${body}
+        <tr>
+          <td class="lp" style="padding:24px 40px 36px 40px;border-top:1px solid ${L.rule};">
+            <div style="font-family:${L.mono};font-size:10px;letter-spacing:0.22em;color:${L.gray};text-transform:uppercase;line-height:1.8;">
+              ${footerLines}
+            </div>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>`.trim();
+}
+
+function lMasthead(left: string, right: string) {
+  return `
+<tr>
+  <td class="lp" style="padding:28px 40px 0 40px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td style="font-family:${L.mono};font-size:11px;letter-spacing:0.32em;color:${L.text};">${left}</td>
+        <td align="right" style="font-family:${L.mono};font-size:10px;letter-spacing:0.22em;color:${L.gray};text-transform:uppercase;">${right}</td>
+      </tr>
+    </table>
+    <div style="height:1px;background:${L.rule};margin-top:22px;font-size:0;line-height:0;">&nbsp;</div>
+  </td>
+</tr>`;
+}
+
+function lDarkBlock(children: string) {
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${L.dark};">
+  <tr><td style="padding:28px 28px 24px 28px;">${children}</td></tr>
+</table>`;
+}
+
+function lCta(href: string, label: string, dark = true) {
+  const bg = dark ? L.dark : L.accent;
+  const color = L.white;
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0">
+  <tr><td style="background:${bg};"><a href="${esc(href)}" style="display:inline-block;padding:16px 26px;font-family:${L.mono};font-size:10.5px;letter-spacing:0.24em;color:${color};text-decoration:none;text-transform:uppercase;">${esc(label)} →</a></td></tr>
+</table>`;
+}
+
+function lOutlineBtn(href: string, label: string, onDark = false) {
+  const borderColor = onDark ? "rgba(245,243,240,0.25)" : L.rule;
+  const color = onDark ? L.white : L.text;
+  return `<table role="presentation" cellpadding="0" cellspacing="0" border="0">
+  <tr><td style="border:1px solid ${borderColor};"><a href="${esc(href)}" style="display:inline-block;padding:15px 22px;font-family:${L.mono};font-size:10.5px;letter-spacing:0.24em;color:${color};text-decoration:none;text-transform:uppercase;">${esc(label)}</a></td></tr>
+</table>`;
+}
+
+function lTableRow(label: string, value: string, last = false) {
+  const border = last ? "" : `border-bottom:1px solid ${L.rule};`;
+  return `<tr>
+  <td width="38%" valign="top" style="padding:11px 12px 11px 0;font-family:${L.mono};font-size:10.5px;letter-spacing:0.22em;color:${L.gray};text-transform:uppercase;${border}">${esc(label)}</td>
+  <td valign="top" style="padding:11px 0;font-family:${L.sans};font-size:14px;color:${L.sub};line-height:1.5;${border}">${esc(value)}</td>
+</tr>`;
+}
 
 export type EmailBranding = {
   logoUrl?: string | null;
@@ -402,6 +523,237 @@ export function campaignEmail({
     )}" style="color:${accent};text-decoration:underline">Unsubscribe</a>.`,
   });
 
+  return { subject, html };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NEW LIGHT-SHELL TEMPLATES (matching SADEEM Email Templates design)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Template 03 — Brief Received (Welcome)
+ * Sent to the client when they submit their guided brief.
+ * Dark hero block + 3-step onboarding timeline.
+ */
+export function briefReceivedClient({
+  clientName,
+  proposalTitle,
+  brand,
+}: {
+  clientName: string;
+  proposalTitle: string;
+  brand?: EmailBranding;
+}) {
+  const subject = `We received your brief — ${proposalTitle}`;
+
+  const heroBlock = `
+<tr>
+  <td style="background:${L.dark};padding:0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td class="lp" style="padding:24px 36px 0 36px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td style="font-family:${L.mono};font-size:11px;letter-spacing:0.32em;color:${L.white};">SADEEM</td>
+              <td align="right" style="font-family:${L.mono};font-size:10px;letter-spacing:0.22em;color:rgba(245,243,240,0.5);text-transform:uppercase;">Brief received</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td class="lp" style="padding:56px 36px 52px 36px;">
+          <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.32em;color:${L.accent};text-transform:uppercase;margin-bottom:22px;">Thank you, ${esc(clientName)}.</div>
+          <h1 class="lt" style="margin:0;font-family:${L.sans};font-weight:700;font-size:44px;line-height:0.98;letter-spacing:-0.035em;color:${L.white};text-transform:uppercase;">
+            Now the<br />real work<br /><span style="color:${L.accent};">starts.</span>
+          </h1>
+          <p style="margin:28px 0 0;font-family:${L.sans};font-size:15px;line-height:1.6;color:rgba(245,243,240,0.72);max-width:36ch;">
+            Your brief for <strong style="color:${L.white};">${esc(proposalTitle)}</strong> is in. We'll review it and come back with a tailored response — no boilerplate, no filler.
+          </p>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>`;
+
+  const timelineBlock = `
+<tr>
+  <td class="lp" style="padding:44px 36px 12px 36px;">
+    <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.28em;color:${L.accent};text-transform:uppercase;margin-bottom:6px;">What happens next</div>
+    <h2 style="margin:0 0 28px;font-family:${L.sans};font-weight:700;font-size:26px;line-height:1.05;letter-spacing:-0.02em;color:${L.text};">Three steps, no surprises.</h2>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:0 36px 0 36px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${L.rule};">
+      <tr>
+        <td valign="top" width="80" style="padding:22px 0;font-family:${L.mono};font-size:11px;letter-spacing:0.24em;color:${L.accent};">01</td>
+        <td valign="top" style="padding:22px 0;">
+          <div style="font-family:${L.sans};font-weight:600;font-size:16px;letter-spacing:-0.01em;color:${L.text};margin-bottom:5px;">Brief review</div>
+          <div style="font-family:${L.sans};font-size:13.5px;line-height:1.55;color:${L.gray};">Our team reads your brief in full — context, challenge, and priorities — before we say a word.</div>
+        </td>
+      </tr>
+    </table>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${L.rule};">
+      <tr>
+        <td valign="top" width="80" style="padding:22px 0;font-family:${L.mono};font-size:11px;letter-spacing:0.24em;color:${L.accent};">02</td>
+        <td valign="top" style="padding:22px 0;">
+          <div style="font-family:${L.sans};font-weight:600;font-size:16px;letter-spacing:-0.01em;color:${L.text};margin-bottom:5px;">Scoping call</div>
+          <div style="font-family:${L.sans};font-size:13.5px;line-height:1.55;color:${L.gray};">We schedule a focused 45-minute conversation to pressure-test the brief and confirm the right engagement shape.</div>
+        </td>
+      </tr>
+    </table>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${L.rule};border-bottom:1px solid ${L.rule};">
+      <tr>
+        <td valign="top" width="80" style="padding:22px 0;font-family:${L.mono};font-size:11px;letter-spacing:0.24em;color:${L.accent};">03</td>
+        <td valign="top" style="padding:22px 0;">
+          <div style="font-family:${L.sans};font-weight:600;font-size:16px;letter-spacing:-0.01em;color:${L.text};margin-bottom:5px;">Proposal</div>
+          <div style="font-family:${L.sans};font-size:13.5px;line-height:1.55;color:${L.gray};">You receive a scoped, priced proposal. Straightforward terms — no hidden phases, no retainer theatre.</div>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:36px 36px 8px 36px;">
+    <p style="margin:0;font-family:${L.sans};font-size:14px;line-height:1.6;color:${L.gray};">
+      Questions before we reach out? Reply directly to this email or write to <a href="mailto:hello@sadeem.agency" style="color:${L.accent};text-decoration:none;border-bottom:1px solid ${L.accent};padding-bottom:1px;">hello@sadeem.agency</a>
+    </p>
+  </td>
+</tr>`;
+
+  const html = lightShell({
+    preview: `Brief received — we'll be in touch shortly.`,
+    masthead: lMasthead("SADEEM", "Brief portal"),
+    body: heroBlock + timelineBlock,
+    footerLines: `SADEEM · Strategic growth advisory<br />hello@sadeem.agency`,
+  });
+
+  return { subject, html };
+}
+
+/**
+ * Template 05 — Engagement Confirmed (Transactional)
+ * Sent to the client when they digitally accept a quotation.
+ */
+export function quotationAcceptedClient({
+  clientName,
+  proposalTitle,
+  quotationTitle,
+  engagementRef,
+  total,
+  currency,
+  portalUrl,
+  brand,
+}: {
+  clientName: string;
+  proposalTitle: string;
+  quotationTitle: string;
+  engagementRef: string;
+  total: number;
+  currency: string;
+  portalUrl?: string;
+  brand?: EmailBranding;
+}) {
+  const subject = `Engagement confirmed — ${quotationTitle}`;
+
+  const fmtTotal = new Intl.NumberFormat("en", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(total);
+
+  const accessBlock = portalUrl ? lDarkBlock(`
+    <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.28em;color:${L.accent};text-transform:uppercase;margin-bottom:14px;">Next steps</div>
+    <p style="margin:0 0 22px;font-family:${L.sans};font-size:14.5px;line-height:1.55;color:rgba(245,243,240,0.78);max-width:42ch;">
+      We'll be in touch within one business day to schedule your kick-off session and share onboarding materials.
+    </p>
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td style="background:${L.accent};">
+          <a href="${esc(portalUrl)}" style="display:inline-block;padding:14px 22px;font-family:${L.mono};font-size:10.5px;letter-spacing:0.24em;color:${L.white};text-decoration:none;text-transform:uppercase;">View quotation →</a>
+        </td>
+      </tr>
+    </table>
+  `) : "";
+
+  const body = `
+<tr>
+  <td class="lp" style="padding:40px 36px 8px 36px;">
+    <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.28em;color:${L.accent};text-transform:uppercase;margin-bottom:14px;">● Confirmed</div>
+    <h1 class="lt" style="margin:0;font-family:${L.sans};font-weight:700;font-size:32px;line-height:1.05;letter-spacing:-0.025em;color:${L.text};">
+      ${esc(clientName)},<br />you're confirmed.
+    </h1>
+    <p style="margin:18px 0 0;font-family:${L.sans};font-size:14.5px;line-height:1.55;color:${L.gray};max-width:46ch;">
+      Thank you for accepting the proposal. Your engagement is now confirmed and the team is alerted.
+    </p>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:32px 36px 0 36px;">
+    <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.28em;color:${L.text};text-transform:uppercase;margin-bottom:14px;">Summary</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${L.rule};">
+      ${lTableRow("Engagement", quotationTitle)}
+      ${lTableRow("Brief", proposalTitle)}
+      ${lTableRow("Reference", engagementRef)}
+      ${lTableRow("Total", fmtTotal, true)}
+    </table>
+  </td>
+</tr>
+${accessBlock ? `<tr><td class="lp" style="padding:32px 36px 0 36px;">${accessBlock}</td></tr>` : ""}
+<tr>
+  <td class="lp" style="padding:32px 36px 8px 36px;">
+    <p style="margin:0;font-family:${L.sans};font-size:13.5px;line-height:1.6;color:${L.gray};">
+      Questions? Reply to this email or write to <a href="mailto:hello@sadeem.agency" style="color:${L.accent};text-decoration:none;border-bottom:1px solid ${L.accent};padding-bottom:1px;">hello@sadeem.agency</a>
+    </p>
+  </td>
+</tr>`;
+
+  const html = lightShell({
+    preview: `Your engagement is confirmed — ${quotationTitle}.`,
+    masthead: lMasthead(`SADEEM`, `Ref · ${engagementRef}`),
+    body,
+    footerLines: `SADEEM · Strategic growth advisory<br />hello@sadeem.agency`,
+  });
+
+  return { subject, html };
+}
+
+/**
+ * Brief submission notification for the admin team.
+ * Sent internally when a client completes the guided brief.
+ */
+export function briefSubmittedAdmin({
+  clientName,
+  clientEmail,
+  clientCompany,
+  proposalTitle,
+  adminUrl,
+  brand,
+}: {
+  clientName: string;
+  clientEmail: string;
+  clientCompany?: string | null;
+  proposalTitle: string;
+  adminUrl: string;
+  brand?: EmailBranding;
+}) {
+  const subject = `Brief received — ${clientName} · ${proposalTitle}`;
+  const html = shell({
+    eyebrow: "New brief submission",
+    title: clientName,
+    intro: `A client just submitted their guided brief for "${proposalTitle}".`,
+    preview: `${clientName} submitted their brief — review it now.`,
+    brand,
+    children:
+      rowsTable([
+        ["Client", clientName],
+        ["Email", clientEmail],
+        ["Company", clientCompany ?? null],
+        ["Brief", proposalTitle],
+      ]) +
+      actionLink(adminUrl, "Review brief in admin →"),
+  });
   return { subject, html };
 }
 
