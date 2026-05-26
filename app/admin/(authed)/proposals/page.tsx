@@ -2,6 +2,7 @@ import { PageHeader } from "@/components/admin/ui/PageHeader";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { ProposalBoard, type FormLite, type ProposalRow, type SubmissionLite } from "./ProposalBoard";
+import type { QuotationRow, QuotationItemRow } from "./QuotationBuilder";
 
 export const metadata = { title: "Proposals - SADEEM Admin" };
 
@@ -31,6 +32,38 @@ type RawSubmission = {
   related_id: string | null;
   created_at: string;
   answers: { field_key: string; value: unknown }[];
+};
+
+type RawQuotationItem = {
+  id: string;
+  sort_order: number;
+  name: string;
+  description: string | null;
+  quantity: number;
+  unit: string | null;
+  unit_price: number;
+  total: number;
+};
+
+type RawQuotation = {
+  id: string;
+  proposal_id: string | null;
+  title: string;
+  intro_text: string | null;
+  currency: string;
+  validity_days: number;
+  discount_pct: number;
+  tax_pct: number;
+  subtotal: number;
+  total: number;
+  token_prefix: string | null;
+  status: string;
+  sent_at: string | null;
+  viewed_at: string | null;
+  accepted_at: string | null;
+  declined_at: string | null;
+  notes: string | null;
+  items: RawQuotationItem[];
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -64,7 +97,9 @@ async function loadData() {
       .map((p) => p.id);
 
     const submissionMap = new Map<string, SubmissionLite>();
+    const quotationMap = new Map<string, QuotationRow>();
 
+    // Fetch submissions for submitted proposals
     if (submittedIds.length > 0) {
       const { data: rawSubs } = await admin
         .from("form_submissions")
@@ -90,6 +125,50 @@ async function loadData() {
       }
     }
 
+    // Fetch quotations for all proposals
+    const allProposalIds = rawProposals.map((p) => p.id);
+    if (allProposalIds.length > 0) {
+      const { data: rawQuotes } = await admin
+        .from("quotations")
+        .select(
+          "id, proposal_id, title, intro_text, currency, validity_days, discount_pct, tax_pct, subtotal, total, token_prefix, status, sent_at, viewed_at, accepted_at, declined_at, notes, items:quotation_items(id, sort_order, name, description, quantity, unit, unit_price, total)",
+        )
+        .in("proposal_id", allProposalIds)
+        .not("status", "eq", "superseded")
+        .order("created_at", { ascending: false });
+
+      for (const q of (rawQuotes ?? []) as unknown as RawQuotation[]) {
+        if (!q.proposal_id) continue;
+        // Only store the first (most recent) quotation per proposal
+        if (quotationMap.has(q.proposal_id)) continue;
+
+        const sortedItems: QuotationItemRow[] = [...(q.items ?? [])].sort(
+          (a, b) => a.sort_order - b.sort_order,
+        );
+
+        quotationMap.set(q.proposal_id, {
+          id: q.id,
+          proposal_id: q.proposal_id,
+          title: q.title,
+          intro_text: q.intro_text,
+          currency: q.currency,
+          validity_days: q.validity_days,
+          discount_pct: q.discount_pct,
+          tax_pct: q.tax_pct,
+          subtotal: q.subtotal,
+          total: q.total,
+          token_prefix: q.token_prefix,
+          status: q.status as QuotationRow["status"],
+          sent_at: q.sent_at,
+          viewed_at: q.viewed_at,
+          accepted_at: q.accepted_at,
+          declined_at: q.declined_at,
+          notes: q.notes,
+          items: sortedItems,
+        });
+      }
+    }
+
     const rows: ProposalRow[] = rawProposals.map((p) => ({
       id: p.id,
       form_id: p.form_id,
@@ -107,6 +186,7 @@ async function loadData() {
       internal_notes: p.internal_notes,
       form: Array.isArray(p.form) ? (p.form[0] ?? null) : (p.form as FormLite | null),
       submission: submissionMap.get(p.id) ?? null,
+      quotation: quotationMap.get(p.id) ?? null,
     }));
 
     return {

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { SadeemMark } from "@/components/marks";
 import { recordProposalOpenAction } from "@/app/admin/(authed)/proposals/actions";
-import PortalForm from "./PortalForm";
+import BriefStepper from "./BriefStepper";
 
 // No layout wrapping — standalone page, no site navbar/footer.
 export const dynamic = "force-dynamic";
@@ -267,28 +267,15 @@ export default async function ProposalPortalPage({ params }: Props) {
             ) : null}
           </div>
 
-          {/* Form or no-form fallback */}
-          {formData && fields.length > 0 ? (
-            <PortalForm
-              proposalId={proposal.id}
-              formId={formData.id}
-              clientName={proposal.client_name}
-              clientEmail={proposal.client_email}
-              fields={fields}
-              submitLabel={formData.submit_label ?? "Submit brief"}
-              successMessage={formData.success_message}
-            />
-          ) : (
-            <div className="portal-no-form">
-              <p>
-                No form has been attached to this brief yet. Please contact us at{" "}
-                <a href="mailto:hello@sadeem.agency" style={{ color: "var(--accent)" }}>
-                  hello@sadeem.agency
-                </a>{" "}
-                to proceed.
-              </p>
-            </div>
-          )}
+          {/* Guided 6-step brief — always uses SADEEM's structured brief,
+              regardless of which form (if any) is attached to the proposal */}
+          <BriefStepper
+            proposalId={proposal.id}
+            formId={formData?.id ?? null}
+            clientName={proposal.client_name}
+            clientEmail={proposal.client_email}
+            successMessage={formData?.success_message}
+          />
         </div>
       </main>
       <footer className="portal-footer">

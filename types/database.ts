@@ -35,6 +35,14 @@ export type ProposalStatus =
   | "reviewed"
   | "converted"
   | "expired";
+export type QuotationStatus =
+  | "draft"
+  | "sent"
+  | "viewed"
+  | "accepted"
+  | "declined"
+  | "expired"
+  | "superseded";
 
 export type Database = {
   public: {
@@ -339,7 +347,7 @@ export type Database = {
       form_submissions: {
         Row: {
           id: string;
-          form_id: string;
+          form_id: string | null;
           respondent_name: string | null;
           respondent_email: string | null;
           related_type: string | null;
@@ -542,6 +550,86 @@ export type Database = {
         };
         Relationships: [];
         Update: Partial<Database["public"]["Tables"]["proposals"]["Insert"]>;
+      };
+      quotations: {
+        Row: {
+          id: string;
+          proposal_id: string | null;
+          title: string;
+          intro_text: string | null;
+          currency: string;
+          validity_days: number;
+          subtotal: number;
+          discount_pct: number;
+          tax_pct: number;
+          total: number;
+          token_hash: string | null;
+          token_prefix: string | null;
+          status: QuotationStatus;
+          sent_at: string | null;
+          viewed_at: string | null;
+          accepted_at: string | null;
+          declined_at: string | null;
+          decline_reason: string | null;
+          notes: string | null;
+          created_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          proposal_id?: string | null;
+          title: string;
+          intro_text?: string | null;
+          currency?: string;
+          validity_days?: number;
+          subtotal?: number;
+          discount_pct?: number;
+          tax_pct?: number;
+          total?: number;
+          token_hash?: string | null;
+          token_prefix?: string | null;
+          status?: QuotationStatus;
+          sent_at?: string | null;
+          viewed_at?: string | null;
+          accepted_at?: string | null;
+          declined_at?: string | null;
+          decline_reason?: string | null;
+          notes?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+        Update: Partial<Database["public"]["Tables"]["quotations"]["Insert"]>;
+      };
+      quotation_items: {
+        Row: {
+          id: string;
+          quotation_id: string;
+          sort_order: number;
+          name: string;
+          description: string | null;
+          quantity: number;
+          unit: string | null;
+          unit_price: number;
+          total: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          quotation_id: string;
+          sort_order?: number;
+          name: string;
+          description?: string | null;
+          quantity?: number;
+          unit?: string | null;
+          unit_price?: number;
+          total?: number;
+          created_at?: string;
+        };
+        Relationships: [];
+        Update: Partial<Database["public"]["Tables"]["quotation_items"]["Insert"]>;
       };
     };
     Views: Record<string, never>;

@@ -33,7 +33,9 @@ async function loadForms() {
       if (submissions.error) throw submissions.error;
       for (const field of fields.data ?? []) fieldCount.set(field.form_id, (fieldCount.get(field.form_id) ?? 0) + 1);
       for (const submission of submissions.data ?? []) {
-        submissionCount.set(submission.form_id, (submissionCount.get(submission.form_id) ?? 0) + 1);
+        if (submission.form_id) {
+          submissionCount.set(submission.form_id, (submissionCount.get(submission.form_id) ?? 0) + 1);
+        }
       }
     }
 

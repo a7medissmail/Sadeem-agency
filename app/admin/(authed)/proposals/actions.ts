@@ -184,7 +184,7 @@ export type SubmitProposalState = {
 
 export async function submitProposalAction(
   proposalId: string,
-  formId: string,
+  formId: string | null,
   clientName: string,
   clientEmail: string,
   answers: Record<string, string>,
@@ -207,7 +207,7 @@ export async function submitProposalAction(
   const { data: submission, error: subError } = await admin
     .from("form_submissions")
     .insert({
-      form_id: formId,
+      form_id: formId || null,
       respondent_name: clientName,
       respondent_email: clientEmail,
       related_type: "proposal",

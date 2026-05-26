@@ -47,7 +47,8 @@ const MAINTENANCE_PASSTHROUGH = [
   "/api/",
   "/_next/",
   "/favicon",
-  "/p/",   // proposal portal magic links
+  "/p/",   // proposal/brief portal magic links
+  "/q/",   // quotation portal magic links
 ];
 
 // ─── Main middleware ──────────────────────────────────────────────────────────

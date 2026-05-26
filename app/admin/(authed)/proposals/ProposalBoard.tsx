@@ -16,6 +16,7 @@ import {
   type CreateProposalState,
   type RegenerateTokenState,
 } from "./actions";
+import { QuotationBuilder, type QuotationRow } from "./QuotationBuilder";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -46,6 +47,7 @@ export type ProposalRow = {
   internal_notes: string | null;
   form: FormLite | null;
   submission: SubmissionLite | null;
+  quotation: QuotationRow | null;
 };
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -228,14 +230,14 @@ function ProposalDrawer({
   return (
     <div className="fixed inset-0 z-[70] bg-black/55 backdrop-blur-sm" role="presentation" onMouseDown={onClose}>
       <aside
-        className="ml-auto flex h-full w-full max-w-[720px] flex-col border-l border-[var(--admin-border)] bg-[var(--admin-surface-strong)] shadow-[var(--admin-shadow)]"
+        className="ml-auto flex h-full w-full max-w-[960px] flex-col border-l border-[var(--admin-border)] bg-[var(--admin-surface-strong)] shadow-[var(--admin-shadow)]"
         role="dialog"
         aria-modal="true"
         aria-label={`Proposal: ${proposal.title}`}
         onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <header className="border-b border-[var(--admin-border)] p-6">
+        <header className="border-b border-[var(--admin-border)] px-8 py-6">
           <div className="mb-5 flex items-start justify-between gap-5">
             <div className="min-w-0">
               <p className="font-mono text-[10px] uppercase tracking-[0.26em] text-[var(--admin-accent)]">Proposal Brief</p>
@@ -271,8 +273,8 @@ function ProposalDrawer({
         </header>
 
         {/* Scrollable body */}
-        <div className="min-h-0 flex-1 overflow-y-auto p-6">
-          <div className="grid gap-5 lg:grid-cols-[1fr_0.82fr]">
+        <div className="min-h-0 flex-1 overflow-y-auto p-8">
+          <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
             {/* Left col */}
             <section className="space-y-5">
 
@@ -311,23 +313,32 @@ function ProposalDrawer({
               {proposal.submission ? (
                 <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
                   <div className="flex items-center justify-between gap-3">
-                    <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Submission</h3>
-                    <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-emerald-400">Received</span>
+                    <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Brief Submission</h3>
+                    <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-emerald-400">● Received</span>
                   </div>
-                  <p className="mt-3 text-[12.5px] text-[var(--admin-muted)]">
-                    Submitted {dateFmt.format(new Date(proposal.submission.created_at))}
+                  <p className="mt-2 text-[12px] text-[var(--admin-subtle)]">
+                    {dateFmt.format(new Date(proposal.submission.created_at))}
                   </p>
-                  <div className="mt-5 divide-y divide-[var(--admin-border-soft)]">
-                    {proposal.submission.answers.map((answer) => (
-                      <div key={answer.field_key} className="grid gap-2 py-3 md:grid-cols-[0.38fr_1fr]">
-                        <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-accent)]">
-                          {answer.field_key}
-                        </p>
-                        <p className="text-[13px] leading-relaxed text-[var(--admin-muted)]">
-                          {Array.isArray(answer.value) ? (answer.value as string[]).join(", ") : String(answer.value ?? "")}
-                        </p>
-                      </div>
-                    ))}
+                  <div className="mt-5 space-y-5">
+                    {proposal.submission.answers.map((answer) => {
+                      const raw = Array.isArray(answer.value)
+                        ? (answer.value as string[]).join(", ")
+                        : String(answer.value ?? "");
+                      if (!raw) return null;
+                      const label = answer.field_key
+                        .replace(/_/g, " ")
+                        .replace(/\b\w/g, (c) => c.toUpperCase());
+                      return (
+                        <div key={answer.field_key}>
+                          <p className="mb-1.5 font-mono text-[9.5px] uppercase tracking-[0.2em] text-[var(--admin-accent)]">
+                            {label}
+                          </p>
+                          <p className="text-[13.5px] leading-relaxed text-[var(--admin-text)]">
+                            {raw}
+                          </p>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               ) : (
@@ -337,6 +348,17 @@ function ProposalDrawer({
                       ? "Send the link to the client before expecting a submission."
                       : "No submission received yet."}
                   </p>
+                </div>
+              )}
+
+              {/* Quotation builder — available once brief is submitted */}
+              {["submitted", "reviewed", "converted", "draft", "sent", "opened", "in_progress"].includes(proposal.status) && (
+                <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
+                  <h3 className="mb-4 font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Quotation</h3>
+                  <QuotationBuilder
+                    proposalId={proposal.id}
+                    existingQuotation={proposal.quotation}
+                  />
                 </div>
               )}
 
@@ -359,28 +381,28 @@ function ProposalDrawer({
             </section>
 
             {/* Right col */}
-            <aside className="space-y-5">
-              {/* Client */}
+            <aside className="space-y-4">
+
+              {/* Client info */}
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-                <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Client</h3>
-                <div className="mt-4 space-y-3 text-[13px]">
-                  <a href={`mailto:${proposal.client_email}`} className="block break-all text-[var(--admin-text)] hover:text-[var(--admin-accent)]">
+                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Client</p>
+                <div className="mt-4 space-y-1">
+                  <p className="text-[15px] font-semibold text-[var(--admin-text)]">{proposal.client_name}</p>
+                  {proposal.client_company && (
+                    <p className="text-[13px] text-[var(--admin-muted)]">{proposal.client_company}</p>
+                  )}
+                  <a
+                    href={`mailto:${proposal.client_email}`}
+                    className="block pt-1 text-[12.5px] text-[var(--admin-accent)] hover:underline break-all"
+                  >
                     {proposal.client_email}
                   </a>
-                  {proposal.client_company ? <p className="text-[var(--admin-muted)]">{proposal.client_company}</p> : null}
-                  {proposal.form ? (
-                    <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-accent)]">
-                      Form: {proposal.form.name}
-                    </p>
-                  ) : (
-                    <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-amber-400/80">No form attached</p>
-                  )}
                 </div>
               </div>
 
               {/* Status control */}
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-                <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Status</h3>
+                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Update status</p>
                 <form action={updateProposalStatusAction} className="mt-4 space-y-3">
                   <input type="hidden" name="id" value={proposal.id} />
                   <Select name="status" defaultValue={proposal.status} className="w-full">
@@ -389,49 +411,59 @@ function ProposalDrawer({
                     ))}
                   </Select>
                   <Button type="submit" variant="outline" className="w-full justify-center">
-                    Save status
+                    Save
                   </Button>
                 </form>
-                {proposal.status === "draft" ? (
-                  <form action={markProposalSentAction} className="mt-3">
+                {proposal.status === "draft" && (
+                  <form action={markProposalSentAction} className="mt-2">
                     <input type="hidden" name="id" value={proposal.id} />
                     <Button type="submit" variant="ghost" className="w-full justify-center">
                       Mark as sent
                     </Button>
                   </form>
-                ) : null}
+                )}
               </div>
 
               {/* Timeline */}
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-                <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Timeline</h3>
-                <div className="mt-4 space-y-4">
+                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Timeline</p>
+                <ol className="mt-5 space-y-0">
                   {[
-                    { label: "Created", at: proposal.created_at, done: true },
-                    { label: "Sent", at: proposal.sent_at, done: Boolean(proposal.sent_at) },
-                    { label: "Opened", at: proposal.opened_at, done: Boolean(proposal.opened_at) },
+                    { label: "Created",   at: proposal.created_at,  done: true },
+                    { label: "Sent",      at: proposal.sent_at,     done: Boolean(proposal.sent_at) },
+                    { label: "Opened",    at: proposal.opened_at,   done: Boolean(proposal.opened_at) },
                     { label: "Submitted", at: proposal.submitted_at, done: Boolean(proposal.submitted_at) },
-                  ].map((item) => (
-                    <div key={item.label} className="grid grid-cols-[18px_1fr] gap-3">
-                      <span className={`mt-1.5 h-2 w-2 rounded-full ${item.done ? "bg-[var(--admin-accent)]" : "bg-[var(--admin-border)]"}`} />
-                      <div>
-                        <p className="text-[13.5px] font-semibold text-[var(--admin-text)]">{item.label}</p>
+                  ].map((item, i, arr) => (
+                    <li key={item.label} className="relative flex gap-4 pb-5 last:pb-0">
+                      {/* connector line */}
+                      {i < arr.length - 1 && (
+                        <span className={`absolute left-[7px] top-4 h-full w-px ${item.done ? "bg-[var(--admin-accent)]/40" : "bg-[var(--admin-border)]"}`} />
+                      )}
+                      <span className={`relative mt-1 h-3.5 w-3.5 shrink-0 rounded-full border-2 ${
+                        item.done
+                          ? "border-[var(--admin-accent)] bg-[var(--admin-accent)]"
+                          : "border-[var(--admin-border)] bg-transparent"
+                      }`} />
+                      <div className="min-w-0">
+                        <p className={`text-[13.5px] font-medium ${item.done ? "text-[var(--admin-text)]" : "text-[var(--admin-subtle)]"}`}>
+                          {item.label}
+                        </p>
                         {item.at ? (
-                          <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-subtle)]">
+                          <p className="mt-0.5 text-[11.5px] text-[var(--admin-subtle)]">
                             {dateFmt.format(new Date(item.at))}
                           </p>
                         ) : (
-                          <p className="mt-1 text-[12px] text-[var(--admin-subtle)]">Pending</p>
+                          <p className="mt-0.5 text-[11.5px] text-[var(--admin-border)]">Pending</p>
                         )}
                       </div>
-                    </div>
+                    </li>
                   ))}
-                </div>
+                </ol>
               </div>
 
               {/* Delete */}
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-                <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Danger</h3>
+                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Danger zone</p>
                 <form action={deleteProposalAction} className="mt-4">
                   <input type="hidden" name="id" value={proposal.id} />
                   <Button type="submit" variant="danger" size="sm" className="w-full justify-center">
@@ -439,6 +471,7 @@ function ProposalDrawer({
                   </Button>
                 </form>
               </div>
+
             </aside>
           </div>
         </div>
