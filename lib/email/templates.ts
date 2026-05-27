@@ -88,14 +88,17 @@ ${lightShellHidden(preview)}
 </html>`.trim();
 }
 
-function lMasthead(left: string, right: string) {
+function lMasthead(left: string, right: string, brand?: EmailBranding) {
+  const logoCell = brand?.logoDarkUrl
+    ? `<img src="${esc(brand.logoDarkUrl)}" height="30" alt="SADEEM" style="display:block;height:30px;width:auto;max-width:160px;border:0;outline:none;text-decoration:none;" />`
+    : `<span style="font-family:${L.mono};font-size:11px;letter-spacing:0.32em;color:${L.text};">${left}</span>`;
   return `
 <tr>
   <td class="lp" style="padding:28px 40px 0 40px;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
       <tr>
-        <td style="font-family:${L.mono};font-size:11px;letter-spacing:0.32em;color:${L.text};">${left}</td>
-        <td align="right" style="font-family:${L.mono};font-size:10px;letter-spacing:0.22em;color:${L.gray};text-transform:uppercase;">${right}</td>
+        <td style="vertical-align:middle;">${logoCell}</td>
+        <td align="right" style="font-family:${L.mono};font-size:10px;letter-spacing:0.22em;color:${L.gray};text-transform:uppercase;vertical-align:middle;">${right}</td>
       </tr>
     </table>
     <div style="height:1px;background:${L.rule};margin-top:22px;font-size:0;line-height:0;">&nbsp;</div>
@@ -134,7 +137,8 @@ function lTableRow(label: string, value: string, last = false) {
 }
 
 export type EmailBranding = {
-  logoUrl?: string | null;
+  logoUrl?: string | null;      // light logo — for dark backgrounds (dark shell)
+  logoDarkUrl?: string | null;  // dark logo  — for light backgrounds (light shell)
   footerEmail?: string | null;
 };
 
@@ -142,6 +146,7 @@ export async function getEmailBranding(): Promise<EmailBranding> {
   const settings = await getPublicSiteSettings();
   return {
     logoUrl: settings.logoLightUrl || settings.logoDarkUrl,
+    logoDarkUrl: settings.logoDarkUrl || settings.logoLightUrl,
     footerEmail: settings.footerEmail,
   };
 }
@@ -364,7 +369,7 @@ export function leadConfirmation({ name, brand }: { name: string; brand?: EmailB
 
   const html = lightShell({
     preview: "Your message reached SADEEM — we'll be in touch.",
-    masthead: lMasthead("SADEEM", "Contact"),
+    masthead: lMasthead("SADEEM", "Contact", brand),
     body,
     footerLines: `SADEEM · Strategic growth advisory<br />${brand?.footerEmail ?? "hello@sadeem.agency"}`,
   });
@@ -448,7 +453,7 @@ export function applicationConfirmation({
 
   const html = lightShell({
     preview: `SADEEM received your application for ${jobTitle}.`,
-    masthead: lMasthead("SADEEM", "Careers"),
+    masthead: lMasthead("SADEEM", "Careers", brand),
     body,
     footerLines: `SADEEM · Strategic growth advisory<br />${brand?.footerEmail ?? "hello@sadeem.agency"}`,
   });
@@ -530,7 +535,7 @@ export function applicationRejection({
 
   const html = lightShell({
     preview: `An update on your SADEEM application for ${jobTitle}.`,
-    masthead: lMasthead("SADEEM", "Careers"),
+    masthead: lMasthead("SADEEM", "Careers", brand),
     body,
     footerLines: `SADEEM · Strategic growth advisory<br />${brand?.footerEmail ?? "hello@sadeem.agency"}`,
   });
@@ -598,7 +603,7 @@ export function bookingConfirmation({
 
   const html = lightShell({
     preview: `Your SADEEM consultation is booked for ${slotLabel}.`,
-    masthead: lMasthead("SADEEM", "Consultation"),
+    masthead: lMasthead("SADEEM", "Consultation", brand),
     body,
     footerLines: `SADEEM · Strategic growth advisory<br />${brand?.footerEmail ?? "hello@sadeem.agency"}`,
   });
@@ -731,7 +736,7 @@ export function briefReceivedClient({
 
   const html = lightShell({
     preview: `Brief received — we'll be in touch shortly.`,
-    masthead: lMasthead("SADEEM", "Brief portal"),
+    masthead: lMasthead("SADEEM", "Brief portal", brand),
     body: heroBlock + timelineBlock,
     footerLines: `SADEEM · Strategic growth advisory<br />hello@sadeem.agency`,
   });
@@ -819,7 +824,7 @@ ${accessBlock ? `<tr><td class="lp" style="padding:32px 36px 0 36px;">${accessBl
 
   const html = lightShell({
     preview: `Your engagement is confirmed — ${quotationTitle}.`,
-    masthead: lMasthead(`SADEEM`, `Ref · ${engagementRef}`),
+    masthead: lMasthead(`SADEEM`, `Ref · ${engagementRef}`, brand),
     body,
     footerLines: `SADEEM · Strategic growth advisory<br />hello@sadeem.agency`,
   });
