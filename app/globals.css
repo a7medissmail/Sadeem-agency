@@ -28,7 +28,11 @@
 
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
-html { background: var(--white); }
+html {
+  background: var(--white);
+  /* Offset anchor-link scrolling by the fixed navbar height (76px) */
+  scroll-padding-top: 76px;
+}
 body {
   font-family: var(--font-sans);
   color: var(--black);
@@ -7671,6 +7675,7 @@ section.team-roster {
   min-height: 82vh;
   display: flex;
   align-items: flex-end;
+  padding-top: clamp(96px, 10vw, 140px);
   padding-bottom: 100px;
 }
 .services-hero-bg {
@@ -7927,6 +7932,7 @@ section.team-roster {
   min-height: 82vh;
   display: flex;
   align-items: flex-end;
+  padding-top: clamp(96px, 10vw, 140px);
   padding-bottom: 100px;
 }
 .service-hero-bg {
@@ -8224,7 +8230,7 @@ section.team-roster {
   .engagement-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 640px) {
-  .services-page .services-hero { min-height: 70vh; padding-bottom: 72px; }
+  .services-page .services-hero { min-height: 70vh; padding-top: 88px; padding-bottom: 72px; }
   .services-list-page { padding: 72px 0 48px; }
   .services-category-block { padding-bottom: 56px; margin-bottom: 56px; }
   .service-row { grid-template-columns: 40px 1fr 24px; gap: 14px; padding: 18px 0; }
@@ -8232,6 +8238,6 @@ section.team-roster {
   .engagement-models { padding: 72px 0; }
   .engagement-card { padding: 28px 22px; }
   .service-body-cta-row { flex-direction: column; align-items: flex-start; gap: 20px; }
-  .service-detail-page .service-hero { min-height: 70vh; padding-bottom: 72px; }
+  .service-detail-page .service-hero { min-height: 70vh; padding-top: 88px; padding-bottom: 72px; }
   .service-body { padding: 72px 0; }
 }
