@@ -7,12 +7,6 @@ import Footer from "@/components/Footer";
 import RevealSection from "@/components/RevealSection";
 import SectionLabel from "@/components/SectionLabel";
 import { Icon } from "@/components/Icons";
-import {
-  CATEGORY_LABELS,
-  CATEGORY_TAGLINES,
-  CATEGORY_DESCRIPTIONS,
-  type ServiceCategory,
-} from "@/lib/validation/service";
 
 export const metadata = {
   title: "Services - SADEEM",
@@ -20,43 +14,58 @@ export const metadata = {
     "End-to-end strategic advisory across Strategy, Enablement, and Execution Support.",
 };
 
+type CategoryRow = {
+  id: string;
+  slug: string;
+  label: string;
+  tagline: string | null;
+  description: string | null;
+};
+
 type ServiceRow = {
   id: string;
   slug: string;
   title: string;
-  category: ServiceCategory;
+  category: string;
   tagline: string | null;
 };
 
-async function loadServices(): Promise<ServiceRow[]> {
+async function loadData(): Promise<{ categories: CategoryRow[]; services: ServiceRow[] }> {
   try {
     const supabase = createSupabaseServerClient();
-    const { data, error } = await supabase
-      .from("services")
-      .select("id, slug, title, category, tagline")
-      .eq("is_published", true)
-      .order("sort_order", { ascending: true });
-    if (error) throw error;
-    return (data ?? []) as ServiceRow[];
+    const [catResult, svcResult] = await Promise.all([
+      supabase
+        .from("service_categories")
+        .select("id, slug, label, tagline, description")
+        .order("sort_order", { ascending: true }),
+      supabase
+        .from("services")
+        .select("id, slug, title, category, tagline")
+        .eq("is_published", true)
+        .order("sort_order", { ascending: true }),
+    ]);
+    return {
+      categories: catResult.data ?? [],
+      services: svcResult.data ?? [],
+    };
   } catch {
-    return [];
+    return { categories: [], services: [] };
   }
 }
 
-const CATEGORY_ORDER: ServiceCategory[] = ["strategy", "enablement", "execution"];
-
 export default async function ServicesPage() {
-  const services = await loadServices();
-
-  const byCategory = CATEGORY_ORDER.reduce(
-    (acc, cat) => {
-      acc[cat] = services.filter((s) => s.category === cat);
-      return acc;
-    },
-    {} as Record<ServiceCategory, ServiceRow[]>,
-  );
+  const { categories, services } = await loadData();
 
   const totalCount = services.length;
+
+  const byCategory: Record<string, ServiceRow[]> = {};
+  for (const svc of services) {
+    if (!byCategory[svc.category]) byCategory[svc.category] = [];
+    byCategory[svc.category].push(svc);
+  }
+
+  // Running counter for service numbering
+  let globalIndex = 0;
 
   return (
     <>
@@ -94,10 +103,10 @@ export default async function ServicesPage() {
           id="services-list"
         >
           <div className="section-inner">
-            {CATEGORY_ORDER.map((cat, ci) => {
-              const items = byCategory[cat];
+            {categories.map((cat, ci) => {
+              const items = byCategory[cat.slug] ?? [];
               return (
-                <div key={cat} className="services-category-block">
+                <div key={cat.id} className="services-category-block">
                   {/* Category header */}
                   <div className="services-category-header">
                     <div className="services-category-label-col">
@@ -107,38 +116,44 @@ export default async function ServicesPage() {
                     </div>
                     <div className="services-category-header-body">
                       <p className="team-brief-kicker">
-                        {CATEGORY_LABELS[cat].toUpperCase()}
+                        {cat.label.toUpperCase()}
                       </p>
                       <h2 className="services-category-title">
-                        {CATEGORY_TAGLINES[cat]}
+                        {cat.tagline ?? cat.label}
                       </h2>
-                      <p className="services-category-desc">
-                        {CATEGORY_DESCRIPTIONS[cat]}
-                      </p>
+                      {cat.description && (
+                        <p className="services-category-desc">
+                          {cat.description}
+                        </p>
+                      )}
                     </div>
                   </div>
 
                   {/* Service rows */}
                   {items.length > 0 ? (
                     <div className="services-row-list">
-                      {items.map((service, i) => (
-                        <Link
-                          key={service.id}
-                          href={`/services/${service.slug}`}
-                          className="service-row"
-                        >
-                          <span className="service-row-index">
-                            {String(ci * 6 + i + 1).padStart(2, "0")}
-                          </span>
-                          <span className="service-row-main">
-                            <strong>{service.title}</strong>
-                            {service.tagline && <span>{service.tagline}</span>}
-                          </span>
-                          <span className="service-row-arrow" aria-hidden>
-                            <Icon.Arrow />
-                          </span>
-                        </Link>
-                      ))}
+                      {items.map((service) => {
+                        globalIndex++;
+                        const displayIndex = globalIndex;
+                        return (
+                          <Link
+                            key={service.id}
+                            href={`/services/${service.slug}`}
+                            className="service-row"
+                          >
+                            <span className="service-row-index">
+                              {String(displayIndex).padStart(2, "0")}
+                            </span>
+                            <span className="service-row-main">
+                              <strong>{service.title}</strong>
+                              {service.tagline && <span>{service.tagline}</span>}
+                            </span>
+                            <span className="service-row-arrow" aria-hidden>
+                              <Icon.Arrow />
+                            </span>
+                          </Link>
+                        );
+                      })}
                     </div>
                   ) : (
                     <p className="services-category-empty">
@@ -163,8 +178,8 @@ export default async function ServicesPage() {
                 <span className="accent">for every challenge.</span>
               </h2>
               <p className="engagement-head-sub">
-                We don't offer a single engagement model. The right structure
-                depends on what you're solving — and how quickly you need to move.
+                We don&apos;t offer a single engagement model. The right structure
+                depends on what you&apos;re solving — and how quickly you need to move.
               </p>
             </div>
             <div className="engagement-grid">
@@ -197,7 +212,7 @@ export default async function ServicesPage() {
                 <div key={model.code} className="engagement-card">
                   <span className="engagement-card-code">{model.code}</span>
                   <h3>{model.title}</h3>
-                  <span className="engagement-card-meta">{model.meta}</span>
+                  <p className="engagement-card-meta">{model.meta}</p>
                   <p>{model.body}</p>
                 </div>
               ))}
@@ -206,21 +221,19 @@ export default async function ServicesPage() {
         </RevealSection>
 
         {/* ── CTA ──────────────────────────────────────────────── */}
-        <RevealSection className="services-cta light" data-section="04">
+        <RevealSection className="services-cta dark" data-section="04">
+          <SectionLabel n="04" text="GET STARTED" onDark />
           <div className="section-inner services-cta-inner">
-            <div>
-              <p className="team-brief-kicker">START A CONVERSATION</p>
-              <h2>
-                Tell us where
-                <br />
-                <span className="accent">you&apos;re heading.</span>
-              </h2>
-              <p>
-                We work with a small number of clients at a time. Share a few
-                details and the right person will reach out within 48 hours.
-              </p>
-            </div>
-            <Link href="/consultation" className="cta-link dark">
+            <h2>
+              Ready to define
+              <br />
+              <span className="accent">your next move?</span>
+            </h2>
+            <p>
+              Every engagement starts with a conversation. Tell us what you&apos;re
+              working on and we&apos;ll tell you where we can help.
+            </p>
+            <Link href="/consultation" className="cta-link on-dark">
               <span>BOOK A CONSULTATION</span>
               <Icon.Arrow />
             </Link>

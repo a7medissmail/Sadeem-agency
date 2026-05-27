@@ -5,7 +5,6 @@ import { useFormState } from "react-dom";
 import { createServiceAction, updateServiceAction, type ServiceFormState } from "./actions";
 import { Button } from "@/components/admin/ui/Button";
 import { FieldRow, Input, Textarea, Select } from "@/components/admin/ui/Field";
-import { SERVICE_CATEGORIES, CATEGORY_LABELS } from "@/lib/validation/service";
 
 const ICON_OPTIONS = [
   "Strategy", "Growth", "Ops", "Transform", "Merge",
@@ -48,12 +47,16 @@ function FieldHint({ text }: { text: string }) {
   return <p className="text-[11px] text-[var(--admin-muted)] mt-0.5">{text}</p>;
 }
 
+type CategoryOption = { slug: string; label: string };
+
 export default function ServiceForm({
   mode,
   service,
+  categories = [],
 }: {
   mode: "create" | "edit";
   service?: ServiceValues;
+  categories?: CategoryOption[];
 }) {
   const [title, setTitle] = useState(service?.title ?? "");
   const [slug, setSlug] = useState(service?.slug ?? "");
@@ -120,8 +123,8 @@ export default function ServiceForm({
           required
         >
           <option value="" disabled>Select category…</option>
-          {SERVICE_CATEGORIES.map((c) => (
-            <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>
+          {categories.map((c) => (
+            <option key={c.slug} value={c.slug}>{c.label}</option>
           ))}
         </Select>
         <FieldError messages={state.errors?.category} />

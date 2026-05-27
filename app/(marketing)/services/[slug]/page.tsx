@@ -8,18 +8,12 @@ import Footer from "@/components/Footer";
 import RevealSection from "@/components/RevealSection";
 import SectionLabel from "@/components/SectionLabel";
 import { Icon } from "@/components/Icons";
-import {
-  CATEGORY_LABELS,
-  CATEGORY_TAGLINES,
-  CATEGORY_DESCRIPTIONS,
-  type ServiceCategory,
-} from "@/lib/validation/service";
 
 type ServiceDetail = {
   id: string;
   slug: string;
   title: string;
-  category: ServiceCategory;
+  category: string;
   tagline: string | null;
   intro: string | null;
   body: string | null;
@@ -32,6 +26,12 @@ type RelatedService = {
   slug: string;
   title: string;
   tagline: string | null;
+};
+
+type CategoryInfo = {
+  label: string;
+  tagline: string | null;
+  description: string | null;
 };
 
 async function loadService(slug: string): Promise<ServiceDetail | null> {
@@ -67,6 +67,20 @@ async function loadRelated(service: ServiceDetail): Promise<RelatedService[]> {
   }
 }
 
+async function loadCategoryInfo(slug: string): Promise<CategoryInfo | null> {
+  try {
+    const supabase = createSupabaseServerClient();
+    const { data } = await supabase
+      .from("service_categories")
+      .select("label, tagline, description")
+      .eq("slug", slug)
+      .single();
+    return data ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const service = await loadService(params.slug);
   if (!service) return {};
@@ -80,10 +94,14 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
   const service = await loadService(params.slug);
   if (!service) notFound();
 
-  const related = await loadRelated(service);
-  const categoryLabel   = CATEGORY_LABELS[service.category];
-  const categoryTagline = CATEGORY_TAGLINES[service.category];
-  const categoryDesc    = CATEGORY_DESCRIPTIONS[service.category];
+  const [related, catInfo] = await Promise.all([
+    loadRelated(service),
+    loadCategoryInfo(service.category),
+  ]);
+
+  const categoryLabel   = catInfo?.label   ?? service.category;
+  const categoryTagline = catInfo?.tagline  ?? "";
+  const categoryDesc    = catInfo?.description ?? "";
 
   return (
     <>
@@ -101,7 +119,9 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
                 <span aria-hidden>·</span>
                 <span>{categoryLabel}</span>
               </nav>
-              <p className="team-brief-kicker on-dark">{categoryTagline.toUpperCase()}</p>
+              {categoryTagline && (
+                <p className="team-brief-kicker on-dark">{categoryTagline.toUpperCase()}</p>
+              )}
               <h1 className="display service-hero-title">{service.title}</h1>
               {service.tagline && (
                 <p className="service-hero-tagline">{service.tagline}</p>
@@ -130,12 +150,12 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
                     <p key={i}>{para}</p>
                   ))}
                 </div>
-              ) : (
+              ) : categoryDesc ? (
                 /* Fallback intro from category description */
                 <div className="service-intro">
                   <p>{categoryDesc}</p>
                 </div>
-              )}
+              ) : null}
 
               {service.body && (
                 <div
@@ -174,7 +194,7 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
               <div className="service-sidebar-card">
                 <p className="team-brief-kicker">CATEGORY</p>
                 <strong>{categoryLabel}</strong>
-                <p>{categoryTagline}</p>
+                {categoryTagline && <p>{categoryTagline}</p>}
               </div>
 
               {related.length > 0 && (

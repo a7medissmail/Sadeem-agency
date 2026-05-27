@@ -27,7 +27,7 @@ export const CATEGORY_DESCRIPTIONS: Record<ServiceCategory, string> = {
 export const serviceSchema = z.object({
   slug:        z.string().min(1).max(100).regex(/^[a-z0-9-]+$/, "Lowercase letters, numbers and hyphens only"),
   title:       z.string().min(1).max(120),
-  category:    z.enum(SERVICE_CATEGORIES),
+  category:    z.string().min(1, "Category is required"),
   tagline:     z.string().max(160).nullish(),
   intro:       z.string().max(1200).nullish(),
   body:        z.string().max(8000).nullish(),

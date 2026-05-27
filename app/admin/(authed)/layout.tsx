@@ -19,6 +19,7 @@ const navGroups = [
     label: "Content",
     items: [
       { href: "/admin/services", label: "Services" },
+      { href: "/admin/services/categories", label: "Categories" },
       { href: "/admin/courses", label: "Workshops" },
       { href: "/admin/success-stories", label: "Stories" },
       { href: "/admin/team", label: "Team" },

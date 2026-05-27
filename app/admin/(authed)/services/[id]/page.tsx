@@ -12,11 +12,10 @@ export default async function EditServicePage({ params }: { params: { id: string
   await requireRole(["admin", "editor"]);
 
   const admin = getSupabaseAdmin();
-  const { data: service } = await admin
-    .from("services")
-    .select("*")
-    .eq("id", params.id)
-    .single();
+  const [{ data: service }, { data: categories }] = await Promise.all([
+    admin.from("services").select("*").eq("id", params.id).single(),
+    admin.from("service_categories").select("slug, label").order("sort_order", { ascending: true }),
+  ]);
 
   if (!service) notFound();
 
@@ -29,6 +28,7 @@ export default async function EditServicePage({ params }: { params: { id: string
       />
       <ServiceForm
         mode="edit"
+        categories={categories ?? []}
         service={{
           id:           service.id,
           slug:         service.slug,
