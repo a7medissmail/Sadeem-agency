@@ -5,8 +5,8 @@ import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import { Badge } from "@/components/admin/ui/Badge";
-import { deleteServiceAction } from "./actions";
 import { CATEGORY_LABELS, type ServiceCategory } from "@/lib/validation/service";
+import { DeleteServiceButton } from "./DeleteServiceButton";
 
 export const metadata = { title: "Services - SADEEM Admin" };
 
@@ -108,20 +108,7 @@ export default async function ServicesAdminPage() {
                               >
                                 Edit
                               </Link>
-                              <form
-                                action={deleteServiceAction}
-                                onSubmit={(e) => {
-                                  if (!confirm(`Delete "${service.title}"?`)) e.preventDefault();
-                                }}
-                              >
-                                <input type="hidden" name="id" value={service.id} />
-                                <button
-                                  type="submit"
-                                  className="text-xs text-[var(--admin-muted)] hover:text-red-400 transition-colors"
-                                >
-                                  Delete
-                                </button>
-                              </form>
+                              <DeleteServiceButton id={service.id} title={service.title} />
                             </div>
                           </td>
                         </tr>
