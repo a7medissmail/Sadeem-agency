@@ -507,6 +507,29 @@ export type Database = {
         Relationships: [];
         Update: Partial<Database["public"]["Tables"]["client_partners"]["Insert"]>;
       };
+      services: {
+        Row: {
+          id: string;
+          slug: string;
+          title: string;
+          category: "strategy" | "enablement" | "execution";
+          tagline: string | null;
+          intro: string | null;
+          body: string | null;
+          deliverables: string[];
+          icon_key: string | null;
+          sort_order: number;
+          is_published: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<
+          Database["public"]["Tables"]["services"]["Row"],
+          "id" | "created_at" | "updated_at"
+        > & { id?: string; created_at?: string; updated_at?: string };
+        Relationships: [];
+        Update: Partial<Database["public"]["Tables"]["services"]["Insert"]>;
+      };
       proposals: {
         Row: {
           id: string;
