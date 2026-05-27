@@ -2880,10 +2880,48 @@ section.course-register {
   color: var(--black);
   font-size: 15px;
 }
-.consult-slots {
+/* Step-by-step booking flow */
+.consult-step {
   padding: clamp(20px, 3vw, 34px);
   border-bottom: 1px solid rgba(13,13,15,0.12);
 }
+.consult-step-label {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 18px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(13,13,15,0.52);
+}
+.consult-step-num {
+  color: var(--accent);
+  font-weight: 600;
+}
+.consult-step-summary {
+  color: var(--black);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: 11px;
+}
+/* Steps 2 & 3 hidden until activated */
+.consult-step-times,
+.consult-step-form {
+  display: none;
+}
+.consult-step-times.is-visible,
+.consult-step-form.is-visible {
+  display: block;
+  animation: consult-step-in 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+@keyframes consult-step-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .consult-days {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2945,7 +2983,7 @@ section.course-register {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
-  padding: clamp(20px, 3vw, 34px);
+  padding: 0;
 }
 .consult-form-grid label {
   display: flex;
@@ -2975,9 +3013,9 @@ section.course-register {
 }
 .consult-form-grid textarea::placeholder { color: rgba(13,13,15,0.42); }
 .consult-submit {
-  width: calc(100% - clamp(40px, 6vw, 68px));
+  width: 100%;
   min-height: 58px;
-  margin: 0 clamp(20px, 3vw, 34px) clamp(20px, 3vw, 34px);
+  margin: clamp(20px, 3vw, 34px) 0 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
