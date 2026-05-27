@@ -80,10 +80,12 @@ function CaseTile({ story, kind, n }: { story: HomeStory; kind: string; n: strin
         ) : null}
         <h3 className="case-title">{story.title}</h3>
         <p className="case-body">{story.summary || "A measured operating shift across strategy, execution, and growth."}</p>
-        <a className="cta-link on-dark sm" href={`/success-stories/${story.slug}`}>
-          <span>READ STORY</span>
-          <Icon.Arrow />
-        </a>
+        {!story.id.startsWith("fallback-") && (
+          <a className="cta-link on-dark sm" href={`/success-stories/${story.slug}`}>
+            <span>READ STORY</span>
+            <Icon.Arrow />
+          </a>
+        )}
       </div>
     </article>
   );

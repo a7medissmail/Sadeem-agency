@@ -31,7 +31,6 @@ export default function ConsultationPage() {
               </p>
               <a href="#booking" className="team-line-cta">
                 <span>CHOOSE A SLOT</span>
-                <span aria-hidden>-&gt;</span>
               </a>
             </div>
           </div>

@@ -27,13 +27,13 @@ export default function ServicesSection() {
             </h2>
           </div>
           <a className="cta-link on-dark" href="/#contact">
-            <span>VIEW ALL SERVICES</span>
+            <span>START A CONVERSATION</span>
             <Icon.Arrow />
           </a>
         </div>
         <div className="services-grid">
           {items.map((it, i) => (
-            <div className="s-card" key={i}>
+            <a className="s-card" key={i} href="/#contact">
               <div className="s-card-index">0{i + 1}</div>
               <div className="s-card-icon">
                 <it.Glyph s={26} />
@@ -43,7 +43,7 @@ export default function ServicesSection() {
               <div className="s-card-arrow">
                 <Icon.Arrow />
               </div>
-            </div>
+            </a>
           ))}
         </div>
       </div>

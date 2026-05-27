@@ -107,7 +107,6 @@ export default async function CoursesIndex() {
                 </p>
                 <Link className="cta-link dark" href="/#contact" style={{ marginTop: 24, display: "inline-flex" }}>
                   <span>GET ON THE LIST</span>
-                  <span aria-hidden>-&gt;</span>
                 </Link>
               </div>
             ) : (
@@ -135,7 +134,7 @@ export default async function CoursesIndex() {
                         <h3 className="course-card-title">{course.title}</h3>
                         {course.summary ? <p className="course-card-summary">{course.summary}</p> : null}
                         <span className="course-card-link">
-                          VIEW DETAILS <span aria-hidden>-&gt;</span>
+                          VIEW DETAILS →
                         </span>
                       </div>
                     </Link>

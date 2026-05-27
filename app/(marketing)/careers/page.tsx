@@ -74,7 +74,6 @@ export default async function CareersPage() {
               </p>
               <a href="#open-roles" className="team-line-cta">
                 <span>OPEN ROLES</span>
-                <span aria-hidden>-&gt;</span>
               </a>
             </div>
           </div>
@@ -98,7 +97,6 @@ export default async function CareersPage() {
                 <p>Reach out if you believe your work belongs in the SADEEM operating room.</p>
                 <Link className="cta-link dark" href="/#contact">
                   <span>START A CONVERSATION</span>
-                  <span aria-hidden>-&gt;</span>
                 </Link>
               </div>
             ) : (
@@ -115,7 +113,7 @@ export default async function CareersPage() {
                       <strong>{job.title}</strong>
                       <span>{preview(job.body)}</span>
                     </span>
-                    <span className="career-role-arrow">+</span>
+                    <span className="career-role-arrow" aria-hidden>→</span>
                   </Link>
                 ))}
               </div>
