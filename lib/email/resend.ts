@@ -12,17 +12,47 @@ function client(): Resend | null {
   return cached;
 }
 
+/**
+ * Semantic email channels.
+ * Each maps to a dedicated Resend-verified "from" address via Vercel env vars:
+ *
+ *   EMAIL_FROM_HELLO   → "SADEEM <hello@sadeem.agency>"   — general contact, bookings
+ *   EMAIL_FROM_CAREERS → "SADEEM Careers <careers@sadeem.agency>" — hiring
+ *   EMAIL_FROM_BRIEFS  → "SADEEM <briefs@sadeem.agency>"  — proposals, quotations
+ *   EMAIL_FROM_NEWS    → "SADEEM <news@sadeem.agency>"    — marketing campaigns
+ *
+ * Falls back to EMAIL_FROM if a channel-specific var is not set.
+ */
+export type EmailChannel = "hello" | "careers" | "briefs" | "news";
+
+const CHANNEL_ENV: Record<EmailChannel, string> = {
+  hello:   "EMAIL_FROM_HELLO",
+  careers: "EMAIL_FROM_CAREERS",
+  briefs:  "EMAIL_FROM_BRIEFS",
+  news:    "EMAIL_FROM_NEWS",
+};
+
+function resolveFrom(channel?: EmailChannel): string | undefined {
+  if (channel) {
+    const specific = process.env[CHANNEL_ENV[channel]];
+    if (specific) return specific;
+  }
+  return process.env.EMAIL_FROM; // legacy fallback
+}
+
 export type SendArgs = {
   to: string | string[];
   subject: string;
   html: string;
+  /** Semantic channel — determines the "from" address. Defaults to EMAIL_FROM. */
+  channel?: EmailChannel;
   replyTo?: string;
   attachments?: Attachment[];
 };
 
 export async function sendEmail(args: SendArgs) {
   const r = client();
-  const from = process.env.EMAIL_FROM;
+  const from = resolveFrom(args.channel);
   if (!r || !from) {
     console.warn("[resend] skipping send - RESEND_API_KEY or EMAIL_FROM missing");
     return { skipped: true as const };

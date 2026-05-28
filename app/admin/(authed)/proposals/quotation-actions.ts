@@ -212,7 +212,7 @@ export async function sendQuotationAction(
         currency: quotation.currency ?? "SAR",
         brand,
       });
-      await sendEmail({ to: proposal.client_email, subject, html });
+      await sendEmail({ channel: "briefs", to: proposal.client_email, subject, html });
     } catch (err) {
       console.error("[quotation] invite email failed:", err);
     }
@@ -324,7 +324,7 @@ export async function clientRespondQuotationAction(
         const team = process.env.TEAM_NOTIFY_TO;
 
         if (action === "accepted") {
-          // 1. Client confirmation
+          // 1. Client confirmation — from briefs@ (client-facing engagement channel)
           const { subject: cs, html: ch } = quotationAcceptedClient({
             clientName: proposal.client_name,
             proposalTitle: proposal.title,
@@ -334,9 +334,9 @@ export async function clientRespondQuotationAction(
             currency: q.currency ?? "SAR",
             brand,
           });
-          await sendEmail({ to: proposal.client_email, subject: cs, html: ch });
+          await sendEmail({ channel: "briefs", to: proposal.client_email, subject: cs, html: ch });
 
-          // 2. Team notification
+          // 2. Team notification — from hello@ (internal ops channel)
           if (team) {
             const { subject: ts, html: th } = quotationAcceptedAdmin({
               clientName: proposal.client_name,
@@ -349,10 +349,10 @@ export async function clientRespondQuotationAction(
               action: "accepted",
               brand,
             });
-            await sendEmail({ to: team, subject: ts, html: th, replyTo: proposal.client_email });
+            await sendEmail({ channel: "hello", to: team, subject: ts, html: th, replyTo: proposal.client_email });
           }
         } else {
-          // Decline — notify team only
+          // Decline — notify team only (internal ops channel)
           if (team) {
             const { subject: ts, html: th } = quotationAcceptedAdmin({
               clientName: proposal.client_name,
@@ -366,7 +366,7 @@ export async function clientRespondQuotationAction(
               declineReason: declineReason ?? null,
               brand,
             });
-            await sendEmail({ to: team, subject: ts, html: th, replyTo: proposal.client_email });
+            await sendEmail({ channel: "hello", to: team, subject: ts, html: th, replyTo: proposal.client_email });
           }
         }
       } catch (err) {

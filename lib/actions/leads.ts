@@ -66,9 +66,9 @@ export async function submitLeadAction(
   const notification = leadNotification({ name, email, phone, company, message, source, brand });
 
   await Promise.allSettled([
-    sendEmail({ to: email, subject: confirmation.subject, html: confirmation.html, replyTo: team }),
+    sendEmail({ channel: "hello", to: email, subject: confirmation.subject, html: confirmation.html, replyTo: team }),
     team
-      ? sendEmail({ to: team, subject: notification.subject, html: notification.html, replyTo: email })
+      ? sendEmail({ channel: "hello", to: team, subject: notification.subject, html: notification.html, replyTo: email })
       : Promise.resolve(),
   ]);
 

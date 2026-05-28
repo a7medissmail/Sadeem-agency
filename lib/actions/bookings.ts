@@ -200,6 +200,7 @@ export async function submitBookingAction(
 
   await Promise.allSettled([
     sendEmail({
+      channel: "hello",
       to: email,
       subject: confirmation.subject,
       html: confirmation.html,
@@ -208,6 +209,7 @@ export async function submitBookingAction(
     }),
     team
       ? sendEmail({
+          channel: "hello",
           to: team,
           subject: notification.subject,
           html: notification.html,

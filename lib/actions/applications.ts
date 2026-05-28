@@ -232,9 +232,9 @@ export async function submitApplicationAction(
   const notification = applicationNotification({ name, email, phone, jobTitle: job.title, coverNote: cover_note, brand });
 
   await Promise.allSettled([
-    sendEmail({ to: email, subject: confirmation.subject, html: confirmation.html, replyTo: team }),
+    sendEmail({ channel: "careers", to: email, subject: confirmation.subject, html: confirmation.html, replyTo: team }),
     team
-      ? sendEmail({ to: team, subject: notification.subject, html: notification.html, replyTo: email })
+      ? sendEmail({ channel: "careers", to: team, subject: notification.subject, html: notification.html, replyTo: email })
       : Promise.resolve(),
   ]);
 

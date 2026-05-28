@@ -197,7 +197,7 @@ export async function emailProposalAction(
         expiresDate,
         brand,
       });
-      await sendEmail({ to: proposal.client_email, subject, html });
+      await sendEmail({ channel: "briefs", to: proposal.client_email, subject, html });
     } catch (err) {
       console.error("[proposal] invite email failed:", err);
     }
@@ -316,11 +316,11 @@ export async function submitProposalAction(
       const brand = await getEmailBranding();
       const proposalTitle = proposal.title;
 
-      // 1. Client confirmation
+      // 1. Client confirmation — from briefs@ (client-facing engagement channel)
       const { subject: cs, html: ch } = briefReceivedClient({ clientName, proposalTitle, brand });
-      await sendEmail({ to: clientEmail, subject: cs, html: ch });
+      await sendEmail({ channel: "briefs", to: clientEmail, subject: cs, html: ch });
 
-      // 2. Admin notification — use TEAM_NOTIFY_TO (same as all other admin alerts)
+      // 2. Admin notification — from hello@ (internal ops channel)
       const notifyTo = team ?? brand.footerEmail ?? "hello@sadeem.agency";
       const { subject: as_, html: ah } = briefSubmittedAdmin({
         clientName,
@@ -330,7 +330,7 @@ export async function submitProposalAction(
         adminUrl: `${baseUrl}/admin/proposals`,
         brand,
       });
-      await sendEmail({ to: notifyTo, subject: as_, html: ah, replyTo: clientEmail });
+      await sendEmail({ channel: "hello", to: notifyTo, subject: as_, html: ah, replyTo: clientEmail });
     } catch (err) {
       console.error("[email] brief submission emails failed:", err);
     }

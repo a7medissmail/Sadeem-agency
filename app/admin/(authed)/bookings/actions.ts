@@ -151,6 +151,7 @@ export async function sendBookingDetailsAction(formData: FormData): Promise<void
 
   await Promise.allSettled([
     sendEmail({
+      channel: "hello",
       to: booking.email,
       subject: confirmation.subject,
       html: confirmation.html,
@@ -159,6 +160,7 @@ export async function sendBookingDetailsAction(formData: FormData): Promise<void
     }),
     team
       ? sendEmail({
+          channel: "hello",
           to: team,
           subject: notification.subject,
           html: notification.html,

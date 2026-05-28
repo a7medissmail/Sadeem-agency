@@ -50,6 +50,7 @@ export async function updateApplicationStatusAction(formData: FormData): Promise
     });
 
     await sendEmail({
+      channel: "careers",
       to: application.email,
       subject: email.subject,
       html: email.html,

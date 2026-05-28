@@ -123,6 +123,7 @@ export async function sendCampaignAction(formData: FormData): Promise<void> {
     });
 
     const result = await sendEmail({
+      channel: "news",
       to: lead.email,
       subject: email.subject,
       html: email.html,
