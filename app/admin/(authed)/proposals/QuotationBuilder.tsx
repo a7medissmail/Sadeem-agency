@@ -44,6 +44,7 @@ export type QuotationRow = {
   viewed_at: string | null;
   accepted_at: string | null;
   declined_at: string | null;
+  decline_reason: string | null;
   notes: string | null;
   items: QuotationItemRow[];
 };
@@ -315,6 +316,12 @@ export function QuotationBuilder({
               </span>
             </div>
           ))}
+          {q?.status === "declined" && q.decline_reason && (
+            <div className="mt-3 rounded border border-[var(--admin-border)] bg-[var(--admin-surface-strong)] px-3 py-2">
+              <p className="font-mono text-[9.5px] uppercase tracking-[0.2em] text-[var(--admin-subtle)] mb-1">Decline reason</p>
+              <p className="text-[12.5px] leading-relaxed text-[var(--admin-muted)]">{q.decline_reason}</p>
+            </div>
+          )}
         </div>
       )}
 

@@ -62,6 +62,7 @@ type RawQuotation = {
   viewed_at: string | null;
   accepted_at: string | null;
   declined_at: string | null;
+  decline_reason: string | null;
   notes: string | null;
   items: RawQuotationItem[];
 };
@@ -131,7 +132,7 @@ async function loadData() {
       const { data: rawQuotes } = await admin
         .from("quotations")
         .select(
-          "id, proposal_id, title, intro_text, currency, validity_days, discount_pct, tax_pct, subtotal, total, token_prefix, status, sent_at, viewed_at, accepted_at, declined_at, notes, items:quotation_items(id, sort_order, name, description, quantity, unit, unit_price, total)",
+          "id, proposal_id, title, intro_text, currency, validity_days, discount_pct, tax_pct, subtotal, total, token_prefix, status, sent_at, viewed_at, accepted_at, declined_at, decline_reason, notes, items:quotation_items(id, sort_order, name, description, quantity, unit, unit_price, total)",
         )
         .in("proposal_id", allProposalIds)
         .not("status", "eq", "superseded")
@@ -163,6 +164,7 @@ async function loadData() {
           viewed_at: q.viewed_at,
           accepted_at: q.accepted_at,
           declined_at: q.declined_at,
+          decline_reason: q.decline_reason,
           notes: q.notes,
           items: sortedItems,
         });
