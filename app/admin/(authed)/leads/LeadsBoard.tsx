@@ -378,24 +378,23 @@ function LeadDrawer({
 }
 
 export function LeadsBoard({ leads, staff }: { leads: LeadBoardRow[]; staff: StaffRow[] }) {
-  const [query, setQuery] = useState("");
+  // Search is now server-side (URL ?q= param). Only source/status remain client-side
+  // because the Kanban layout needs all statuses visible simultaneously.
   const [source, setSource] = useState<LeadSource | "all">("all");
   const [status, setStatus] = useState<LeadStatus | "all">("all");
   // Drawer stays closed on mount — auto-opening the first lead was disorienting
   // (especially on a fresh page load).
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const filtered = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    return leads.filter((lead) => {
-      const haystack = `${lead.name} ${lead.email} ${lead.phone ?? ""} ${lead.company ?? ""} ${lead.message ?? ""} ${sourceLabels[lead.source]}`.toLowerCase();
-      return (
-        (!needle || haystack.includes(needle)) &&
-        (source === "all" || lead.source === source) &&
-        (status === "all" || lead.status === status)
-      );
-    });
-  }, [leads, query, source, status]);
+  const filtered = useMemo(
+    () =>
+      leads.filter(
+        (lead) =>
+          (source === "all" || lead.source === source) &&
+          (status === "all" || lead.status === status),
+      ),
+    [leads, source, status],
+  );
 
   const grouped = statuses.map((stage) => ({
     status: stage,
@@ -428,17 +427,7 @@ export function LeadsBoard({ leads, staff }: { leads: LeadBoardRow[]; staff: Sta
       </section>
 
       <section className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
-        <div className="grid gap-3 xl:grid-cols-[1fr_auto_auto] xl:items-center">
-          <label className="flex min-h-[44px] items-center gap-3 border border-[var(--admin-border)] bg-[var(--admin-surface-strong)] px-3">
-            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)]">Search</span>
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Name, email, company, message"
-              className="min-w-0 flex-1 bg-transparent text-[14px] text-[var(--admin-text)] outline-none placeholder:text-[var(--admin-subtle)]"
-            />
-          </label>
-
+        <div className="flex flex-wrap items-center justify-end gap-3">
           <Select value={source} onChange={(event) => setSource(event.target.value as LeadSource | "all")} aria-label="Filter by source">
             <option value="all">All sources</option>
             {sources.map((sourceOption) => (
@@ -458,6 +447,7 @@ export function LeadsBoard({ leads, staff }: { leads: LeadBoardRow[]; staff: Sta
           </div>
         </div>
       </section>
+
 
       <div className="overflow-x-auto pb-3">
         <div className="grid min-w-[1320px] grid-cols-[repeat(5,minmax(250px,1fr))] gap-4">

@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
+import { SearchBar } from "@/components/admin/ui/SearchBar";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { ProposalBoard, type FormLite, type ProposalRow, type SubmissionLite } from "./ProposalBoard";
@@ -69,17 +71,32 @@ type RawQuotation = {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-async function loadData() {
+const PAGE_CAP = 150;
+
+function sp(val: string | string[] | undefined): string {
+  return Array.isArray(val) ? (val[0] ?? "") : (val ?? "");
+}
+
+async function loadData(q: string) {
   try {
     const admin = getSupabaseAdmin();
+
+    let proposalsQuery = admin
+      .from("proposals")
+      .select(
+        "id, form_id, title, client_name, client_email, client_company, token_prefix, status, expires_at, sent_at, opened_at, submitted_at, created_at, internal_notes, form:forms(id, name, slug)",
+      )
+      .order("created_at", { ascending: false })
+      .limit(PAGE_CAP);
+
+    if (q) {
+      proposalsQuery = proposalsQuery.or(
+        `client_name.ilike.%${q}%,client_email.ilike.%${q}%,title.ilike.%${q}%,client_company.ilike.%${q}%`,
+      );
+    }
+
     const [proposalsRes, formsRes] = await Promise.all([
-      admin
-        .from("proposals")
-        .select(
-          "id, form_id, title, client_name, client_email, client_company, token_prefix, status, expires_at, sent_at, opened_at, submitted_at, created_at, internal_notes, form:forms(id, name, slug)",
-        )
-        .order("created_at", { ascending: false })
-        .limit(200),
+      proposalsQuery,
       admin
         .from("forms")
         .select("id, name, slug")
@@ -194,18 +211,24 @@ async function loadData() {
     return {
       proposals: rows,
       forms: (formsRes.data ?? []) as FormLite[],
+      capped: (proposalsRes.data?.length ?? 0) >= PAGE_CAP,
       error: null as string | null,
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error("[admin/proposals] load failed:", message);
-    return { proposals: [] as ProposalRow[], forms: [] as FormLite[], error: message };
+    return { proposals: [] as ProposalRow[], forms: [] as FormLite[], capped: false, error: message };
   }
 }
 
-export default async function ProposalsPage() {
+export default async function ProposalsPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>;
+}) {
   await requireRole(["admin", "editor"]);
-  const { proposals, forms, error } = await loadData();
+  const q = sp(searchParams.q).trim();
+  const { proposals, forms, error, capped } = await loadData(q);
 
   return (
     <div className="flex flex-col gap-8">
@@ -231,6 +254,17 @@ export default async function ProposalsPage() {
           </a>
         }
       />
+
+      <Suspense>
+        <SearchBar placeholder="Client name, email, company, title…" />
+      </Suspense>
+
+      {capped && !q ? (
+        <p className="text-[12px] text-[var(--admin-muted)]">
+          Showing the {PAGE_CAP} most recent proposals.{" "}
+          <span className="text-[var(--admin-accent)]">Search above to narrow results.</span>
+        </p>
+      ) : null}
 
       <ProposalBoard proposals={proposals} forms={forms} />
     </div>

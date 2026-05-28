@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
+import { SearchBar } from "@/components/admin/ui/SearchBar";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { ApplicationStatus, Json } from "@/types/database";
@@ -7,6 +9,13 @@ import { ApplicationsBoard, type ApplicationBoardRow, type StaffRow } from "./Ap
 export const metadata = { title: "Applications - SADEEM Admin" };
 
 const RESUME_BUCKET = "application-resumes";
+
+/** Hard cap: prevents unbounded signed-URL generation and payload bloat. */
+const PAGE_CAP = 100;
+
+function sp(val: string | string[] | undefined): string {
+  return Array.isArray(val) ? (val[0] ?? "") : (val ?? "");
+}
 
 type ApplicationRow = {
   id: string;
@@ -60,20 +69,28 @@ async function signedResumeUrl(path: string | null): Promise<string | null> {
   return data.signedUrl;
 }
 
-async function loadApplications() {
+async function loadApplications(q: string) {
   try {
     const admin = getSupabaseAdmin();
-    const { data: applications, error } = await admin
+
+    let appQuery = admin
       .from("applications")
       .select(
         "id, job_id, name, email, phone, resume_url, cover_note, status, owner_id, score, portfolio_url, linkedin_url, custom_answers, created_at",
       )
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(PAGE_CAP); // ← critical: was unbounded
+
+    if (q) {
+      appQuery = appQuery.or(`name.ilike.%${q}%,email.ilike.%${q}%`);
+    }
+
+    const { data: applications, error } = await appQuery;
     if (error) throw error;
 
     const applicationRows = (applications ?? []) as ApplicationRow[];
-    const jobIds = [...new Set(applicationRows.map((application) => application.job_id))];
-    const applicationIds = applicationRows.map((application) => application.id);
+    const jobIds = [...new Set(applicationRows.map((a) => a.job_id))];
+    const applicationIds = applicationRows.map((a) => a.id);
     const jobsById = new Map<string, JobLite>();
     const staffById = new Map<string, StaffRow>();
     const notesByApplication = new Map<string, ApplicationNoteRow[]>();
@@ -115,10 +132,16 @@ async function loadApplications() {
       if (historyResult.error) throw historyResult.error;
 
       for (const note of (notesResult.data ?? []) as ApplicationNoteRow[]) {
-        notesByApplication.set(note.application_id, [...(notesByApplication.get(note.application_id) ?? []), note]);
+        notesByApplication.set(note.application_id, [
+          ...(notesByApplication.get(note.application_id) ?? []),
+          note,
+        ]);
       }
       for (const event of (historyResult.data ?? []) as ApplicationHistoryRow[]) {
-        historyByApplication.set(event.application_id, [...(historyByApplication.get(event.application_id) ?? []), event]);
+        historyByApplication.set(event.application_id, [
+          ...(historyByApplication.get(event.application_id) ?? []),
+          event,
+        ]);
       }
     }
 
@@ -126,28 +149,49 @@ async function loadApplications() {
       applicationRows.map(async (application): Promise<ApplicationBoardRow> => ({
         ...application,
         job: jobsById.get(application.job_id) ?? null,
-        ownerName: application.owner_id ? staffById.get(application.owner_id)?.full_name ?? "Unnamed owner" : null,
+        ownerName: application.owner_id
+          ? (staffById.get(application.owner_id)?.full_name ?? "Unnamed owner")
+          : null,
         notes: (notesByApplication.get(application.id) ?? []).map((note) => ({
           ...note,
-          authorName: note.author_id ? staffById.get(note.author_id)?.full_name ?? "SADEEM team" : "SADEEM team",
+          authorName: note.author_id
+            ? (staffById.get(note.author_id)?.full_name ?? "SADEEM team")
+            : "SADEEM team",
         })),
         history: (historyByApplication.get(application.id) ?? []).map((event) => ({
           ...event,
-          actorName: event.actor_id ? staffById.get(event.actor_id)?.full_name ?? "SADEEM team" : "SADEEM team",
+          actorName: event.actor_id
+            ? (staffById.get(event.actor_id)?.full_name ?? "SADEEM team")
+            : "SADEEM team",
         })),
         resumeDownloadUrl: await signedResumeUrl(application.resume_url),
       })),
     );
 
-    return { applications: rows, staff: (staff ?? []) as StaffRow[], error: null as string | null };
+    return {
+      applications: rows,
+      staff: (staff ?? []) as StaffRow[],
+      capped: applicationRows.length >= PAGE_CAP,
+      error: null as string | null,
+    };
   } catch (err) {
-    return { applications: [], staff: [], error: err instanceof Error ? err.message : "Unknown error" };
+    return {
+      applications: [],
+      staff: [],
+      capped: false,
+      error: err instanceof Error ? err.message : "Unknown error",
+    };
   }
 }
 
-export default async function ApplicationsAdminPage() {
+export default async function ApplicationsAdminPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>;
+}) {
   await requireRole(["admin", "editor", "viewer"]);
-  const { applications, staff, error } = await loadApplications();
+  const q = sp(searchParams.q).trim();
+  const { applications, staff, error, capped } = await loadApplications(q);
 
   return (
     <div className="flex flex-col gap-8">
@@ -169,6 +213,18 @@ export default async function ApplicationsAdminPage() {
         <div className="rounded-md border border-amber-500/30 bg-amber-500/[0.06] px-4 py-3 text-[13px] text-amber-200">
           Couldn&apos;t load applications: <code>{error}</code>
         </div>
+      ) : null}
+
+      {/* Server-side search — updates URL, triggers page re-fetch with DB filter */}
+      <Suspense>
+        <SearchBar placeholder="Name or email…" />
+      </Suspense>
+
+      {capped && !q ? (
+        <p className="text-[12px] text-[var(--admin-muted)]">
+          Showing the {PAGE_CAP} most recent applications.{" "}
+          <span className="text-[var(--admin-accent)]">Search above to narrow results.</span>
+        </p>
       ) : null}
 
       <ApplicationsBoard applications={applications} staff={staff} />

@@ -358,19 +358,20 @@ function AvailabilityRules({ rules }: { rules: AvailabilityRuleRow[] }) {
 }
 
 export function BookingsBoard({ bookings, rules }: { bookings: BookingBoardRow[]; rules: AvailabilityRuleRow[] }) {
-  const [query, setQuery] = useState("");
+  // Text search is now server-side (URL ?q= param). Only the status chip filter
+  // remains client-side — it's fast within the current page of 50 records.
   const [status, setStatus] = useState<BookingStatus | "all">("all");
   // Drawer stays closed on mount — auto-opening the first booking was
   // disorienting (especially on a fresh page load).
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const filtered = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    return bookings.filter((booking) => {
-      const haystack = `${booking.name} ${booking.email} ${booking.phone ?? ""} ${booking.topic ?? ""} ${meetingState(booking)}`.toLowerCase();
-      return (!needle || haystack.includes(needle)) && (status === "all" || booking.status === status);
-    });
-  }, [bookings, query, status]);
+  const filtered = useMemo(
+    () =>
+      bookings.filter(
+        (booking) => status === "all" || booking.status === status,
+      ),
+    [bookings, status],
+  );
 
   const selected = bookings.find((booking) => booking.id === selectedId) ?? null;
   const upcomingCount = bookings.filter((booking) => isFutureSlot(booking) && booking.status === "scheduled").length;
@@ -399,25 +400,13 @@ export function BookingsBoard({ bookings, rules }: { bookings: BookingBoardRow[]
       </section>
 
       <section className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
-        <div className="grid gap-3 xl:grid-cols-[1fr_auto] xl:items-center">
-          <label className="flex min-h-[44px] items-center gap-3 border border-[var(--admin-border)] bg-[var(--admin-surface-strong)] px-3">
-            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)]">Search</span>
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Name, email, phone, topic"
-              className="min-w-0 flex-1 bg-transparent text-[14px] text-[var(--admin-text)] outline-none placeholder:text-[var(--admin-subtle)]"
-            />
-          </label>
-
-          <div className="flex flex-wrap gap-2">
-            <FilterChip active={status === "all"} onClick={() => setStatus("all")}>All</FilterChip>
-            {bookingStatuses.map((bookingStatus) => (
-              <FilterChip key={bookingStatus} active={status === bookingStatus} onClick={() => setStatus(bookingStatus)}>
-                {statusLabels[bookingStatus]}
-              </FilterChip>
-            ))}
-          </div>
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <FilterChip active={status === "all"} onClick={() => setStatus("all")}>All</FilterChip>
+          {bookingStatuses.map((bookingStatus) => (
+            <FilterChip key={bookingStatus} active={status === bookingStatus} onClick={() => setStatus(bookingStatus)}>
+              {statusLabels[bookingStatus]}
+            </FilterChip>
+          ))}
         </div>
       </section>
 

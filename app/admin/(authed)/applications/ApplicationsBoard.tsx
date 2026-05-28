@@ -495,7 +495,8 @@ function CandidateDrawer({
 }
 
 export function ApplicationsBoard({ applications, staff }: { applications: ApplicationBoardRow[]; staff: StaffRow[] }) {
-  const [query, setQuery] = useState("");
+  // Text search is server-side (URL ?q= param). Only role/owner/status remain
+  // client-side because the Kanban needs all columns visible simultaneously.
   const [role, setRole] = useState("all");
   const [owner, setOwner] = useState("all");
   const [status, setStatus] = useState<ApplicationStatus | "all">("all");
@@ -503,22 +504,27 @@ export function ApplicationsBoard({ applications, staff }: { applications: Appli
   // disorienting (especially on a fresh page load).
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const roles = useMemo(() => {
-    return Array.from(new Set(applications.map((application) => roleName(application)))).sort((a, b) => a.localeCompare(b));
-  }, [applications]);
+  const roles = useMemo(
+    () =>
+      Array.from(new Set(applications.map((application) => roleName(application)))).sort((a, b) =>
+        a.localeCompare(b),
+      ),
+    [applications],
+  );
 
-  const filtered = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    return applications.filter((application) => {
-      const haystack = `${application.name} ${application.email} ${application.phone ?? ""} ${roleName(application)} ${application.ownerName ?? ""} ${application.cover_note ?? ""}`.toLowerCase();
-      return (
-        (!needle || haystack.includes(needle)) &&
-        (role === "all" || roleName(application) === role) &&
-        (owner === "all" || (owner === "unassigned" ? !application.owner_id : application.owner_id === owner)) &&
-        (status === "all" || application.status === status)
-      );
-    });
-  }, [applications, query, role, owner, status]);
+  const filtered = useMemo(
+    () =>
+      applications.filter(
+        (application) =>
+          (role === "all" || roleName(application) === role) &&
+          (owner === "all" ||
+            (owner === "unassigned"
+              ? !application.owner_id
+              : application.owner_id === owner)) &&
+          (status === "all" || application.status === status),
+      ),
+    [applications, role, owner, status],
+  );
 
   const grouped = applicationStatuses.map((stage) => ({
     status: stage,
@@ -555,17 +561,7 @@ export function ApplicationsBoard({ applications, staff }: { applications: Appli
       </section>
 
       <section className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
-        <div className="grid gap-3 xl:grid-cols-[1fr_auto_auto_auto] xl:items-center">
-          <label className="flex min-h-[44px] items-center gap-3 border border-[var(--admin-border)] bg-[var(--admin-surface-strong)] px-3">
-            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)]">Search</span>
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Name, email, role, note"
-              className="min-w-0 flex-1 bg-transparent text-[14px] text-[var(--admin-text)] outline-none placeholder:text-[var(--admin-subtle)]"
-            />
-          </label>
-
+        <div className="flex flex-wrap items-center justify-end gap-3">
           <Select value={role} onChange={(event) => setRole(event.target.value)} aria-label="Filter by role">
             <option value="all">All roles</option>
             {roles.map((roleOption) => (
