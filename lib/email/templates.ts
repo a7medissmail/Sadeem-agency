@@ -833,6 +833,67 @@ ${accessBlock ? `<tr><td class="lp" style="padding:32px 36px 0 36px;">${accessBl
 }
 
 /**
+ * Quotation acceptance notification for the admin/team.
+ * Sent internally when a client accepts a quotation.
+ */
+export function quotationAcceptedAdmin({
+  clientName,
+  clientEmail,
+  quotationTitle,
+  proposalTitle,
+  total,
+  currency,
+  adminUrl,
+  declineReason,
+  brand,
+}: {
+  clientName: string;
+  clientEmail: string;
+  quotationTitle: string;
+  proposalTitle: string;
+  total: number;
+  currency: string;
+  adminUrl: string;
+  declineReason?: string | null;
+  brand?: EmailBranding;
+}) {
+  const accepted = !declineReason && declineReason !== "";
+  const fmtTotal = new Intl.NumberFormat("en", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(total);
+
+  const subject = accepted
+    ? `Quotation accepted — ${clientName} · ${quotationTitle}`
+    : `Quotation declined — ${clientName} · ${quotationTitle}`;
+
+  const rows: [string, string | null][] = [
+    ["Client", clientName],
+    ["Email", clientEmail],
+    ["Brief", proposalTitle],
+    ["Quotation", quotationTitle],
+    ["Total", fmtTotal],
+  ];
+  if (declineReason) rows.push(["Reason", declineReason]);
+
+  const html = shell({
+    eyebrow: accepted ? "Quotation accepted" : "Quotation declined",
+    title: clientName,
+    intro: accepted
+      ? `${clientName} accepted the quotation for "${quotationTitle}". The proposal has been marked as converted.`
+      : `${clientName} declined the quotation for "${quotationTitle}".`,
+    preview: accepted
+      ? `${clientName} accepted "${quotationTitle}" — ${fmtTotal}`
+      : `${clientName} declined "${quotationTitle}"`,
+    brand,
+    children: rowsTable(rows) + actionLink(adminUrl, "Review in admin →"),
+  });
+  return { subject, html };
+}
+
+/**
  * Brief submission notification for the admin team.
  * Sent internally when a client completes the guided brief.
  */

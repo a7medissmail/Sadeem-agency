@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/resend";
-import { quotationAcceptedClient, quotationInviteClient, getEmailBranding } from "@/lib/email/templates";
+import { quotationAcceptedAdmin, quotationAcceptedClient, quotationInviteClient, getEmailBranding } from "@/lib/email/templates";
 import type { QuotationStatus } from "@/types/database";
 
 // ─── Token helpers (same pattern as proposals) ────────────────────────────────
@@ -307,8 +307,8 @@ export async function clientRespondQuotationAction(
 
   revalidatePath("/admin/proposals");
 
-  // Fire-and-forget confirmation email when client accepts
-  if (action === "accepted" && q.proposal_id) {
+  // Fire-and-forget emails for client acceptance or team notification on decline
+  if (q.proposal_id) {
     void (async () => {
       try {
         const { data: proposal } = await admin
@@ -319,18 +319,56 @@ export async function clientRespondQuotationAction(
         if (!proposal) return;
 
         const brand = await getEmailBranding();
-        const { subject, html } = quotationAcceptedClient({
-          clientName: proposal.client_name,
-          proposalTitle: proposal.title,
-          quotationTitle: q.title,
-          engagementRef: q.token_prefix ?? quotationId.slice(0, 8),
-          total: q.total,
-          currency: q.currency ?? "SAR",
-          brand,
-        });
-        await sendEmail({ to: proposal.client_email, subject, html });
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://sadeem.agency";
+        const adminUrl = `${baseUrl}/admin/proposals`;
+        const team = process.env.TEAM_NOTIFY_TO;
+
+        if (action === "accepted") {
+          // 1. Client confirmation
+          const { subject: cs, html: ch } = quotationAcceptedClient({
+            clientName: proposal.client_name,
+            proposalTitle: proposal.title,
+            quotationTitle: q.title,
+            engagementRef: q.token_prefix ?? quotationId.slice(0, 8),
+            total: q.total,
+            currency: q.currency ?? "SAR",
+            brand,
+          });
+          await sendEmail({ to: proposal.client_email, subject: cs, html: ch });
+
+          // 2. Team notification
+          if (team) {
+            const { subject: ts, html: th } = quotationAcceptedAdmin({
+              clientName: proposal.client_name,
+              clientEmail: proposal.client_email,
+              quotationTitle: q.title,
+              proposalTitle: proposal.title,
+              total: q.total,
+              currency: q.currency ?? "SAR",
+              adminUrl,
+              brand,
+            });
+            await sendEmail({ to: team, subject: ts, html: th, replyTo: proposal.client_email });
+          }
+        } else {
+          // Decline — notify team only
+          if (team) {
+            const { subject: ts, html: th } = quotationAcceptedAdmin({
+              clientName: proposal.client_name,
+              clientEmail: proposal.client_email,
+              quotationTitle: q.title,
+              proposalTitle: proposal.title,
+              total: q.total,
+              currency: q.currency ?? "SAR",
+              adminUrl,
+              declineReason: declineReason ?? null,
+              brand,
+            });
+            await sendEmail({ to: team, subject: ts, html: th, replyTo: proposal.client_email });
+          }
+        }
       } catch (err) {
-        console.error("[email] quotation accepted email failed:", err);
+        console.error("[email] quotation response email failed:", err);
       }
     })();
   }

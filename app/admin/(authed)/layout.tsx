@@ -60,7 +60,7 @@ async function loadAdminSignals(): Promise<AdminSignal[]> {
   try {
     const supabase = createSupabaseServerClient();
     const now = new Date().toISOString();
-    const [leads, bookings, applications, campaigns, proposals] = await Promise.all([
+    const [leads, bookings, applications, campaigns, proposals, quotations] = await Promise.all([
       supabase
         .from("leads")
         .select("name, email, source, created_at")
@@ -88,9 +88,15 @@ async function loadAdminSignals(): Promise<AdminSignal[]> {
         .not("submitted_at", "is", null)
         .order("submitted_at", { ascending: false })
         .limit(3),
+      supabase
+        .from("quotations")
+        .select("title, accepted_at, declined_at, total, currency")
+        .or("status.eq.accepted,status.eq.declined")
+        .order("accepted_at", { ascending: false, nullsFirst: false })
+        .limit(4),
     ]);
 
-    for (const result of [leads, bookings, applications, campaigns, proposals]) {
+    for (const result of [leads, bookings, applications, campaigns, proposals, quotations]) {
       if (result.error) throw result.error;
     }
 
@@ -140,6 +146,25 @@ async function loadAdminSignals(): Promise<AdminSignal[]> {
           when: signalWhen(p.submitted_at as string),
           tone: "accent" as const,
         })),
+      ...(quotations.data ?? [])
+        .filter((q) => q.accepted_at || q.declined_at)
+        .map((q) => {
+          const isAccepted = !!q.accepted_at;
+          const at = (q.accepted_at ?? q.declined_at) as string;
+          const fmtTotal = new Intl.NumberFormat("en", {
+            style: "currency", currency: q.currency ?? "SAR",
+            minimumFractionDigits: 0, maximumFractionDigits: 0,
+          }).format(q.total ?? 0);
+          return {
+            sortAt: at,
+            kind: "Quote",
+            title: isAccepted ? `"${q.title}" accepted — ${fmtTotal}` : `"${q.title}" declined.`,
+            detail: isAccepted ? "Proposal converted" : "Client declined the quotation",
+            href: "/admin/proposals",
+            when: signalWhen(at),
+            tone: isAccepted ? ("accent" as const) : ("muted" as const),
+          };
+        }),
     ];
 
     return signals
