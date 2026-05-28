@@ -77,11 +77,11 @@ export default function CourseRegistrationForm({
       </div>
 
       <label>
-        <span>Your ecommerce challenge</span>
+        <span>Your context</span>
         <textarea
           name="message"
           rows={5}
-          placeholder="Tell us what you are building, where you are stuck, or who from your team should attend."
+          placeholder="Tell us what you are working on, what you hope to get from the workshop, or who from your team should attend."
         />
       </label>
 
