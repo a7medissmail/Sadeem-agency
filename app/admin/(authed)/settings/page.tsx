@@ -3,7 +3,8 @@ import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { Database } from "@/types/database";
 import SettingsForm from "./SettingsForm";
-import { saveMaintenanceMessageAction, toggleMaintenanceModeAction } from "./actions";
+import { MaintenanceToggle } from "./MaintenanceToggle";
+import { saveMaintenanceMessageAction } from "./actions";
 
 export const metadata = { title: "Website Settings - SADEEM Admin" };
 
@@ -90,19 +91,7 @@ export default async function SettingsPage() {
             </button>
           </form>
           {/* Mode toggle — separate form so message edit can't accidentally flip mode */}
-          <form action={toggleMaintenanceModeAction}>
-            <input type="hidden" name="enable" value={settings.is_maintenance_mode ? "false" : "true"} />
-            <button
-              type="submit"
-              className={`px-5 py-2 font-mono text-[11px] uppercase tracking-[0.2em] transition-colors ${
-                settings.is_maintenance_mode
-                  ? "bg-emerald-600 text-white hover:bg-emerald-500"
-                  : "bg-red-600 text-white hover:bg-red-500"
-              }`}
-            >
-              {settings.is_maintenance_mode ? "Bring site online" : "Enable maintenance mode"}
-            </button>
-          </form>
+          <MaintenanceToggle isOn={settings.is_maintenance_mode} />
         </div>
       </section>
 

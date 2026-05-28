@@ -9,11 +9,13 @@ import type { ProposalStatus } from "@/types/database";
 import {
   createProposalAction,
   deleteProposalAction,
+  emailProposalAction,
   markProposalSentAction,
   regenerateProposalTokenAction,
   updateProposalNotesAction,
   updateProposalStatusAction,
   type CreateProposalState,
+  type EmailProposalState,
   type RegenerateTokenState,
 } from "./actions";
 import { QuotationBuilder, type QuotationRow } from "./QuotationBuilder";
@@ -213,8 +215,13 @@ function ProposalDrawer({
     regenerateProposalTokenAction,
     {},
   );
+  const [emailState, emailAction] = useFormState<EmailProposalState, FormData>(
+    emailProposalAction,
+    {},
+  );
   const [rawToken, setRawToken] = useState<string | null>(null);
   const prevRegenRef = useRef(regenState);
+  const prevEmailRef = useRef(emailState);
 
   useEffect(() => {
     if (regenState !== prevRegenRef.current && regenState.rawToken) {
@@ -222,6 +229,13 @@ function ProposalDrawer({
     }
     prevRegenRef.current = regenState;
   }, [regenState]);
+
+  useEffect(() => {
+    if (emailState !== prevEmailRef.current && emailState.rawToken) {
+      setRawToken(emailState.rawToken);
+    }
+    prevEmailRef.current = emailState;
+  }, [emailState]);
 
   if (!proposal) return null;
   const portalUrl = rawToken ? getPortalUrl(rawToken) : null;
@@ -414,11 +428,29 @@ function ProposalDrawer({
                     Save
                   </Button>
                 </form>
+                {(proposal.status === "draft" || proposal.status === "sent") && (
+                  <form action={emailAction} className="mt-2" onSubmit={(e) => {
+                    if (!window.confirm(`Email the portal link to ${proposal.client_email}?\n\nThis regenerates the token and emails the client. Any previously shared link will stop working.`)) {
+                      e.preventDefault();
+                    }
+                  }}>
+                    <input type="hidden" name="id" value={proposal.id} />
+                    <Button type="submit" className="w-full justify-center">
+                      ✉ Email link to client
+                    </Button>
+                  </form>
+                )}
+                {emailState.error ? (
+                  <p className="mt-2 text-[12px] text-red-400">{emailState.error}</p>
+                ) : null}
+                {emailState.ok && !emailState.rawToken ? (
+                  <p className="mt-2 text-[12px] text-emerald-400">Email sent — link copied above.</p>
+                ) : null}
                 {proposal.status === "draft" && (
                   <form action={markProposalSentAction} className="mt-2">
                     <input type="hidden" name="id" value={proposal.id} />
                     <Button type="submit" variant="ghost" className="w-full justify-center">
-                      Mark as sent
+                      Mark as sent (no email)
                     </Button>
                   </form>
                 )}

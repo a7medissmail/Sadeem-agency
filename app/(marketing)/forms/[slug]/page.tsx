@@ -56,9 +56,7 @@ export default async function PublicDynamicFormPage({ params }: { params: { slug
             <div>
               <p className="team-brief-kicker">SADEEM FORM</p>
               <h1 className="display dynamic-form-hero-title">
-                {form.name}
-                <br />
-                <span>{form.purpose} intake.</span>
+                {form.name}.
               </h1>
               {form.description ? <p>{form.description}</p> : null}
             </div>
@@ -68,14 +66,15 @@ export default async function PublicDynamicFormPage({ params }: { params: { slug
         <section className="dynamic-form-live light" data-section="02">
           <div className="section-inner dynamic-form-live-grid">
             <aside>
-              <p className="team-brief-kicker">CONTROLLED BUILDER</p>
+              <p className="team-brief-kicker">SADEEM INTAKE</p>
               <h2>
-                Built from
+                Share what
                 <br />
-                <span>admin fields.</span>
+                <span>matters most.</span>
               </h2>
               <p>
-                This temporary route renders the form exactly from the fields configured in the admin Form Builder.
+                Every field is read by a real person on the SADEEM team. Clear, honest answers help us respond
+                faster and with more precision.
               </p>
             </aside>
             <DynamicFormRenderer form={form} fields={fields} />

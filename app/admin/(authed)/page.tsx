@@ -176,6 +176,7 @@ export default async function AdminDashboard() {
   const actions = [
     { label: "New lead", href: "/admin/leads/new" },
     { label: "New booking", href: "/admin/bookings/new" },
+    { label: "New proposal", href: "/admin/proposals" },
     { label: "Write campaign", href: "/admin/campaigns" },
     { label: "Add workshop", href: "/admin/courses/new" },
     { label: "Add story", href: "/admin/success-stories/new" },

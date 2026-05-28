@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/resend";
-import { briefReceivedClient, briefSubmittedAdmin, getEmailBranding } from "@/lib/email/templates";
+import { briefReceivedClient, briefSubmittedAdmin, proposalInviteClient, getEmailBranding } from "@/lib/email/templates";
 import type { ProposalStatus } from "@/types/database";
 
 // ─── Token helpers ────────────────────────────────────────────────────────────
@@ -138,6 +138,71 @@ export async function regenerateProposalTokenAction(
     .eq("id", id);
 
   if (error) return { error: error.message };
+  revalidatePath("/admin/proposals");
+  return { ok: true, rawToken: raw };
+}
+
+// ─── Email invite to client ───────────────────────────────────────────────────
+// Regenerates the token so we have the raw value, then emails the portal link.
+
+export type EmailProposalState = {
+  ok?: boolean;
+  error?: string;
+  rawToken?: string;
+};
+
+export async function emailProposalAction(
+  _prev: EmailProposalState,
+  formData: FormData,
+): Promise<EmailProposalState> {
+  await requireRole(["admin", "editor"]);
+  const id = formData.get("id") as string;
+  if (!id) return { error: "Missing proposal id" };
+
+  const admin = getSupabaseAdmin();
+  const { data: proposal, error: fetchError } = await admin
+    .from("proposals")
+    .select("title, client_name, client_email, expires_at, status")
+    .eq("id", id)
+    .single();
+  if (fetchError || !proposal) return { error: fetchError?.message ?? "Proposal not found" };
+
+  // Regenerate token so we have the raw value to build the URL
+  const { raw, hash, prefix } = generateToken();
+  const { error: updateError } = await admin
+    .from("proposals")
+    .update({
+      token_hash: hash,
+      token_prefix: prefix,
+      status: "sent" as ProposalStatus,
+      sent_at: new Date().toISOString(),
+    })
+    .eq("id", id);
+  if (updateError) return { error: updateError.message };
+
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://sadeem.agency";
+  const portalUrl = `${baseUrl}/p/${raw}`;
+  const expiresDate = new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(
+    new Date(proposal.expires_at),
+  );
+
+  // Fire-and-forget — token is already saved; don't fail if email bounces
+  void (async () => {
+    try {
+      const brand = await getEmailBranding();
+      const { subject, html } = proposalInviteClient({
+        clientName: proposal.client_name,
+        proposalTitle: proposal.title,
+        portalUrl,
+        expiresDate,
+        brand,
+      });
+      await sendEmail({ to: proposal.client_email, subject, html });
+    } catch (err) {
+      console.error("[proposal] invite email failed:", err);
+    }
+  })();
+
   revalidatePath("/admin/proposals");
   return { ok: true, rawToken: raw };
 }

@@ -870,6 +870,88 @@ export function briefSubmittedAdmin({
   return { subject, html };
 }
 
+/**
+ * Proposal invite sent to the client when the admin emails the magic link.
+ * Introduces the portal and gives a clear CTA to open the brief.
+ */
+export function proposalInviteClient({
+  clientName,
+  proposalTitle,
+  portalUrl,
+  expiresDate,
+  brand,
+}: {
+  clientName: string;
+  proposalTitle: string;
+  portalUrl: string;
+  expiresDate: string;
+  brand?: EmailBranding;
+}) {
+  const subject = `Your brief portal is ready — ${proposalTitle}`;
+
+  const heroBlock = `
+<tr>
+  <td style="background:${L.dark};padding:0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td class="lp" style="padding:24px 36px 0 36px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td style="font-family:${L.mono};font-size:11px;letter-spacing:0.32em;color:${L.white};">SADEEM</td>
+              <td align="right" style="font-family:${L.mono};font-size:10px;letter-spacing:0.22em;color:rgba(245,243,240,0.5);text-transform:uppercase;">Private brief</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td class="lp" style="padding:52px 36px 48px 36px;">
+          <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.32em;color:${L.accent};text-transform:uppercase;margin-bottom:20px;">Hi, ${esc(clientName)}.</div>
+          <h1 class="lt" style="margin:0;font-family:${L.sans};font-weight:700;font-size:40px;line-height:1.0;letter-spacing:-0.03em;color:${L.white};">
+            Your brief<br />portal is<br /><span style="color:${L.accent};">ready.</span>
+          </h1>
+          <p style="margin:26px 0 0;font-family:${L.sans};font-size:15px;line-height:1.6;color:rgba(245,243,240,0.72);max-width:38ch;">
+            We prepared a private portal for <strong style="color:${L.white};">${esc(proposalTitle)}</strong>. Use the link below to open it, read through the brief, and share your context.
+          </p>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>`;
+
+  const body = `
+${heroBlock}
+<tr>
+  <td class="lp" style="padding:40px 36px 0 36px;">
+    <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.28em;color:${L.accent};text-transform:uppercase;margin-bottom:16px;">Open your portal</div>
+    <p style="margin:0 0 22px;font-family:${L.sans};font-size:14.5px;line-height:1.6;color:${L.gray};max-width:46ch;">
+      The link is private and expires on <strong style="color:${L.sub};">${esc(expiresDate)}</strong>. Do not forward it — only you should access this brief.
+    </p>
+    ${lCta(portalUrl, "Open your brief portal")}
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:32px 36px 0 36px;">
+    <div style="height:1px;background:${L.rule};font-size:0;line-height:0;">&nbsp;</div>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:28px 36px 8px 36px;">
+    <p style="margin:0;font-family:${L.sans};font-size:13.5px;line-height:1.65;color:${L.gray};">
+      If you have questions before filling it in, reply to this email or write to <a href="mailto:${esc(brand?.footerEmail ?? "hello@sadeem.agency")}" style="color:${L.accent};text-decoration:none;border-bottom:1px solid ${L.accent};padding-bottom:1px;">${esc(brand?.footerEmail ?? "hello@sadeem.agency")}</a>
+    </p>
+  </td>
+</tr>`;
+
+  const html = lightShell({
+    preview: `Your private SADEEM brief portal for "${proposalTitle}" is ready.`,
+    masthead: lMasthead("SADEEM", "Brief portal", brand),
+    body,
+    footerLines: `SADEEM · Strategic growth advisory<br />${brand?.footerEmail ?? "hello@sadeem.agency"}<br />This link is personal — do not forward.`,
+  });
+
+  return { subject, html };
+}
+
 export function bookingNotification({
   name,
   email,
