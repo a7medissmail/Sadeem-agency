@@ -93,7 +93,21 @@ export async function sendCampaignAction(formData: FormData): Promise<void> {
   if (campaign.status === "sent") throw new Error("Campaign has already been sent");
 
   const audience = parseAudience(campaign.audience);
-  const leads = await eligibleLeads(audience);
+  let leads = await eligibleLeads(audience);
+
+  // On retry (failed campaign), skip leads that already received this send
+  // successfully to prevent duplicating emails to recipients that didn't fail.
+  if (campaign.status === "failed") {
+    const { data: alreadySent } = await admin
+      .from("email_sends")
+      .select("lead_id")
+      .eq("campaign_id", id)
+      .eq("status", "sent");
+    if (alreadySent && alreadySent.length > 0) {
+      const sentLeadIds = new Set(alreadySent.map((r) => r.lead_id).filter(Boolean));
+      leads = leads.filter((lead) => !sentLeadIds.has(lead.id));
+    }
+  }
 
   await admin.from("email_campaigns").update({ status: "sending" as CampaignStatus }).eq("id", id);
 
