@@ -483,13 +483,18 @@ export function QuotationBuilder({
             merged.set("id", quotationId!);
             sendAction(merged);
           }}
+          onSubmit={(e) => {
+            if (!window.confirm("Send this quotation to the client?\n\nThis will email the portal link and regenerate the access token. Any previously shared link will stop working.")) {
+              e.preventDefault();
+            }
+          }}
           className="qb-send-section"
         >
           {sendState.error && <p className="qb-error">{sendState.error}</p>}
           <Button type="submit" variant="outline" size="sm">
             Send quote to client →
           </Button>
-          <p className="qb-hint mt-1">Generates a secure magic link. Copy it to share with your client.</p>
+          <p className="qb-hint mt-1">Emails the client a private portal link. The token is also shown above to copy manually.</p>
         </form>
       )}
     </div>

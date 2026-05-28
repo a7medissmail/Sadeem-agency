@@ -296,6 +296,15 @@ export async function clientRespondQuotationAction(
   const { error } = await admin.from("quotations").update(update).eq("id", quotationId);
   if (error) return { error: error.message };
 
+  // When accepted, advance the parent proposal to "converted"
+  if (action === "accepted" && q.proposal_id) {
+    await admin
+      .from("proposals")
+      .update({ status: "converted" as import("@/types/database").ProposalStatus })
+      .eq("id", q.proposal_id)
+      .in("status", ["sent", "opened", "in_progress", "submitted", "reviewed"]);
+  }
+
   revalidatePath("/admin/proposals");
 
   // Fire-and-forget confirmation email when client accepts
