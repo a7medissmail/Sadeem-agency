@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import RevealSection from "@/components/RevealSection";
 import SectionLabel from "@/components/SectionLabel";
 import { Icon } from "@/components/Icons";
+import { sanitizeCourseHtml } from "@/lib/content/sanitizeCourseHtml";
 
 type ServiceDetail = {
   id: string;
@@ -99,6 +100,8 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
     loadCategoryInfo(service.category),
   ]);
 
+  const bodyHtml = sanitizeCourseHtml(service.body);
+
   const categoryLabel   = catInfo?.label   ?? service.category;
   const categoryTagline = catInfo?.tagline  ?? "";
   const categoryDesc    = catInfo?.description ?? "";
@@ -157,10 +160,10 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
                 </div>
               ) : null}
 
-              {service.body && (
+              {bodyHtml && (
                 <div
                   className="service-body-rich"
-                  dangerouslySetInnerHTML={{ __html: service.body }}
+                  dangerouslySetInnerHTML={{ __html: bodyHtml }}
                 />
               )}
 

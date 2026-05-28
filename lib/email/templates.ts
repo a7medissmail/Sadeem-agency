@@ -833,8 +833,8 @@ ${accessBlock ? `<tr><td class="lp" style="padding:32px 36px 0 36px;">${accessBl
 }
 
 /**
- * Quotation acceptance notification for the admin/team.
- * Sent internally when a client accepts a quotation.
+ * Quotation response notification for the admin/team.
+ * Sent internally when a client accepts or declines a quotation.
  */
 export function quotationAcceptedAdmin({
   clientName,
