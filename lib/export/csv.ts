@@ -7,10 +7,14 @@
 export function escCsv(v: unknown): string {
   if (v == null) return "";
   const s = String(v).replace(/\r\n|\r/g, "\n"); // normalize line endings
-  if (s.includes(",") || s.includes('"') || s.includes("\n")) {
-    return `"${s.replace(/"/g, '""')}"`;
+  // Guard against CSV formula injection (OWASP): values starting with
+  // spreadsheet formula trigger characters (=, +, -, @) are prefixed with
+  // a tab so Excel / Google Sheets do not execute them as formulas.
+  const safe = /^[=+\-@]/.test(s) ? `\t${s}` : s;
+  if (safe.includes(",") || safe.includes('"') || safe.includes("\n") || safe.includes("\t")) {
+    return `"${safe.replace(/"/g, '""')}"`;
   }
-  return s;
+  return safe;
 }
 
 export function toCsv(rows: Record<string, unknown>[]): string {
