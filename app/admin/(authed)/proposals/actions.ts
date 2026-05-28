@@ -310,6 +310,7 @@ export async function submitProposalAction(
 
   // Fire-and-forget emails — never block or fail the action
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://sadeem.agency";
+  const team = process.env.TEAM_NOTIFY_TO;
   void (async () => {
     try {
       const brand = await getEmailBranding();
@@ -319,7 +320,8 @@ export async function submitProposalAction(
       const { subject: cs, html: ch } = briefReceivedClient({ clientName, proposalTitle, brand });
       await sendEmail({ to: clientEmail, subject: cs, html: ch });
 
-      // 2. Admin notification
+      // 2. Admin notification — use TEAM_NOTIFY_TO (same as all other admin alerts)
+      const notifyTo = team ?? brand.footerEmail ?? "hello@sadeem.agency";
       const { subject: as_, html: ah } = briefSubmittedAdmin({
         clientName,
         clientEmail,
@@ -328,7 +330,7 @@ export async function submitProposalAction(
         adminUrl: `${baseUrl}/admin/proposals`,
         brand,
       });
-      await sendEmail({ to: brand.footerEmail ?? "hello@sadeem.agency", subject: as_, html: ah });
+      await sendEmail({ to: notifyTo, subject: as_, html: ah, replyTo: clientEmail });
     } catch (err) {
       console.error("[email] brief submission emails failed:", err);
     }
