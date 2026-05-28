@@ -248,6 +248,24 @@ export async function toggleClientPartnerActiveAction(formData: FormData): Promi
   revalidatePath("/admin/clients");
 }
 
+export async function setSortOrderAction(formData: FormData): Promise<void> {
+  await requireRole(["admin", "editor"]);
+  const id = formData.get("id") as string;
+  const raw = Number(formData.get("sort_order"));
+  if (!id) throw new Error("Missing partner id");
+  if (!Number.isFinite(raw) || raw < 0) throw new Error("Invalid sort order");
+
+  const admin = getSupabaseAdmin();
+  const { error } = await admin
+    .from("client_partners")
+    .update({ sort_order: Math.round(raw) })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/");
+  revalidatePath("/admin/clients");
+}
+
 export async function reorderClientPartnerAction(formData: FormData): Promise<void> {
   await requireRole(["admin", "editor"]);
   const id = formData.get("id") as string;

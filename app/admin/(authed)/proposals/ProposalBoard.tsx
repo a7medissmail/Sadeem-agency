@@ -464,7 +464,13 @@ function ProposalDrawer({
               {/* Delete */}
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
                 <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Danger zone</p>
-                <form action={deleteProposalAction} className="mt-4">
+                <form
+                  action={deleteProposalAction}
+                  className="mt-4"
+                  onSubmit={(e) => {
+                    if (!window.confirm(`Delete proposal "${proposal.title}"? This cannot be undone.`)) e.preventDefault();
+                  }}
+                >
                   <input type="hidden" name="id" value={proposal.id} />
                   <Button type="submit" variant="danger" size="sm" className="w-full justify-center">
                     Delete proposal

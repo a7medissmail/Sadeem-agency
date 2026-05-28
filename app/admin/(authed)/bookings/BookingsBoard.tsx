@@ -339,7 +339,12 @@ function AvailabilityRules({ rules }: { rules: AvailabilityRuleRow[] }) {
                 Save
               </Button>
             </form>
-            <form action={deleteAvailabilityRuleAction}>
+            <form
+              action={deleteAvailabilityRuleAction}
+              onSubmit={(e) => {
+                if (!window.confirm("Delete this availability rule? This cannot be undone.")) e.preventDefault();
+              }}
+            >
               <input type="hidden" name="id" value={rule.id} />
               <Button type="submit" variant="danger" className="w-full justify-center 2xl:w-auto">
                 Delete

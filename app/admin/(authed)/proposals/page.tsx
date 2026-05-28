@@ -220,6 +220,14 @@ export default async function ProposalsPage() {
         eyebrow="BRIEFS"
         title="Proposals"
         description="Create private client briefs with a magic link. Clients fill the form on a branded portal — you see submissions instantly."
+        actions={
+          <a
+            href="/api/admin/export/proposals"
+            className="inline-flex items-center justify-center gap-2.5 font-mono uppercase tracking-[0.22em] transition-colors border border-[var(--admin-accent)] text-[var(--admin-accent)] hover:bg-[var(--admin-accent-soft)] px-3 py-1.5 text-[10px]"
+          >
+            Export CSV
+          </a>
+        }
       />
 
       <ProposalBoard proposals={proposals} forms={forms} />

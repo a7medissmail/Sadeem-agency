@@ -15,10 +15,11 @@ function url(path: string, options: Omit<UrlEntry, "url"> = {}): UrlEntry {
 async function loadDynamicUrls(): Promise<UrlEntry[]> {
   try {
     const admin = getSupabaseAdmin();
-    const [courses, jobs, stories] = await Promise.all([
+    const [courses, jobs, stories, services] = await Promise.all([
       admin.from("courses").select("slug, updated_at").eq("is_active", true),
       admin.from("jobs").select("slug, updated_at").eq("is_open", true),
       admin.from("success_stories").select("slug, updated_at").eq("is_published", true),
+      admin.from("services").select("slug, updated_at").eq("is_published", true),
     ]);
 
     const entries: UrlEntry[] = [];
@@ -31,6 +32,9 @@ async function loadDynamicUrls(): Promise<UrlEntry[]> {
     for (const story of stories.data ?? []) {
       entries.push(url(`/success-stories/${story.slug}`, { lastModified: story.updated_at, changeFrequency: "monthly", priority: 0.7 }));
     }
+    for (const service of services.data ?? []) {
+      entries.push(url(`/services/${service.slug}`, { lastModified: service.updated_at, changeFrequency: "monthly", priority: 0.75 }));
+    }
 
     return entries;
   } catch {
@@ -42,6 +46,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   return [
     url("/", { lastModified: now, changeFrequency: "weekly", priority: 1 }),
+    url("/services", { lastModified: now, changeFrequency: "weekly", priority: 0.88 }),
     url("/courses", { lastModified: now, changeFrequency: "weekly", priority: 0.82 }),
     url("/consultation", { lastModified: now, changeFrequency: "weekly", priority: 0.86 }),
     url("/success-stories", { lastModified: now, changeFrequency: "weekly", priority: 0.78 }),

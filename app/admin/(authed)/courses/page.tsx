@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/admin/ui/PageHeader";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { deleteCourseAction, toggleCourseActiveAction } from "./actions";
+import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
 
 export const metadata = { title: "Courses - SADEEM Admin" };
 
@@ -14,6 +15,7 @@ async function loadCourses() {
     const { data, error } = await admin
       .from("courses")
       .select("id, slug, title, summary, location, starts_at, capacity, price, currency, is_active, image_url")
+      .order("starts_at", { ascending: true, nullsFirst: false })
       .order("created_at", { ascending: false });
     if (error) throw error;
     return { courses: data ?? [], error: null as string | null };
@@ -131,19 +133,21 @@ export default async function CoursesAdminPage() {
                 </dl>
 
                 <div className="mt-5 flex flex-wrap items-center gap-2">
+                  <Link href={`/admin/courses/${course.id}`}>
+                    <Button variant="outline" size="sm">Edit</Button>
+                  </Link>
                   <form action={toggleCourseActiveAction}>
                     <input type="hidden" name="id" value={course.id} />
                     <input type="hidden" name="next" value={course.is_active ? "off" : "on"} />
-                    <Button type="submit" variant={course.is_active ? "ghost" : "outline"} size="sm">
+                    <Button type="submit" variant="ghost" size="sm">
                       {course.is_active ? "Turn off" : "Publish"}
                     </Button>
                   </form>
-                  <form action={deleteCourseAction}>
-                    <input type="hidden" name="id" value={course.id} />
-                    <Button type="submit" variant="danger" size="sm">
-                      Delete
-                    </Button>
-                  </form>
+                  <DeleteConfirmButton
+                    action={deleteCourseAction}
+                    id={course.id}
+                    message={`Delete "${course.title}"? This cannot be undone.`}
+                  />
                 </div>
               </div>
             </article>

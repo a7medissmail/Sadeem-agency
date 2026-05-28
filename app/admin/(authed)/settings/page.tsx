@@ -3,7 +3,7 @@ import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { Database } from "@/types/database";
 import SettingsForm from "./SettingsForm";
-import { toggleMaintenanceModeAction } from "./actions";
+import { saveMaintenanceMessageAction, toggleMaintenanceModeAction } from "./actions";
 
 export const metadata = { title: "Website Settings - SADEEM Admin" };
 
@@ -72,26 +72,38 @@ export default async function SettingsPage() {
           )}
         </div>
 
-        <form action={toggleMaintenanceModeAction} className="flex shrink-0 flex-col items-end gap-3">
-          <input type="hidden" name="enable" value={settings.is_maintenance_mode ? "false" : "true"} />
-          <input
-            type="text"
-            name="maintenance_message"
-            defaultValue={settings.maintenance_message ?? ""}
-            placeholder="Custom message for visitors (optional)"
-            className="w-72 border border-[var(--admin-border)] bg-[var(--admin-input)] px-3 py-2 text-[13px] text-[var(--admin-text)] placeholder:text-[var(--admin-subtle)] focus:outline-none focus:ring-1 focus:ring-[var(--admin-accent)]"
-          />
-          <button
-            type="submit"
-            className={`px-5 py-2 font-mono text-[11px] uppercase tracking-[0.2em] transition-colors ${
-              settings.is_maintenance_mode
-                ? "bg-emerald-600 text-white hover:bg-emerald-500"
-                : "bg-red-600 text-white hover:bg-red-500"
-            }`}
-          >
-            {settings.is_maintenance_mode ? "Bring site online" : "Enable maintenance mode"}
-          </button>
-        </form>
+        <div className="flex shrink-0 flex-col items-end gap-3">
+          {/* Message — saved independently so mode doesn't flip accidentally */}
+          <form action={saveMaintenanceMessageAction} className="flex items-center gap-2">
+            <input
+              type="text"
+              name="maintenance_message"
+              defaultValue={settings.maintenance_message ?? ""}
+              placeholder="Custom message for visitors (optional)"
+              className="w-64 border border-[var(--admin-border)] bg-[var(--admin-input)] px-3 py-2 text-[13px] text-[var(--admin-text)] placeholder:text-[var(--admin-subtle)] focus:outline-none focus:ring-1 focus:ring-[var(--admin-accent)]"
+            />
+            <button
+              type="submit"
+              className="px-3 py-2 font-mono text-[11px] uppercase tracking-[0.2em] border border-[var(--admin-border)] bg-[var(--admin-panel)] text-[var(--admin-muted)] hover:text-[var(--admin-text)] transition-colors"
+            >
+              Save
+            </button>
+          </form>
+          {/* Mode toggle — separate form so message edit can't accidentally flip mode */}
+          <form action={toggleMaintenanceModeAction}>
+            <input type="hidden" name="enable" value={settings.is_maintenance_mode ? "false" : "true"} />
+            <button
+              type="submit"
+              className={`px-5 py-2 font-mono text-[11px] uppercase tracking-[0.2em] transition-colors ${
+                settings.is_maintenance_mode
+                  ? "bg-emerald-600 text-white hover:bg-emerald-500"
+                  : "bg-red-600 text-white hover:bg-red-500"
+              }`}
+            >
+              {settings.is_maintenance_mode ? "Bring site online" : "Enable maintenance mode"}
+            </button>
+          </form>
+        </div>
       </section>
 
       {/* ── Brand settings ───────────────────────────────────────── */}

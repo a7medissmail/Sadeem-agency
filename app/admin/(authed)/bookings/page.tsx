@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { Button } from "@/components/admin/ui/Button";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -48,6 +50,19 @@ export default async function BookingsAdminPage() {
         eyebrow="CONSULTATION"
         title="Bookings"
         description="Manage consultation requests, calendar readiness, and public availability windows."
+        actions={
+          <div className="flex items-center gap-2">
+            <a
+              href="/api/admin/export/bookings"
+              className="inline-flex items-center justify-center gap-2.5 font-mono uppercase tracking-[0.22em] transition-colors border border-[var(--admin-accent)] text-[var(--admin-accent)] hover:bg-[var(--admin-accent-soft)] px-3 py-1.5 text-[10px]"
+            >
+              Export CSV
+            </a>
+            <Link href="/admin/bookings/new">
+              <Button>New booking</Button>
+            </Link>
+          </div>
+        }
       />
 
       {error ? (

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Badge } from "@/components/admin/ui/Badge";
 import { Button } from "@/components/admin/ui/Button";
 import { FieldRow, Input, Select, Textarea } from "@/components/admin/ui/Field";
@@ -11,7 +12,9 @@ import {
   type CampaignAudience,
 } from "@/lib/validation/campaign";
 import type { CampaignStatus, Database } from "@/types/database";
-import { createCampaignAction, deleteCampaignAction, sendCampaignAction } from "./actions";
+import { createCampaignAction } from "./actions";
+import { DeleteCampaignButton } from "./DeleteCampaignButton";
+import { SendCampaignButton } from "./SendCampaignButton";
 
 export const metadata = { title: "Email Center - SADEEM Admin" };
 
@@ -221,20 +224,15 @@ export default async function CampaignsAdminPage() {
                   </div>
 
                   <div className="mt-5 flex items-center justify-end gap-2">
-                    {canSend ? (
-                      <form action={sendCampaignAction}>
-                        <input type="hidden" name="id" value={campaign.id} />
-                        <Button type="submit" size="sm" disabled={count === 0}>
-                          Send
-                        </Button>
-                      </form>
+                    {campaign.status === "draft" ? (
+                      <Link href={`/admin/campaigns/${campaign.id}`}>
+                        <Button size="sm" variant="outline">Edit</Button>
+                      </Link>
                     ) : null}
-                    <form action={deleteCampaignAction}>
-                      <input type="hidden" name="id" value={campaign.id} />
-                      <Button type="submit" size="sm" variant="danger">
-                        Del
-                      </Button>
-                    </form>
+                    {canSend ? (
+                      <SendCampaignButton campaignId={campaign.id} recipientCount={count} />
+                    ) : null}
+                    <DeleteCampaignButton campaignId={campaign.id} />
                   </div>
                 </article>
               );

@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/admin/ui/PageHeader";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { deleteTeamMemberAction, toggleTeamMemberActiveAction } from "./actions";
+import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
 
 export const metadata = { title: "Team - SADEEM Admin" };
 
@@ -111,19 +112,21 @@ export default async function TeamAdminPage() {
                 </p>
 
                 <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-[var(--admin-border-soft)] pt-4">
+                  <Link href={`/admin/team/${member.id}`}>
+                    <Button variant="outline" size="sm">Edit</Button>
+                  </Link>
                   <form action={toggleTeamMemberActiveAction}>
                     <input type="hidden" name="id" value={member.id} />
                     <input type="hidden" name="next" value={member.is_active ? "off" : "on"} />
-                    <Button type="submit" variant={member.is_active ? "ghost" : "outline"} size="sm">
+                    <Button type="submit" variant="ghost" size="sm">
                       {member.is_active ? "Turn off" : "Publish"}
                     </Button>
                   </form>
-                  <form action={deleteTeamMemberAction}>
-                    <input type="hidden" name="id" value={member.id} />
-                    <Button type="submit" variant="danger" size="sm">
-                      Delete
-                    </Button>
-                  </form>
+                  <DeleteConfirmButton
+                    action={deleteTeamMemberAction}
+                    id={member.id}
+                    message={`Delete team member "${member.name}"? This cannot be undone.`}
+                  />
                 </div>
               </div>
             </article>

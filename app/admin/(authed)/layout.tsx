@@ -60,7 +60,7 @@ async function loadAdminSignals(): Promise<AdminSignal[]> {
   try {
     const supabase = createSupabaseServerClient();
     const now = new Date().toISOString();
-    const [leads, bookings, applications, campaigns] = await Promise.all([
+    const [leads, bookings, applications, campaigns, proposals] = await Promise.all([
       supabase
         .from("leads")
         .select("name, email, source, created_at")
@@ -82,9 +82,15 @@ async function loadAdminSignals(): Promise<AdminSignal[]> {
         .select("subject, status, created_at, sent_at")
         .order("created_at", { ascending: false })
         .limit(2),
+      supabase
+        .from("proposals")
+        .select("title, client_name, client_email, submitted_at")
+        .not("submitted_at", "is", null)
+        .order("submitted_at", { ascending: false })
+        .limit(3),
     ]);
 
-    for (const result of [leads, bookings, applications, campaigns]) {
+    for (const result of [leads, bookings, applications, campaigns, proposals]) {
       if (result.error) throw result.error;
     }
 
@@ -123,6 +129,17 @@ async function loadAdminSignals(): Promise<AdminSignal[]> {
         when: signalWhen(campaign.sent_at ?? campaign.created_at),
         tone: "muted" as const,
       })),
+      ...(proposals.data ?? [])
+        .filter((p) => p.submitted_at)
+        .map((p) => ({
+          sortAt: p.submitted_at as string,
+          kind: "Brief",
+          title: `${p.client_name} submitted "${p.title}".`,
+          detail: p.client_email,
+          href: "/admin/proposals",
+          when: signalWhen(p.submitted_at as string),
+          tone: "accent" as const,
+        })),
     ];
 
     return signals

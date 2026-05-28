@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { Button } from "@/components/admin/ui/Button";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -64,6 +66,19 @@ export default async function LeadsPage() {
         eyebrow="CRM"
         title="Leads"
         description="Triage inbound demand, assign owners, and keep every follow-up visible."
+        actions={
+          <div className="flex items-center gap-2">
+            <a
+              href="/api/admin/export/leads"
+              className="inline-flex items-center justify-center gap-2.5 font-mono uppercase tracking-[0.22em] transition-colors border border-[var(--admin-accent)] text-[var(--admin-accent)] hover:bg-[var(--admin-accent-soft)] px-3 py-1.5 text-[10px]"
+            >
+              Export CSV
+            </a>
+            <Link href="/admin/leads/new">
+              <Button>New lead</Button>
+            </Link>
+          </div>
+        }
       />
 
       <LeadsBoard leads={leads} staff={staff} />

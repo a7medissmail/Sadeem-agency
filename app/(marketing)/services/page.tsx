@@ -106,7 +106,7 @@ export default async function ServicesPage() {
             {categories.map((cat, ci) => {
               const items = byCategory[cat.slug] ?? [];
               return (
-                <div key={cat.id} className="services-category-block">
+                <div key={cat.id} id={cat.slug} className="services-category-block">
                   {/* Category header */}
                   <div className="services-category-header">
                     <div className="services-category-label-col">

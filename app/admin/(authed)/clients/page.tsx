@@ -8,9 +8,10 @@ import { defaultClientSection } from "@/lib/site/clients";
 import type { Database } from "@/types/database";
 import {
   deleteClientPartnerAction,
-  reorderClientPartnerAction,
+  setSortOrderAction,
   toggleClientPartnerActiveAction,
 } from "@/lib/actions/clients";
+import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
 import ClientSectionForm from "./ClientSectionForm";
 
 export const metadata = { title: "Clients - SADEEM Admin" };
@@ -193,22 +194,29 @@ export default async function ClientsAdminPage({
                         {p.role === "anchor" ? "Anchor" : "Grid"}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 font-mono text-[12px] text-[var(--admin-muted)]">{p.sort_order}</td>
+                    <td className="px-4 py-3">
+                      <form action={setSortOrderAction} className="flex items-center gap-1">
+                        <input type="hidden" name="id" value={p.id} />
+                        <input
+                          type="number"
+                          name="sort_order"
+                          defaultValue={p.sort_order}
+                          min="0"
+                          className="w-14 border border-[var(--admin-border)] bg-[var(--admin-input)] px-2 py-1 font-mono text-[12px] text-[var(--admin-text)] focus:outline-none focus:ring-1 focus:ring-[var(--admin-accent)]"
+                        />
+                        <button
+                          type="submit"
+                          className="px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] border border-[var(--admin-border)] bg-[var(--admin-panel)] text-[var(--admin-subtle)] hover:text-[var(--admin-text)] transition-colors"
+                        >
+                          Set
+                        </button>
+                      </form>
+                    </td>
                     <td className="px-4 py-3">
                       <Badge tone={p.is_active ? "green" : "neutral"}>{p.is_active ? "Live" : "Off"}</Badge>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap items-center justify-end gap-2">
-                        <form action={reorderClientPartnerAction}>
-                          <input type="hidden" name="id" value={p.id} />
-                          <input type="hidden" name="direction" value="up" />
-                          <Button type="submit" variant="ghost" size="sm">↑</Button>
-                        </form>
-                        <form action={reorderClientPartnerAction}>
-                          <input type="hidden" name="id" value={p.id} />
-                          <input type="hidden" name="direction" value="down" />
-                          <Button type="submit" variant="ghost" size="sm">↓</Button>
-                        </form>
                         <form action={toggleClientPartnerActiveAction}>
                           <input type="hidden" name="id" value={p.id} />
                           <input type="hidden" name="next" value={p.is_active ? "off" : "on"} />
@@ -219,10 +227,11 @@ export default async function ClientsAdminPage({
                         <Link href={`/admin/clients/${p.id}`}>
                           <Button variant="outline" size="sm">Edit</Button>
                         </Link>
-                        <form action={deleteClientPartnerAction}>
-                          <input type="hidden" name="id" value={p.id} />
-                          <Button type="submit" variant="danger" size="sm">Delete</Button>
-                        </form>
+                        <DeleteConfirmButton
+                          action={deleteClientPartnerAction}
+                          id={p.id}
+                          message={`Delete "${p.name}"? This cannot be undone.`}
+                        />
                       </div>
                     </td>
                   </tr>

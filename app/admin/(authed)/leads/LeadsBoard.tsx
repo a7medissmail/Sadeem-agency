@@ -356,7 +356,13 @@ function LeadDrawer({
                 >
                   Email lead
                 </a>
-                <form action={deleteLeadAction} className="mt-3">
+                <form
+                  action={deleteLeadAction}
+                  className="mt-3"
+                  onSubmit={(e) => {
+                    if (!window.confirm(`Delete ${lead.name}? This cannot be undone.`)) e.preventDefault();
+                  }}
+                >
                   <input type="hidden" name="id" value={lead.id} />
                   <Button type="submit" variant="danger" size="sm" className="w-full justify-center">
                     Delete lead

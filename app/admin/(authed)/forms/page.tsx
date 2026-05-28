@@ -6,6 +6,7 @@ import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { Database } from "@/types/database";
 import { deleteFormAction } from "./actions";
+import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
 
 export const metadata = { title: "Forms - SADEEM Admin" };
 
@@ -161,12 +162,11 @@ export default async function FormsAdminPage() {
                     <Button variant="ghost" size="sm">Live</Button>
                   </Link>
                 ) : null}
-                <form action={deleteFormAction}>
-                  <input type="hidden" name="id" value={form.id} />
-                  <Button type="submit" variant="danger" size="sm">
-                    Delete
-                  </Button>
-                </form>
+                <DeleteConfirmButton
+                  action={deleteFormAction}
+                  id={form.id}
+                  message={`Delete form "${form.name}"? All responses will also be deleted. This cannot be undone.`}
+                />
               </div>
             </article>
           ))}

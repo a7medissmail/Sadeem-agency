@@ -155,6 +155,14 @@ export default async function ApplicationsAdminPage() {
         eyebrow="PIPELINE"
         title="Applications"
         description="Review candidates, download private resumes, and move applicants through the hiring pipeline."
+        actions={
+          <a
+            href="/api/admin/export/applications"
+            className="inline-flex items-center justify-center gap-2.5 font-mono uppercase tracking-[0.22em] transition-colors border border-[var(--admin-accent)] text-[var(--admin-accent)] hover:bg-[var(--admin-accent-soft)] px-3 py-1.5 text-[10px]"
+          >
+            Export CSV
+          </a>
+        }
       />
 
       {error ? (

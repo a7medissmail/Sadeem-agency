@@ -6,6 +6,7 @@ import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import InviteForm from "./InviteForm";
 import { deleteUserAction, updateUserAction } from "./actions";
+import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
 
 export const metadata = { title: "Users - SADEEM Admin" };
 
@@ -128,7 +129,7 @@ export default async function UsersPage() {
                   <option value="admin">Admin</option>
                 </Select>
                 <div className="flex items-center gap-2 xl:justify-end">
-                  <Button type="submit" variant="outline" size="sm">Save</Button>
+                  <Button type="submit" variant="outline" size="sm" disabled={user.id === me.id}>Save</Button>
                 </div>
               </form>
               <div className="mt-3 flex items-center justify-between border-t border-[var(--admin-border-soft)] pt-3">
@@ -136,10 +137,12 @@ export default async function UsersPage() {
                   Joined {new Date(user.created_at).toLocaleDateString()}
                 </span>
                 {user.id !== me.id ? (
-                  <form action={deleteUserAction}>
-                    <input type="hidden" name="id" value={user.id} />
-                    <Button type="submit" variant="danger" size="sm">Delete user</Button>
-                  </form>
+                  <DeleteConfirmButton
+                    action={deleteUserAction}
+                    id={user.id}
+                    label="Delete user"
+                    message={`Delete user ${user.email ?? user.id}? This cannot be undone.`}
+                  />
                 ) : null}
               </div>
             </article>

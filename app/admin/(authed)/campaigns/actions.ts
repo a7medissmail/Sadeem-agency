@@ -139,6 +139,42 @@ export async function sendCampaignAction(formData: FormData): Promise<void> {
   revalidatePath("/admin/campaigns");
 }
 
+export async function updateCampaignAction(formData: FormData): Promise<void> {
+  await requireRole(["admin", "editor"]);
+  const id = String(formData.get("id") ?? "");
+  if (!id) throw new Error("Missing campaign id");
+
+  const parsed = campaignSchema.safeParse({
+    subject: formData.get("subject"),
+    body: formData.get("body"),
+    status: formData.get("status") ?? "",
+    source: formData.get("source") ?? "",
+  });
+
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues[0]?.message ?? "Invalid campaign");
+  }
+
+  const audience: CampaignAudience = {
+    status: parsed.data.status ?? null,
+    source: parsed.data.source ?? null,
+  };
+
+  const admin = getSupabaseAdmin();
+  const { error } = await admin
+    .from("email_campaigns")
+    .update({
+      subject: parsed.data.subject,
+      body: parsed.data.body,
+      audience: audience as Json,
+    })
+    .eq("id", id)
+    .eq("status", "draft"); // only drafts can be edited
+
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/campaigns");
+}
+
 export async function deleteCampaignAction(formData: FormData): Promise<void> {
   await requireRole(["admin"]);
   const id = String(formData.get("id") ?? "");

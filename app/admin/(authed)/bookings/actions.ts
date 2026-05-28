@@ -34,6 +34,46 @@ function slotLabel(start: string) {
   }).format(new Date(start));
 }
 
+export async function createBookingAction(formData: FormData): Promise<void> {
+  await requireRole(["admin", "editor"]);
+
+  const name = (formData.get("name") as string | null)?.trim() ?? "";
+  const email = (formData.get("email") as string | null)?.trim().toLowerCase() ?? "";
+  const phone = (formData.get("phone") as string | null)?.trim() || null;
+  const topic = (formData.get("topic") as string | null)?.trim() ?? "";
+  const slotLocalStr = (formData.get("slot_start_local") as string | null)?.trim() ?? "";
+  const durationMin = parseInt(formData.get("duration_minutes") as string, 10) || 45;
+  const status = (formData.get("status") as BookingStatus | null) ?? "scheduled";
+  const meetLink = (formData.get("meet_link") as string | null)?.trim() || null;
+
+  if (!name || name.length < 2) throw new Error("Name is required");
+  if (!email || !/^\S+@\S+\.\S+$/.test(email)) throw new Error("Valid email is required");
+  if (!topic || topic.length < 10) throw new Error("Topic must be at least 10 characters");
+  if (!slotLocalStr || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(slotLocalStr)) throw new Error("Select a date and time");
+
+  // Interpret the datetime-local input as Riyadh time (UTC+3), convert to UTC ISO
+  const slot_start = new Date(slotLocalStr + ":00+03:00").toISOString();
+  const slot_end = new Date(new Date(slot_start).getTime() + durationMin * 60_000).toISOString();
+
+  const admin = getSupabaseAdmin();
+  const { error } = await admin.from("bookings").insert({
+    name,
+    email,
+    phone,
+    topic,
+    slot_start,
+    slot_end,
+    status,
+    meet_link: meetLink,
+    lead_id: null,
+    google_event_id: null,
+  });
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/bookings");
+  revalidatePath("/admin");
+}
+
 export async function updateBookingStatusAction(formData: FormData): Promise<void> {
   await requireRole(["admin", "editor"]);
   const id = formData.get("id") as string;

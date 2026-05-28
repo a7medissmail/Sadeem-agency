@@ -112,6 +112,21 @@ export async function updateSiteSettingsAction(
 
 // ─── Maintenance mode toggle ──────────────────────────────────────────────────
 
+export async function saveMaintenanceMessageAction(formData: FormData): Promise<void> {
+  await requireRole(["admin"]);
+  const message = (formData.get("maintenance_message") as string | null)?.trim() || null;
+
+  const admin = getSupabaseAdmin();
+  const { error } = await admin.from("site_settings").upsert({
+    id: true,
+    maintenance_message: message,
+    updated_at: new Date().toISOString(),
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/settings");
+  redirect("/admin/settings");
+}
+
 export async function toggleMaintenanceModeAction(formData: FormData): Promise<void> {
   await requireRole(["admin"]);
   const enable = formData.get("enable") === "true";

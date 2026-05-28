@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/admin/ui/PageHeader";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { deleteJobAction, toggleJobOpenAction } from "./actions";
+import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
 
 export const metadata = { title: "Careers - SADEEM Admin" };
 
@@ -133,12 +134,11 @@ export default async function JobsAdminPage() {
                     {job.is_open ? "Close" : "Open"}
                   </Button>
                 </form>
-                <form action={deleteJobAction}>
-                  <input type="hidden" name="id" value={job.id} />
-                  <Button type="submit" variant="danger" size="sm">
-                    Delete
-                  </Button>
-                </form>
+                <DeleteConfirmButton
+                  action={deleteJobAction}
+                  id={job.id}
+                  message={`Delete "${job.title}"? This cannot be undone.`}
+                />
               </div>
             </article>
           ))}

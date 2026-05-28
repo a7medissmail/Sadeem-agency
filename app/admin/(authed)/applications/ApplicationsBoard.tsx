@@ -437,7 +437,13 @@ function CandidateDrawer({
                     Save stage
                   </Button>
                 </form>
-                <form action={deleteApplicationAction} className="mt-3">
+                <form
+                  action={deleteApplicationAction}
+                  className="mt-3"
+                  onSubmit={(e) => {
+                    if (!window.confirm(`Delete ${application.name}'s application? This cannot be undone.`)) e.preventDefault();
+                  }}
+                >
                   <input type="hidden" name="id" value={application.id} />
                   <Button type="submit" variant="danger" size="sm" className="w-full justify-center">
                     Delete application

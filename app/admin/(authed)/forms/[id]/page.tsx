@@ -45,9 +45,9 @@ async function loadForm(id: string) {
   }
 }
 
-export default async function EditFormPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditFormPage({ params }: { params: { id: string } }) {
   await requireRole(["admin", "editor"]);
-  const { id } = await params;
+  const { id } = params;
   const { form, fields, error } = await loadForm(id);
   if (!form && !error) notFound();
 

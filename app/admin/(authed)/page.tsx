@@ -12,6 +12,8 @@ async function dashboardData() {
     bookingsCount,
     activeCoursesCount,
     applicationsCount,
+    proposalsCount,
+    openProposalsCount,
     recentLeads,
     upcomingBookings,
     recentApplications,
@@ -23,6 +25,8 @@ async function dashboardData() {
     supabase.from("bookings").select("*", { count: "exact", head: true }),
     supabase.from("courses").select("*", { count: "exact", head: true }).eq("is_active", true),
     supabase.from("applications").select("*", { count: "exact", head: true }),
+    supabase.from("proposals").select("*", { count: "exact", head: true }),
+    supabase.from("proposals").select("*", { count: "exact", head: true }).in("status", ["sent", "opened"]),
     supabase.from("leads").select("id, name, email, source, status, created_at").order("created_at", { ascending: false }).limit(5),
     supabase
       .from("bookings")
@@ -46,6 +50,8 @@ async function dashboardData() {
     bookingsCount,
     activeCoursesCount,
     applicationsCount,
+    proposalsCount,
+    openProposalsCount,
     recentLeads,
     upcomingBookings,
     recentApplications,
@@ -69,6 +75,8 @@ async function dashboardData() {
       bookings: bookingsCount.count ?? 0,
       activeCourses: activeCoursesCount.count ?? 0,
       applications: applicationsCount.count ?? 0,
+      proposals: proposalsCount.count ?? 0,
+      openProposals: openProposalsCount.count ?? 0,
     },
     statusCounts: {
       leads: countStatuses(leadStatuses.data ?? []),
@@ -162,9 +170,12 @@ export default async function AdminDashboard() {
     { label: "Bookings", value: data?.counts.bookings ?? "-", href: "/admin/bookings" },
     { label: "Active courses", value: data?.counts.activeCourses ?? "-", href: "/admin/courses" },
     { label: "Applications", value: data?.counts.applications ?? "-", href: "/admin/applications" },
+    { label: "Proposals", value: data?.counts.proposals ?? "-", href: "/admin/proposals" },
   ];
 
   const actions = [
+    { label: "New lead", href: "/admin/leads/new" },
+    { label: "New booking", href: "/admin/bookings/new" },
     { label: "Write campaign", href: "/admin/campaigns" },
     { label: "Add workshop", href: "/admin/courses/new" },
     { label: "Add story", href: "/admin/success-stories/new" },
@@ -176,6 +187,7 @@ export default async function AdminDashboard() {
   const newLeads = data?.statusCounts.leads.new ?? 0;
   const scheduledBookings = data?.statusCounts.bookings.scheduled ?? 0;
   const reviewApplications = (data?.statusCounts.applications.review ?? 0) + (data?.statusCounts.applications.interview ?? 0);
+  const openProposals = data?.counts.openProposals ?? 0;
 
   return (
     <div className="flex flex-col gap-8">
@@ -208,7 +220,7 @@ export default async function AdminDashboard() {
         </div>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
         {tiles.map((tile) => (
           <Link key={tile.label} href={tile.href} className="rounded-xl border border-[var(--admin-border)] bg-[var(--admin-panel)] px-5 py-5 transition-colors hover:border-[var(--admin-accent)] hover:bg-[var(--admin-panel-hover)]">
             <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--admin-subtle)]">{tile.label}</div>
@@ -226,8 +238,10 @@ export default async function AdminDashboard() {
             </h2>
           </div>
           <p className="max-w-[72ch] text-[15px] leading-relaxed text-[var(--admin-muted)]">
-            {newLeads} new leads need triage, {scheduledBookings} consultations are scheduled, and {reviewApplications} candidates
-            are in active review. The next admin pass should turn these signals into assigned work, reminders, and clean handoffs.
+            {newLeads} new leads need triage, {scheduledBookings} consultations are scheduled,{" "}
+            {reviewApplications} candidates are in active review
+            {openProposals > 0 ? `, and ${openProposals} ${openProposals === 1 ? "proposal awaits" : "proposals await"} client response` : ""}.
+            {" "}The next admin pass should turn these signals into assigned work, reminders, and clean handoffs.
           </p>
         </div>
       </section>

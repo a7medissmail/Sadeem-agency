@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/admin/ui/PageHeader";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { deleteSuccessStoryAction, toggleSuccessStoryPublishedAction } from "./actions";
+import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
 
 export const metadata = { title: "Success Stories - SADEEM Admin" };
 
@@ -116,19 +117,21 @@ export default async function SuccessStoriesAdminPage() {
               </dl>
 
               <div className="mt-6 flex flex-wrap items-center gap-2">
+                <Link href={`/admin/success-stories/${story.id}`}>
+                  <Button variant="outline" size="sm">Edit</Button>
+                </Link>
                 <form action={toggleSuccessStoryPublishedAction}>
                   <input type="hidden" name="id" value={story.id} />
                   <input type="hidden" name="next" value={story.is_published ? "off" : "on"} />
-                  <Button type="submit" variant={story.is_published ? "ghost" : "outline"} size="sm">
+                  <Button type="submit" variant="ghost" size="sm">
                     {story.is_published ? "Turn off" : "Publish"}
                   </Button>
                 </form>
-                <form action={deleteSuccessStoryAction}>
-                  <input type="hidden" name="id" value={story.id} />
-                  <Button type="submit" variant="danger" size="sm">
-                    Delete
-                  </Button>
-                </form>
+                <DeleteConfirmButton
+                  action={deleteSuccessStoryAction}
+                  id={story.id}
+                  message={`Delete "${story.title}"? This cannot be undone.`}
+                />
               </div>
             </article>
           ))}

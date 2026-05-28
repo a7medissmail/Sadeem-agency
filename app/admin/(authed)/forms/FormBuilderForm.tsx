@@ -174,7 +174,13 @@ function FieldEditor({ field }: { field: FieldRowType }) {
             <SaveButton>Save field</SaveButton>
           </div>
         </form>
-        <form action={deleteFieldAction} className="mt-3">
+        <form
+          action={deleteFieldAction}
+          className="mt-3"
+          onSubmit={(e) => {
+            if (!window.confirm(`Delete field "${field.label}"? This cannot be undone.`)) e.preventDefault();
+          }}
+        >
           <input type="hidden" name="id" value={field.id} />
           <input type="hidden" name="form_id" value={field.form_id} />
           <Button type="submit" variant="danger" size="sm">

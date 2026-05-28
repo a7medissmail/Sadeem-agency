@@ -110,6 +110,12 @@ export default async function FormSubmissionsPage({ params }: { params: Promise<
         description={`${submissions.length} submission${submissions.length !== 1 ? "s" : ""} collected${newCount > 0 ? ` · ${newCount} unreviewed` : ""}`}
         actions={
           <div className="flex items-center gap-2">
+            <a
+              href={`/api/admin/export/forms/${id}`}
+              className="inline-flex items-center justify-center gap-2.5 font-mono uppercase tracking-[0.22em] transition-colors border border-[var(--admin-accent)] text-[var(--admin-accent)] hover:bg-[var(--admin-accent-soft)] px-3 py-1.5 text-[10px]"
+            >
+              Export CSV
+            </a>
             <Link href={`/admin/forms/${id}`}>
               <Button variant="outline" size="sm">Edit form</Button>
             </Link>
