@@ -21,7 +21,7 @@ export function toCsv(rows: Record<string, unknown>[]): string {
   if (rows.length === 0) return "";
   const keys = Object.keys(rows[0]);
   const lines = [
-    keys.join(","),
+    keys.map(escCsv).join(","),
     ...rows.map((row) => keys.map((k) => escCsv(row[k])).join(",")),
   ];
   return lines.join("\n");
