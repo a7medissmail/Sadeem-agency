@@ -952,6 +952,110 @@ ${heroBlock}
   return { subject, html };
 }
 
+/**
+ * Quotation invite sent to the client when the admin sends the quotation link.
+ * Introduces the pricing portal and gives a clear CTA to review and respond.
+ */
+export function quotationInviteClient({
+  clientName,
+  proposalTitle,
+  quotationTitle,
+  portalUrl,
+  expiresDate,
+  total,
+  currency,
+  brand,
+}: {
+  clientName: string;
+  proposalTitle: string;
+  quotationTitle: string;
+  portalUrl: string;
+  expiresDate: string;
+  total: number;
+  currency: string;
+  brand?: EmailBranding;
+}) {
+  const subject = `Your quotation is ready — ${quotationTitle}`;
+
+  const fmtTotal = new Intl.NumberFormat("en", {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(total);
+
+  const heroBlock = `
+<tr>
+  <td style="background:${L.dark};padding:0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+      <tr>
+        <td class="lp" style="padding:24px 36px 0 36px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td style="font-family:${L.mono};font-size:11px;letter-spacing:0.32em;color:${L.white};">SADEEM</td>
+              <td align="right" style="font-family:${L.mono};font-size:10px;letter-spacing:0.22em;color:rgba(245,243,240,0.5);text-transform:uppercase;">Quotation</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td class="lp" style="padding:48px 36px 44px 36px;">
+          <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.32em;color:${L.accent};text-transform:uppercase;margin-bottom:18px;">${esc(clientName)},</div>
+          <h1 class="lt" style="margin:0;font-family:${L.sans};font-weight:700;font-size:38px;line-height:1.0;letter-spacing:-0.03em;color:${L.white};">
+            Your<br />quotation<br /><span style="color:${L.accent};">is ready.</span>
+          </h1>
+          <p style="margin:22px 0 0;font-family:${L.sans};font-size:15px;line-height:1.6;color:rgba(245,243,240,0.72);max-width:40ch;">
+            We prepared a scoped quotation for <strong style="color:${L.white};">${esc(proposalTitle)}</strong>. Review the detail and let us know how you would like to proceed.
+          </p>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>`;
+
+  const body = `
+${heroBlock}
+<tr>
+  <td class="lp" style="padding:36px 36px 0 36px;">
+    <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.28em;color:${L.text};text-transform:uppercase;margin-bottom:14px;">Summary</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${L.rule};">
+      ${lTableRow("Engagement", quotationTitle)}
+      ${lTableRow("Brief", proposalTitle)}
+      ${lTableRow("Total", fmtTotal, true)}
+    </table>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:28px 36px 0 36px;">
+    <p style="margin:0 0 22px;font-family:${L.sans};font-size:14.5px;line-height:1.6;color:${L.gray};max-width:46ch;">
+      The link is private and expires on <strong style="color:${L.sub};">${esc(expiresDate)}</strong>. You can accept or decline directly from the portal — no separate email required.
+    </p>
+    ${lCta(portalUrl, "Review your quotation")}
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:28px 36px 0 36px;">
+    <div style="height:1px;background:${L.rule};font-size:0;line-height:0;">&nbsp;</div>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:24px 36px 8px 36px;">
+    <p style="margin:0;font-family:${L.sans};font-size:13.5px;line-height:1.65;color:${L.gray};">
+      Questions about scope or terms? Reply to this email or write to <a href="mailto:${esc(brand?.footerEmail ?? "hello@sadeem.agency")}" style="color:${L.accent};text-decoration:none;border-bottom:1px solid ${L.accent};padding-bottom:1px;">${esc(brand?.footerEmail ?? "hello@sadeem.agency")}</a>
+    </p>
+  </td>
+</tr>`;
+
+  const html = lightShell({
+    preview: `Your SADEEM quotation for "${quotationTitle}" is ready to review.`,
+    masthead: lMasthead("SADEEM", "Quotation portal", brand),
+    body,
+    footerLines: `SADEEM · Strategic growth advisory<br />${brand?.footerEmail ?? "hello@sadeem.agency"}<br />This link is personal — do not forward.`,
+  });
+
+  return { subject, html };
+}
+
 export function bookingNotification({
   name,
   email,

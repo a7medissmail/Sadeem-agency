@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/resend";
-import { quotationAcceptedClient, getEmailBranding } from "@/lib/email/templates";
+import { quotationAcceptedClient, quotationInviteClient, getEmailBranding } from "@/lib/email/templates";
 import type { QuotationStatus } from "@/types/database";
 
 // ─── Token helpers (same pattern as proposals) ────────────────────────────────
@@ -164,6 +164,14 @@ export async function sendQuotationAction(
   const { raw, hash, prefix } = generateToken();
   const admin = getSupabaseAdmin();
 
+  // Fetch quotation + linked proposal for the email
+  const { data: quotation, error: fetchError } = await admin
+    .from("quotations")
+    .select("id, title, total, currency, validity_days, proposal_id")
+    .eq("id", id)
+    .single();
+  if (fetchError || !quotation) return { error: fetchError?.message ?? "Quotation not found." };
+
   const { error } = await admin
     .from("quotations")
     .update({
@@ -176,6 +184,40 @@ export async function sendQuotationAction(
 
   if (error) return { error: error.message };
   revalidatePath("/admin/proposals");
+
+  // Fire-and-forget email to client
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://sadeem.agency";
+  const portalUrl = `${baseUrl}/q/${raw}`;
+  void (async () => {
+    try {
+      if (!quotation.proposal_id) return;
+      const { data: proposal } = await admin
+        .from("proposals")
+        .select("client_name, client_email, title")
+        .eq("id", quotation.proposal_id)
+        .single();
+      if (!proposal) return;
+
+      const brand = await getEmailBranding();
+      const expiresDate = new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(
+        new Date(Date.now() + (quotation.validity_days ?? 30) * 86_400_000),
+      );
+      const { subject, html } = quotationInviteClient({
+        clientName: proposal.client_name,
+        proposalTitle: proposal.title,
+        quotationTitle: quotation.title,
+        portalUrl,
+        expiresDate,
+        total: quotation.total ?? 0,
+        currency: quotation.currency ?? "SAR",
+        brand,
+      });
+      await sendEmail({ to: proposal.client_email, subject, html });
+    } catch (err) {
+      console.error("[quotation] invite email failed:", err);
+    }
+  })();
+
   return { ok: true, rawToken: raw };
 }
 
