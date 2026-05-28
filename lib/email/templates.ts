@@ -220,6 +220,46 @@ function campaignBody(value: string) {
   });
 }
 
+/** Light-shell variant of campaignBody — uses L.sub text color for light backgrounds. */
+function campaignBodyLight(value: string) {
+  if (!hasHtml(value)) return paragraphs(value, L.sub);
+
+  return sanitizeHtml(value, {
+    allowedTags: ["a", "b", "br", "em", "i", "li", "ol", "p", "strong", "u", "ul"],
+    allowedAttributes: {
+      a: ["href", "title"],
+    },
+    allowedSchemes: ["http", "https", "mailto", "tel"],
+    transformTags: {
+      p: () => ({
+        tagName: "p",
+        attribs: { style: `margin:0 0 18px;font-family:${L.sans};color:${L.sub};font-size:15px;line-height:1.7` },
+      }),
+      ul: () => ({
+        tagName: "ul",
+        attribs: { style: `margin:0 0 18px 20px;padding:0;color:${L.sub};font-size:15px;line-height:1.7` },
+      }),
+      ol: () => ({
+        tagName: "ol",
+        attribs: { style: `margin:0 0 18px 20px;padding:0;color:${L.sub};font-size:15px;line-height:1.7` },
+      }),
+      li: () => ({ tagName: "li", attribs: { style: "margin:0 0 8px" } }),
+      a: (tagName, attribs) => ({
+        tagName,
+        attribs: {
+          href: attribs.href,
+          title: attribs.title,
+          style: `color:${L.accent};font-weight:700;text-decoration:underline`,
+        },
+      }),
+      strong: () => ({ tagName: "strong", attribs: { style: "font-weight:700" } }),
+      b: () => ({ tagName: "b", attribs: { style: "font-weight:700" } }),
+      em: () => ({ tagName: "em", attribs: { style: "font-style:italic" } }),
+      i: () => ({ tagName: "i", attribs: { style: "font-style:italic" } }),
+    },
+  });
+}
+
 function rowsTable(rows: Array<[string, string | null | undefined]>) {
   const body = rows
     .map(([label, value]) => {
@@ -395,20 +435,37 @@ export function leadNotification({
   brand?: EmailBranding;
 }) {
   const subject = `New lead - ${name} (${source})`;
-  const html = shell({
-    eyebrow: "New lead",
-    title: name,
-    intro: `Submitted via ${source}.`,
+
+  const rows: Array<[string, string]> = [
+    ["Name", name],
+    ["Email", email],
+    ["Phone", phone ?? "—"],
+    ["Company", company ?? "—"],
+    ["Source", source],
+    ["Message", message ?? "—"],
+  ];
+
+  const body = `
+<tr>
+  <td class="lp" style="padding:40px 40px 8px 40px;">
+    <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.28em;color:${L.accent};text-transform:uppercase;margin-bottom:14px;">New lead</div>
+    <h1 class="lt" style="margin:0 0 8px;font-family:${L.sans};font-weight:700;font-size:28px;line-height:1.1;letter-spacing:-0.02em;color:${L.text};">${esc(name)}</h1>
+    <p style="margin:0;font-family:${L.sans};font-size:13.5px;line-height:1.6;color:${L.gray};">Submitted via ${esc(source)}.</p>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:24px 40px 40px 40px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${L.rule};">
+      ${rows.map(([label, value], i) => lTableRow(label, value, i === rows.length - 1)).join("")}
+    </table>
+  </td>
+</tr>`;
+
+  const html = lightShell({
     preview: `New SADEEM lead from ${name}.`,
-    brand,
-    children: rowsTable([
-      ["Name", name],
-      ["Email", email],
-      ["Phone", phone],
-      ["Company", company],
-      ["Source", source],
-      ["Message", message],
-    ]),
+    masthead: lMasthead("SADEEM", "Lead", brand),
+    body,
+    footerLines: `SADEEM · Internal notification<br />${brand?.footerEmail ?? "hello@sadeem.agency"}`,
   });
   return { subject, html };
 }
@@ -477,19 +534,36 @@ export function applicationNotification({
   brand?: EmailBranding;
 }) {
   const subject = `New application - ${jobTitle} - ${name}`;
-  const html = shell({
-    eyebrow: "New application",
-    title: name,
-    intro: `Submitted for ${jobTitle}.`,
+
+  const rows: Array<[string, string]> = [
+    ["Name", name],
+    ["Email", email],
+    ["Phone", phone ?? "—"],
+    ["Role", jobTitle],
+    ["Cover note", coverNote ?? "—"],
+  ];
+
+  const body = `
+<tr>
+  <td class="lp" style="padding:40px 40px 8px 40px;">
+    <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.28em;color:${L.accent};text-transform:uppercase;margin-bottom:14px;">New application</div>
+    <h1 class="lt" style="margin:0 0 8px;font-family:${L.sans};font-weight:700;font-size:28px;line-height:1.1;letter-spacing:-0.02em;color:${L.text};">${esc(name)}</h1>
+    <p style="margin:0;font-family:${L.sans};font-size:13.5px;line-height:1.6;color:${L.gray};">Applied for ${esc(jobTitle)}.</p>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:24px 40px 40px 40px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${L.rule};">
+      ${rows.map(([label, value], i) => lTableRow(label, value, i === rows.length - 1)).join("")}
+    </table>
+  </td>
+</tr>`;
+
+  const html = lightShell({
     preview: `New SADEEM application from ${name}.`,
-    brand,
-    children: rowsTable([
-      ["Name", name],
-      ["Email", email],
-      ["Phone", phone],
-      ["Role", jobTitle],
-      ["Cover note", coverNote],
-    ]),
+    masthead: lMasthead("SADEEM", "Careers", brand),
+    body,
+    footerLines: `SADEEM · Internal notification<br />${brand?.footerEmail ?? "hello@sadeem.agency"}`,
   });
   return { subject, html };
 }
@@ -624,16 +698,34 @@ export function campaignEmail({
   unsubscribeUrl: string;
   brand?: EmailBranding;
 }) {
-  const html = shell({
-    eyebrow: "SADEEM update",
-    title: subject,
-    intro: `Hi ${leadName},`,
+  const footerEmail = brand?.footerEmail ?? "hello@sadeem.agency";
+
+  const bodyHtml = `
+<tr>
+  <td class="lp" style="padding:44px 40px 8px 40px;">
+    <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.28em;color:${L.accent};text-transform:uppercase;margin-bottom:18px;">SADEEM Update</div>
+    <h1 class="lt" style="margin:0 0 20px;font-family:${L.sans};font-weight:700;font-size:28px;line-height:1.1;letter-spacing:-0.02em;color:${L.text};">${esc(subject)}</h1>
+    <p style="margin:0 0 24px;font-family:${L.sans};font-size:14.5px;line-height:1.6;color:${L.gray};">Hi ${esc(leadName)},</p>
+    <div style="font-family:${L.sans};font-size:15px;line-height:1.7;color:${L.sub};">
+      ${campaignBodyLight(body)}
+    </div>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:0 40px 44px 40px;">
+    <div style="height:1px;background:${L.rule};margin-bottom:20px;font-size:0;line-height:0;">&nbsp;</div>
+    <p style="margin:0;font-family:${L.sans};font-size:12px;line-height:1.6;color:${L.gray};">
+      You are receiving this because you contacted SADEEM.
+      <a href="${esc(unsubscribeUrl)}" style="color:${L.gray};text-decoration:underline;">Unsubscribe</a>
+    </p>
+  </td>
+</tr>`;
+
+  const html = lightShell({
     preview: subject,
-    brand,
-    children: campaignBody(body),
-    footer: `You are receiving this because you contacted SADEEM. <a href="${esc(
-      unsubscribeUrl,
-    )}" style="color:${accent};text-decoration:underline">Unsubscribe</a>.`,
+    masthead: lMasthead("SADEEM", "Update", brand),
+    body: bodyHtml,
+    footerLines: `SADEEM · Strategic growth advisory<br />${footerEmail}`,
   });
 
   return { subject, html };
@@ -871,7 +963,7 @@ export function quotationAcceptedAdmin({
     ? `Quotation accepted — ${clientName} · ${quotationTitle}`
     : `Quotation declined — ${clientName} · ${quotationTitle}`;
 
-  const rows: [string, string | null][] = [
+  const rows: Array<[string, string]> = [
     ["Client", clientName],
     ["Email", clientEmail],
     ["Brief", proposalTitle],
@@ -880,17 +972,40 @@ export function quotationAcceptedAdmin({
   ];
   if (declineReason) rows.push(["Reason", declineReason]);
 
-  const html = shell({
-    eyebrow: accepted ? "Quotation accepted" : "Quotation declined",
-    title: clientName,
-    intro: accepted
-      ? `${clientName} accepted the quotation for "${quotationTitle}". The proposal has been marked as converted.`
-      : `${clientName} declined the quotation for "${quotationTitle}".`,
+  const kickerColor = accepted ? L.accent : L.gray;
+  const kickerLabel = accepted ? "Quotation accepted" : "Quotation declined";
+  const introText = accepted
+    ? `${esc(clientName)} accepted the quotation for &ldquo;${esc(quotationTitle)}&rdquo;. The proposal has been marked as converted.`
+    : `${esc(clientName)} declined the quotation for &ldquo;${esc(quotationTitle)}&rdquo;.`;
+
+  const body = `
+<tr>
+  <td class="lp" style="padding:40px 40px 8px 40px;">
+    <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.28em;color:${kickerColor};text-transform:uppercase;margin-bottom:14px;">${kickerLabel}</div>
+    <h1 class="lt" style="margin:0 0 8px;font-family:${L.sans};font-weight:700;font-size:28px;line-height:1.1;letter-spacing:-0.02em;color:${L.text};">${esc(clientName)}</h1>
+    <p style="margin:0;font-family:${L.sans};font-size:13.5px;line-height:1.6;color:${L.gray};">${introText}</p>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:24px 40px 0 40px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${L.rule};">
+      ${rows.map(([label, value], i) => lTableRow(label, value, i === rows.length - 1)).join("")}
+    </table>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:28px 40px 40px 40px;">
+    ${lCta(adminUrl, "Review in admin")}
+  </td>
+</tr>`;
+
+  const html = lightShell({
     preview: accepted
       ? `${clientName} accepted "${quotationTitle}" — ${fmtTotal}`
       : `${clientName} declined "${quotationTitle}"`,
-    brand,
-    children: rowsTable(rows) + actionLink(adminUrl, "Review in admin →"),
+    masthead: lMasthead("SADEEM", "Quotation", brand),
+    body,
+    footerLines: `SADEEM · Internal notification<br />${brand?.footerEmail ?? "hello@sadeem.agency"}`,
   });
   return { subject, html };
 }
@@ -915,20 +1030,40 @@ export function briefSubmittedAdmin({
   brand?: EmailBranding;
 }) {
   const subject = `Brief received — ${clientName} · ${proposalTitle}`;
-  const html = shell({
-    eyebrow: "New brief submission",
-    title: clientName,
-    intro: `A client just submitted their guided brief for "${proposalTitle}".`,
+
+  const rows: Array<[string, string]> = [
+    ["Client", clientName],
+    ["Email", clientEmail],
+    ["Company", clientCompany ?? "—"],
+    ["Brief", proposalTitle],
+  ];
+
+  const body = `
+<tr>
+  <td class="lp" style="padding:40px 40px 8px 40px;">
+    <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.28em;color:${L.accent};text-transform:uppercase;margin-bottom:14px;">New brief submission</div>
+    <h1 class="lt" style="margin:0 0 8px;font-family:${L.sans};font-weight:700;font-size:28px;line-height:1.1;letter-spacing:-0.02em;color:${L.text};">${esc(clientName)}</h1>
+    <p style="margin:0;font-family:${L.sans};font-size:13.5px;line-height:1.6;color:${L.gray};">Submitted their guided brief for &ldquo;${esc(proposalTitle)}&rdquo;.</p>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:24px 40px 0 40px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${L.rule};">
+      ${rows.map(([label, value], i) => lTableRow(label, value, i === rows.length - 1)).join("")}
+    </table>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:28px 40px 40px 40px;">
+    ${lCta(adminUrl, "Review brief in admin")}
+  </td>
+</tr>`;
+
+  const html = lightShell({
     preview: `${clientName} submitted their brief — review it now.`,
-    brand,
-    children:
-      rowsTable([
-        ["Client", clientName],
-        ["Email", clientEmail],
-        ["Company", clientCompany ?? null],
-        ["Brief", proposalTitle],
-      ]) +
-      actionLink(adminUrl, "Review brief in admin →"),
+    masthead: lMasthead("SADEEM", "Proposals", brand),
+    body,
+    footerLines: `SADEEM · Internal notification<br />${brand?.footerEmail ?? "hello@sadeem.agency"}`,
   });
   return { subject, html };
 }
@@ -1137,20 +1272,37 @@ export function bookingNotification({
   brand?: EmailBranding;
 }) {
   const subject = `New consultation booking - ${name}`;
-  const html = shell({
-    eyebrow: "New consultation",
-    title: name,
-    intro: "A visitor booked through the custom consultation flow.",
+
+  const rows: Array<[string, string]> = [
+    ["Name", name],
+    ["Email", email],
+    ["Phone", phone ?? "—"],
+    ["When", slotLabel],
+    ["Meet link", meetLink ?? "—"],
+    ["Topic", topic ?? "—"],
+  ];
+
+  const body = `
+<tr>
+  <td class="lp" style="padding:40px 40px 8px 40px;">
+    <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.28em;color:${L.accent};text-transform:uppercase;margin-bottom:14px;">New consultation</div>
+    <h1 class="lt" style="margin:0 0 8px;font-family:${L.sans};font-weight:700;font-size:28px;line-height:1.1;letter-spacing:-0.02em;color:${L.text};">${esc(name)}</h1>
+    <p style="margin:0;font-family:${L.sans};font-size:13.5px;line-height:1.6;color:${L.gray};">Booked through the consultation flow.</p>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:24px 40px 40px 40px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid ${L.rule};">
+      ${rows.map(([label, value], i) => lTableRow(label, value, i === rows.length - 1)).join("")}
+    </table>
+  </td>
+</tr>`;
+
+  const html = lightShell({
     preview: `New SADEEM consultation booking from ${name}.`,
-    brand,
-    children: rowsTable([
-      ["Name", name],
-      ["Email", email],
-      ["Phone", phone],
-      ["When", slotLabel],
-      ["Meet link", meetLink],
-      ["Topic", topic],
-    ]),
+    masthead: lMasthead("SADEEM", "Consultation", brand),
+    body,
+    footerLines: `SADEEM · Internal notification<br />${brand?.footerEmail ?? "hello@sadeem.agency"}`,
   });
   return { subject, html };
 }
