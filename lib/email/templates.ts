@@ -844,6 +844,7 @@ export function quotationAcceptedAdmin({
   total,
   currency,
   adminUrl,
+  action = "accepted",
   declineReason,
   brand,
 }: {
@@ -854,10 +855,11 @@ export function quotationAcceptedAdmin({
   total: number;
   currency: string;
   adminUrl: string;
+  action?: "accepted" | "declined";
   declineReason?: string | null;
   brand?: EmailBranding;
 }) {
-  const accepted = !declineReason && declineReason !== "";
+  const accepted = action === "accepted";
   const fmtTotal = new Intl.NumberFormat("en", {
     style: "currency",
     currency,

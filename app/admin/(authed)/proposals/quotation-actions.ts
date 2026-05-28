@@ -346,6 +346,7 @@ export async function clientRespondQuotationAction(
               total: q.total,
               currency: q.currency ?? "SAR",
               adminUrl,
+              action: "accepted",
               brand,
             });
             await sendEmail({ to: team, subject: ts, html: th, replyTo: proposal.client_email });
@@ -361,6 +362,7 @@ export async function clientRespondQuotationAction(
               total: q.total,
               currency: q.currency ?? "SAR",
               adminUrl,
+              action: "declined",
               declineReason: declineReason ?? null,
               brand,
             });
