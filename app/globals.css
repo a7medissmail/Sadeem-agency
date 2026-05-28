@@ -4967,7 +4967,9 @@ section.team-roster {
   min-height: 100vh;
   display: grid;
   grid-template-columns: 284px minmax(0, 1fr);
+  align-content: stretch;       /* force grid tracks to fill the full min-height */
   color: var(--admin-text);
+  background: var(--admin-bg);  /* covers any gap not occupied by sidebar/main */
 }
 
 .admin-sidebar {
@@ -5133,6 +5135,7 @@ section.team-roster {
 
 .admin-main {
   min-width: 0;
+  min-height: 100vh;
   background:
     radial-gradient(720px 420px at 88% 0%, rgba(255,106,0,0.06), transparent 68%),
     var(--admin-bg);
