@@ -45,6 +45,19 @@ body {
 }
 a { color: inherit; text-decoration: none; }
 
+/*
+ * Admin dark-mode body override.
+ * The marketing pages set html/body { background: #F5F3F0 }.
+ * When the admin is in dark mode that warm-white bleeds through below the
+ * admin shell, producing a visible strip. Override it at the root level.
+ * :has() is supported in all modern browsers (Chrome 105+, Firefox 121+, Safari 15.4+).
+ */
+html:has([data-admin-theme="dark"]),
+body:has([data-admin-theme="dark"]) {
+  background: #0d0d0f;
+  color-scheme: dark;
+}
+
 /* ========== MAIN NAVBAR ========== */
 .mainnav {
   position: fixed;
