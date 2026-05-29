@@ -138,7 +138,9 @@ function Fields({
           <Select name="application_form_id" defaultValue={job?.application_form_id ?? ""} aria-invalid={Boolean(errors.application_form_id)}>
             <option value="">Default SADEEM application</option>
             {forms.map((form) => (
-              <option key={form.id} value={form.id}>{form.name} {form.is_active ? "" : "(draft)"}</option>
+              <option key={form.id} value={form.id}>
+                {form.name} · {form.purpose}{form.is_active ? "" : " (draft)"}
+              </option>
             ))}
           </Select>
           <p className="text-[12.5px] leading-relaxed text-[var(--admin-subtle)]">
