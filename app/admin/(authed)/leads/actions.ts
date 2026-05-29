@@ -66,6 +66,18 @@ export async function updateLeadStatusAction(formData: FormData): Promise<void> 
   revalidatePath("/admin");
 }
 
+/**
+ * Slim action for Kanban drag-and-drop — accepts plain args instead of FormData.
+ * Called client-side after an optimistic status update.
+ */
+export async function moveLeadAction(id: string, status: LeadStatus): Promise<void> {
+  await requireRole(["admin", "editor"]);
+  const admin = getSupabaseAdmin();
+  const { error } = await admin.from("leads").update({ status }).eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/leads");
+}
+
 export async function assignLeadOwnerAction(formData: FormData): Promise<void> {
   await requireRole(["admin", "editor"]);
   const id = formData.get("id") as string;

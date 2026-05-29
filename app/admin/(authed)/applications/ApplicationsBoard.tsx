@@ -1,6 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  useDraggable,
+  useDroppable,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+} from "@dnd-kit/core";
+import { useRouter } from "next/navigation";
 import { Badge } from "@/components/admin/ui/Badge";
 import { Button } from "@/components/admin/ui/Button";
 import { FieldRow, Input, Select, Textarea } from "@/components/admin/ui/Field";
@@ -9,6 +21,7 @@ import type { ApplicationStatus, Json } from "@/types/database";
 import {
   addApplicationNoteAction,
   deleteApplicationAction,
+  moveApplicationAction,
   updateApplicationMetaAction,
   updateApplicationStatusAction,
 } from "./actions";
@@ -174,6 +187,46 @@ function FilterChip({
     </button>
   );
 }
+
+// ─── Drag wrapper ─────────────────────────────────────────────────────────────
+
+function DraggableCard({ id, children }: { id: string; children: React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id });
+  return (
+    <div
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      className={`touch-none ${isDragging ? "opacity-30" : ""}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+// ─── Droppable column ─────────────────────────────────────────────────────────
+
+function DroppableColumn({
+  status,
+  children,
+}: {
+  status: ApplicationStatus;
+  children: React.ReactNode;
+}) {
+  const { isOver, setNodeRef } = useDroppable({ id: status });
+  return (
+    <div
+      ref={setNodeRef}
+      className={`flex flex-col gap-2 transition-colors ${
+        isOver ? "rounded outline outline-2 outline-[var(--admin-accent)]" : ""
+      }`}
+    >
+      {children}
+    </div>
+  );
+}
+
+// ─── Compact card ─────────────────────────────────────────────────────────────
 
 /**
  * Compact Trello-style candidate card — name, role, stage rail, date.
@@ -498,6 +551,23 @@ function CandidateDrawer({
 }
 
 export function ApplicationsBoard({ applications, staff }: { applications: ApplicationBoardRow[]; staff: StaffRow[] }) {
+  const router = useRouter();
+  const [, startTransition] = useTransition();
+
+  // Optimistic overrides: id → new status, applied while server action is in flight
+  const [optimistic, setOptimistic] = useState<Record<string, ApplicationStatus>>({});
+  // DnD active card id (for DragOverlay)
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  // Merge server data with optimistic overrides
+  const mergedApplications = useMemo(
+    () =>
+      Object.keys(optimistic).length === 0
+        ? applications
+        : applications.map((a) => ({ ...a, status: optimistic[a.id] ?? a.status })),
+    [applications, optimistic],
+  );
+
   // Text search is server-side (URL ?q= param). Only role/owner/status remain
   // client-side because the Kanban needs all columns visible simultaneously.
   const [role, setRole] = useState("all");
@@ -509,15 +579,15 @@ export function ApplicationsBoard({ applications, staff }: { applications: Appli
 
   const roles = useMemo(
     () =>
-      Array.from(new Set(applications.map((application) => roleName(application)))).sort((a, b) =>
-        a.localeCompare(b),
-      ),
-    [applications],
+      Array.from(
+        new Set(mergedApplications.map((application) => roleName(application))),
+      ).sort((a, b) => a.localeCompare(b)),
+    [mergedApplications],
   );
 
   const filtered = useMemo(
     () =>
-      applications.filter(
+      mergedApplications.filter(
         (application) =>
           (role === "all" || roleName(application) === role) &&
           (owner === "all" ||
@@ -526,7 +596,7 @@ export function ApplicationsBoard({ applications, staff }: { applications: Appli
               : application.owner_id === owner)) &&
           (status === "all" || application.status === status),
       ),
-    [applications, role, owner, status],
+    [mergedApplications, role, owner, status],
   );
 
   const grouped = applicationStatuses.map((stage) => ({
@@ -534,14 +604,64 @@ export function ApplicationsBoard({ applications, staff }: { applications: Appli
     items: filtered.filter((application) => application.status === stage),
   }));
 
-  const selected = applications.find((application) => application.id === selectedId) ?? null;
-  const activeCount = applications.filter((application) => !["rejected"].includes(application.status)).length;
-  const interviewCount = applications.filter((application) => ["interview", "offer"].includes(application.status)).length;
-  const assignedCount = applications.filter((application) => application.owner_id).length;
+  const selected = mergedApplications.find((application) => application.id === selectedId) ?? null;
+  const activeCount = mergedApplications.filter(
+    (application) => !["rejected"].includes(application.status),
+  ).length;
+  const interviewCount = mergedApplications.filter((application) =>
+    ["interview", "offer"].includes(application.status),
+  ).length;
+  const assignedCount = mergedApplications.filter(
+    (application) => application.owner_id,
+  ).length;
   const averageScore =
-    applications.length > 0
-      ? Math.round(applications.reduce((total, application) => total + candidateSignal(application), 0) / applications.length)
+    mergedApplications.length > 0
+      ? Math.round(
+          mergedApplications.reduce(
+            (total, application) => total + candidateSignal(application),
+            0,
+          ) / mergedApplications.length,
+        )
       : 0;
+
+  // ─── DnD sensors: 8px distance so click still opens drawer ───────────────
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+  );
+
+  function handleDragStart(event: DragStartEvent) {
+    setActiveId(String(event.active.id));
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    setActiveId(null);
+    if (!over) return;
+
+    const appId = String(active.id);
+    const newStatus = String(over.id) as ApplicationStatus;
+    const app = mergedApplications.find((a) => a.id === appId);
+    if (!app || app.status === newStatus) return;
+
+    // Optimistic UI
+    setOptimistic((prev) => ({ ...prev, [appId]: newStatus }));
+
+    startTransition(async () => {
+      try {
+        await moveApplicationAction(appId, newStatus);
+        router.refresh();
+      } catch {
+        // Revert on failure
+        setOptimistic((prev) => {
+          const next = { ...prev };
+          delete next[appId];
+          return next;
+        });
+      }
+    });
+  }
+
+  const activeApp = activeId ? mergedApplications.find((a) => a.id === activeId) : null;
 
   return (
     <div className="flex flex-col gap-8">
@@ -595,38 +715,61 @@ export function ApplicationsBoard({ applications, staff }: { applications: Appli
         </div>
       </section>
 
-      <div className="overflow-x-auto pb-3">
-        <div className="grid min-w-[1320px] grid-cols-[repeat(5,minmax(250px,1fr))] gap-4">
-          {grouped.map((column) => (
-            <section key={column.status} className="min-h-[300px] border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
-              <div className="mb-4 flex items-start justify-between gap-3">
-                <div>
-                  <Badge tone={statusTones[column.status]}>{statusLabels[column.status]}</Badge>
-                  <p className="mt-2 text-[12px] text-[var(--admin-subtle)]">{statusNotes[column.status]}</p>
-                </div>
-                <span className="font-mono text-[10px] text-[var(--admin-subtle)]">{String(column.items.length).padStart(2, "0")}</span>
-              </div>
-
-              <div className="flex flex-col gap-3">
-                {column.items.length === 0 ? (
-                  <div className="border border-dashed border-[var(--admin-border)] px-3 py-6 text-center text-[12px] text-[var(--admin-subtle)]">
-                    No candidates
+      <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <div className="overflow-x-auto pb-3">
+          <div className="grid min-w-[1320px] grid-cols-[repeat(5,minmax(250px,1fr))] gap-4">
+            {grouped.map((column) => (
+              <section
+                key={column.status}
+                className="min-h-[300px] border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4"
+              >
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <div>
+                    <Badge tone={statusTones[column.status]}>{statusLabels[column.status]}</Badge>
+                    <p className="mt-2 text-[12px] text-[var(--admin-subtle)]">
+                      {statusNotes[column.status]}
+                    </p>
                   </div>
-                ) : (
-                  column.items.map((application) => (
-                    <CandidateCard
-                      key={application.id}
-                      application={application}
-                      selected={application.id === selectedId}
-                      onOpen={() => setSelectedId(application.id)}
-                    />
-                  ))
-                )}
-              </div>
-            </section>
-          ))}
+                  <span className="font-mono text-[10px] text-[var(--admin-subtle)]">
+                    {String(column.items.length).padStart(2, "0")}
+                  </span>
+                </div>
+
+                <DroppableColumn status={column.status}>
+                  {column.items.length === 0 ? (
+                    <div className="border border-dashed border-[var(--admin-border)] px-3 py-6 text-center text-[12px] text-[var(--admin-subtle)]">
+                      No candidates
+                    </div>
+                  ) : (
+                    column.items.map((application) => (
+                      <DraggableCard key={application.id} id={application.id}>
+                        <CandidateCard
+                          application={application}
+                          selected={application.id === selectedId}
+                          onOpen={() => setSelectedId(application.id)}
+                        />
+                      </DraggableCard>
+                    ))
+                  )}
+                </DroppableColumn>
+              </section>
+            ))}
+          </div>
         </div>
-      </div>
+
+        {/* Ghost card that follows the cursor while dragging */}
+        <DragOverlay dropAnimation={null}>
+          {activeApp ? (
+            <div className="-rotate-1 shadow-2xl opacity-95">
+              <CandidateCard
+                application={activeApp}
+                selected={false}
+                onOpen={() => {}}
+              />
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
 
       <CandidateDrawer application={selected} staff={staff} onClose={() => setSelectedId(null)} />
     </div>

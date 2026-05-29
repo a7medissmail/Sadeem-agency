@@ -163,3 +163,71 @@ export async function deleteApplicationAction(formData: FormData): Promise<void>
 
   revalidatePath("/admin/applications");
 }
+
+/**
+ * Slim action for Kanban drag-and-drop — accepts plain args instead of FormData.
+ * Mirrors the email logic of updateApplicationStatusAction so that dragging to
+ * "interview" or "offer" automatically sends the candidate email.
+ */
+export async function moveApplicationAction(
+  id: string,
+  newStatus: ApplicationStatus,
+): Promise<void> {
+  const profile = await requireRole(["admin", "editor"]);
+
+  const admin = getSupabaseAdmin();
+  const { data: application, error: readError } = await admin
+    .from("applications")
+    .select("id, name, email, status, job_id")
+    .eq("id", id)
+    .single();
+
+  if (readError || !application) throw new Error(readError?.message ?? "Application not found");
+  if (application.status === newStatus) return; // idempotent
+
+  const { error } = await admin
+    .from("applications")
+    .update({ status: newStatus })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+
+  // Record status history (shows in the dossier timeline)
+  await admin.from("application_status_history").insert({
+    application_id: id,
+    from_status: application.status,
+    to_status: newStatus,
+    actor_id: profile.id,
+    note: "Moved via Kanban",
+  });
+
+  // Auto-email on milestone statuses
+  if (["interview", "offer", "rejected"].includes(newStatus)) {
+    const { data: job } = await admin
+      .from("jobs")
+      .select("title")
+      .eq("id", application.job_id)
+      .maybeSingle();
+    const jobTitle = job?.title ?? "the role";
+    const brand = await getEmailBranding();
+
+    let emailPayload: { subject: string; html: string } | null = null;
+    if (newStatus === "interview")
+      emailPayload = applicationShortlisted({ name: application.name, jobTitle, brand });
+    else if (newStatus === "offer")
+      emailPayload = applicationOffer({ name: application.name, jobTitle, brand });
+    else
+      emailPayload = applicationRejection({ name: application.name, jobTitle, brand });
+
+    if (emailPayload) {
+      await sendEmail({
+        channel: "careers",
+        to: application.email,
+        subject: emailPayload.subject,
+        html: emailPayload.html,
+        replyTo: process.env.TEAM_NOTIFY_TO,
+      });
+    }
+  }
+
+  revalidatePath("/admin/applications");
+}

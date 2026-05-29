@@ -1,11 +1,29 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  useDraggable,
+  useDroppable,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+} from "@dnd-kit/core";
+import { useRouter } from "next/navigation";
 import { Badge } from "@/components/admin/ui/Badge";
 import { Button } from "@/components/admin/ui/Button";
 import { Select } from "@/components/admin/ui/Field";
 import type { Database, LeadSource, LeadStatus } from "@/types/database";
-import { addLeadNoteAction, assignLeadOwnerAction, deleteLeadAction, updateLeadStatusAction } from "./actions";
+import {
+  addLeadNoteAction,
+  assignLeadOwnerAction,
+  deleteLeadAction,
+  moveLeadAction,
+  updateLeadStatusAction,
+} from "./actions";
 import { Textarea } from "@/components/admin/ui/Field";
 
 type LeadNote = {
@@ -130,6 +148,46 @@ function SourceDot({ source }: { source: LeadSource }) {
   const tone = source === "consultation" ? "bg-sky-400" : source === "course" ? "bg-violet-400" : source === "homepage" ? "bg-[var(--admin-accent)]" : "bg-[var(--admin-muted)]";
   return <span className={`h-2 w-2 rounded-full ${tone}`} aria-hidden="true" />;
 }
+
+// ─── Drag wrapper ─────────────────────────────────────────────────────────────
+
+function DraggableCard({ id, children }: { id: string; children: React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id });
+  return (
+    <div
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      className={`touch-none ${isDragging ? "opacity-30" : ""}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+// ─── Droppable column ─────────────────────────────────────────────────────────
+
+function DroppableColumn({
+  status,
+  children,
+}: {
+  status: LeadStatus;
+  children: React.ReactNode;
+}) {
+  const { isOver, setNodeRef } = useDroppable({ id: status });
+  return (
+    <div
+      ref={setNodeRef}
+      className={`flex flex-col gap-2 transition-colors ${
+        isOver ? "rounded outline outline-2 outline-[var(--admin-accent)]" : ""
+      }`}
+    >
+      {children}
+    </div>
+  );
+}
+
+// ─── Compact card ─────────────────────────────────────────────────────────────
 
 /**
  * Compact Trello-style card — shows only what's needed to triage.
@@ -379,8 +437,24 @@ function LeadDrawer({
 }
 
 export function LeadsBoard({ leads, staff }: { leads: LeadBoardRow[]; staff: StaffRow[] }) {
-  // Search is now server-side (URL ?q= param). Only source/status remain client-side
-  // because the Kanban layout needs all statuses visible simultaneously.
+  const router = useRouter();
+  const [, startTransition] = useTransition();
+
+  // Optimistic overrides: id → new status, applied while server action is in flight
+  const [optimistic, setOptimistic] = useState<Record<string, LeadStatus>>({});
+  // DnD active card id (for DragOverlay)
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  // Merge server data with optimistic overrides
+  const mergedLeads = useMemo(
+    () =>
+      Object.keys(optimistic).length === 0
+        ? leads
+        : leads.map((l) => ({ ...l, status: optimistic[l.id] ?? l.status })),
+    [leads, optimistic],
+  );
+
+  // Source/status remain client-side — fast within the current page's records
   const [source, setSource] = useState<LeadSource | "all">("all");
   const [status, setStatus] = useState<LeadStatus | "all">("all");
   // Drawer stays closed on mount — auto-opening the first lead was disorienting
@@ -389,12 +463,12 @@ export function LeadsBoard({ leads, staff }: { leads: LeadBoardRow[]; staff: Sta
 
   const filtered = useMemo(
     () =>
-      leads.filter(
+      mergedLeads.filter(
         (lead) =>
           (source === "all" || lead.source === source) &&
           (status === "all" || lead.status === status),
       ),
-    [leads, source, status],
+    [mergedLeads, source, status],
   );
 
   const grouped = statuses.map((stage) => ({
@@ -402,10 +476,51 @@ export function LeadsBoard({ leads, staff }: { leads: LeadBoardRow[]; staff: Sta
     items: filtered.filter((lead) => lead.status === stage),
   }));
 
-  const selected = leads.find((lead) => lead.id === selectedId) ?? null;
-  const newCount = leads.filter((lead) => lead.status === "new").length;
-  const qualifiedCount = leads.filter((lead) => ["qualified", "won"].includes(lead.status)).length;
-  const assignedCount = leads.filter((lead) => lead.owner_id).length;
+  const selected = mergedLeads.find((lead) => lead.id === selectedId) ?? null;
+  const newCount = mergedLeads.filter((lead) => lead.status === "new").length;
+  const qualifiedCount = mergedLeads.filter((lead) =>
+    ["qualified", "won"].includes(lead.status),
+  ).length;
+  const assignedCount = mergedLeads.filter((lead) => lead.owner_id).length;
+
+  // ─── DnD sensors: require 8px movement so click still works ───────────────
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+  );
+
+  function handleDragStart(event: DragStartEvent) {
+    setActiveId(String(event.active.id));
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    setActiveId(null);
+    if (!over) return;
+
+    const leadId = String(active.id);
+    const newStatus = String(over.id) as LeadStatus;
+    const lead = mergedLeads.find((l) => l.id === leadId);
+    if (!lead || lead.status === newStatus) return;
+
+    // Optimistic UI
+    setOptimistic((prev) => ({ ...prev, [leadId]: newStatus }));
+
+    startTransition(async () => {
+      try {
+        await moveLeadAction(leadId, newStatus);
+        router.refresh();
+      } catch {
+        // Revert on failure
+        setOptimistic((prev) => {
+          const next = { ...prev };
+          delete next[leadId];
+          return next;
+        });
+      }
+    });
+  }
+
+  const activeLead = activeId ? mergedLeads.find((l) => l.id === activeId) : null;
 
   return (
     <div className="flex flex-col gap-8">
@@ -450,39 +565,63 @@ export function LeadsBoard({ leads, staff }: { leads: LeadBoardRow[]; staff: Sta
       </section>
 
 
-      <div className="overflow-x-auto pb-3">
-        <div className="grid min-w-[1320px] grid-cols-[repeat(5,minmax(250px,1fr))] gap-4">
-          {grouped.map((column) => (
-            <section key={column.status} className="min-h-[300px] border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
-              <div className="mb-4 flex items-start justify-between gap-3">
-                <div>
-                  <Badge tone={statusTones[column.status]}>{statusLabels[column.status]}</Badge>
-                  <p className="mt-2 text-[12px] text-[var(--admin-subtle)]">{statusNotes[column.status]}</p>
-                </div>
-                <span className="font-mono text-[10px] text-[var(--admin-subtle)]">{String(column.items.length).padStart(2, "0")}</span>
-              </div>
-
-              <div className="flex flex-col gap-3">
-                {column.items.length === 0 ? (
-                  <div className="border border-dashed border-[var(--admin-border)] px-3 py-6 text-center text-[12px] text-[var(--admin-subtle)]">
-                    No leads
+      <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <div className="overflow-x-auto pb-3">
+          <div className="grid min-w-[1320px] grid-cols-[repeat(5,minmax(250px,1fr))] gap-4">
+            {grouped.map((column) => (
+              <section
+                key={column.status}
+                className="min-h-[300px] border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4"
+              >
+                <div className="mb-4 flex items-start justify-between gap-3">
+                  <div>
+                    <Badge tone={statusTones[column.status]}>{statusLabels[column.status]}</Badge>
+                    <p className="mt-2 text-[12px] text-[var(--admin-subtle)]">
+                      {statusNotes[column.status]}
+                    </p>
                   </div>
-                ) : (
-                  column.items.map((lead) => (
-                    <LeadCard
-                      key={lead.id}
-                      lead={lead}
-                      staff={staff}
-                      selected={lead.id === selectedId}
-                      onOpen={() => setSelectedId(lead.id)}
-                    />
-                  ))
-                )}
-              </div>
-            </section>
-          ))}
+                  <span className="font-mono text-[10px] text-[var(--admin-subtle)]">
+                    {String(column.items.length).padStart(2, "0")}
+                  </span>
+                </div>
+
+                <DroppableColumn status={column.status}>
+                  {column.items.length === 0 ? (
+                    <div className="border border-dashed border-[var(--admin-border)] px-3 py-6 text-center text-[12px] text-[var(--admin-subtle)]">
+                      No leads
+                    </div>
+                  ) : (
+                    column.items.map((lead) => (
+                      <DraggableCard key={lead.id} id={lead.id}>
+                        <LeadCard
+                          lead={lead}
+                          staff={staff}
+                          selected={lead.id === selectedId}
+                          onOpen={() => setSelectedId(lead.id)}
+                        />
+                      </DraggableCard>
+                    ))
+                  )}
+                </DroppableColumn>
+              </section>
+            ))}
+          </div>
         </div>
-      </div>
+
+        {/* Ghost card that follows the cursor while dragging */}
+        <DragOverlay dropAnimation={null}>
+          {activeLead ? (
+            <div className="-rotate-1 shadow-2xl opacity-95">
+              <LeadCard
+                lead={activeLead}
+                staff={staff}
+                selected={false}
+                onOpen={() => {}}
+              />
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
 
       <LeadDrawer lead={selected} staff={staff} onClose={() => setSelectedId(null)} />
     </div>
