@@ -5424,6 +5424,32 @@ section.team-roster {
   color: var(--admin-subtle);
 }
 
+/* ── Form Builder drag handle ─────────────────────────────────────────────── */
+
+.form-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  flex-shrink: 0;
+  cursor: grab;
+  color: var(--admin-subtle);
+  font-size: 16px;
+  background: var(--admin-panel);
+  border: 1px solid var(--admin-border);
+  border-right: none;
+  transition: color 0.1s, background 0.1s;
+  touch-action: none;
+  user-select: none;
+}
+.form-drag-handle:hover {
+  color: var(--admin-text);
+  background: var(--admin-panel-hover);
+}
+.form-drag-handle:active {
+  cursor: grabbing;
+}
+
 .admin-activity-popover {
   position: absolute;
   top: calc(100% + 12px);

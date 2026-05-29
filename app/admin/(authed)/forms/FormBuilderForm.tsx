@@ -1,8 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import Link from "next/link";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Button } from "@/components/admin/ui/Button";
 import { FieldRow, Input, Select, Textarea } from "@/components/admin/ui/Field";
 import {
@@ -17,6 +32,7 @@ import {
   addFieldAction,
   createFormAction,
   deleteFieldAction,
+  reorderFieldsAction,
   updateFieldAction,
   updateFormAction,
   type FormBuilderState,
@@ -139,11 +155,6 @@ function FieldEditor({ field }: { field: FieldRowType }) {
             <FieldError messages={errors.type} />
           </FieldRow>
 
-          <FieldRow label="Sort order">
-            <Input name="sort_order" type="number" defaultValue={field.sort_order} />
-            <FieldError messages={errors.sort_order} />
-          </FieldRow>
-
           <FieldRow label="Placeholder">
             <Input name="placeholder" defaultValue={field.placeholder ?? ""} />
             <FieldError messages={errors.placeholder} />
@@ -189,6 +200,45 @@ function FieldEditor({ field }: { field: FieldRowType }) {
         </form>
       </div>
     </details>
+  );
+}
+
+function SortableFieldEditor({ field }: { field: FieldRowType }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: field.id });
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.4 : 1,
+        position: "relative",
+        zIndex: isDragging ? 1 : "auto",
+      }}
+      className="flex items-stretch"
+    >
+      <button
+        type="button"
+        className="form-drag-handle"
+        title="Drag to reorder"
+        aria-label="Drag to reorder field"
+        {...attributes}
+        {...listeners}
+      >
+        ⠿
+      </button>
+      <div className="min-w-0 flex-1">
+        <FieldEditor field={field} />
+      </div>
+    </div>
   );
 }
 
@@ -365,8 +415,37 @@ export function FormDefinitionForm({ mode, form }: { mode: "create" | "edit"; fo
   );
 }
 
-export function FormBuilderEditor({ form, fields }: { form: FormRow; fields: FieldRowType[] }) {
-  const nextSort = fields.length ? Math.max(...fields.map((field) => field.sort_order)) + 10 : 10;
+export function FormBuilderEditor({ form, fields: initialFields }: { form: FormRow; fields: FieldRowType[] }) {
+  const [fields, setFields] = useState(initialFields);
+  const [, startTransition] = useTransition();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+  );
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = fields.findIndex((f) => f.id === String(active.id));
+    const newIndex = fields.findIndex((f) => f.id === String(over.id));
+    if (oldIndex === -1 || newIndex === -1) return;
+
+    const newFields = arrayMove(fields, oldIndex, newIndex);
+    setFields(newFields); // optimistic
+
+    const updates = newFields.map((f, i) => ({ id: f.id, sort_order: i * 10 }));
+    startTransition(async () => {
+      try {
+        await reorderFieldsAction(form.id, updates);
+      } catch {
+        setFields(fields); // revert on error
+      }
+    });
+  }
+
+  const nextSort = fields.length ? Math.max(...fields.map((f) => f.sort_order)) + 10 : 10;
+
   return (
     <div className="grid gap-8 xl:grid-cols-[0.9fr_1.1fr]">
       <section className="space-y-5">
@@ -402,7 +481,20 @@ export function FormBuilderEditor({ form, fields }: { form: FormRow; fields: Fie
               No fields yet. Add the first controlled input.
             </div>
           ) : (
-            fields.map((field) => <FieldEditor key={field.id} field={field} />)
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={fields.map((f) => f.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {fields.map((field) => (
+                  <SortableFieldEditor key={field.id} field={field} />
+                ))}
+              </SortableContext>
+            </DndContext>
           )}
         </div>
       </section>

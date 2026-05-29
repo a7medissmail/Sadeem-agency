@@ -166,6 +166,22 @@ export async function deleteFormAction(formData: FormData): Promise<void> {
   revalidatePath("/admin/forms");
 }
 
+// ─── Field reorder ────────────────────────────────────────────────────────────
+
+export async function reorderFieldsAction(
+  formId: string,
+  updates: { id: string; sort_order: number }[],
+): Promise<void> {
+  await requireRole(["admin", "editor"]);
+  const admin = getSupabaseAdmin();
+  await Promise.all(
+    updates.map(({ id, sort_order }) =>
+      admin.from("form_fields").update({ sort_order }).eq("id", id).eq("form_id", formId),
+    ),
+  );
+  revalidatePath(`/admin/forms/${formId}`);
+}
+
 // ─── Submission status ────────────────────────────────────────────────────────
 
 export async function updateSubmissionStatusAction(formData: FormData): Promise<void> {
