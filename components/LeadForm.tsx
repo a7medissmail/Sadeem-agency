@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { submitLeadAction, type SubmitLeadState } from "@/lib/actions/leads";
+import { TurnstileWidget } from "@/components/TurnstileWidget";
 
 const initial: SubmitLeadState = { status: "idle" };
 
@@ -111,6 +112,7 @@ export default function LeadForm({
           className="bg-white border border-black/15 px-3.5 py-3 outline-none focus:border-[var(--accent)] text-black resize-y"
         />
       </label>
+      <TurnstileWidget />
       {state.status === "error" ? (
         <p className="text-[13.5px] text-red-600" role="alert">
           {state.message}

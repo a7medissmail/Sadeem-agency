@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { submitApplicationAction, type SubmitApplicationState } from "@/lib/actions/applications";
+import { TurnstileWidget } from "@/components/TurnstileWidget";
 import type { Database, FormFieldType, Json } from "@/types/database";
 
 type ApplicationForm = Pick<
@@ -221,6 +222,7 @@ export default function JobApplicationForm({
         </div>
       ) : null}
 
+      <TurnstileWidget />
       {state.status === "error" ? (
         <p className="course-register-error" role="alert">
           {state.message}

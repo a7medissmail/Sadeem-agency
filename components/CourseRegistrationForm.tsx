@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { submitLeadAction, type SubmitLeadState } from "@/lib/actions/leads";
+import { TurnstileWidget } from "@/components/TurnstileWidget";
 
 const initial: SubmitLeadState = { status: "idle" };
 
@@ -85,6 +86,7 @@ export default function CourseRegistrationForm({
         />
       </label>
 
+      <TurnstileWidget />
       {state.status === "error" ? (
         <p className="course-register-error" role="alert">
           {state.message}

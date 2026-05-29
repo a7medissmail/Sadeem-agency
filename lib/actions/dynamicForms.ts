@@ -3,6 +3,7 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { Database, FormFieldType, Json } from "@/types/database";
 import { checkRateLimit } from "@/lib/security/rateLimit";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 const FORM_BUCKET = "form-attachments";
 const FILE_MAX_BYTES = 10 * 1024 * 1024;
@@ -119,6 +120,12 @@ export async function submitDynamicFormAction(
 ): Promise<DynamicFormState> {
   const website = String(formData.get("website") ?? "").trim();
   if (website) return { status: "error", message: "Could not submit the form." };
+
+  // Turnstile challenge
+  const turnstileToken = formData.get("cf-turnstile-response") as string | null;
+  if (!(await verifyTurnstile(turnstileToken))) {
+    return { status: "error", message: "Security check failed. Please try again." };
+  }
 
   const formId = String(formData.get("form_id") ?? "").trim();
   if (!formId) return { status: "error", message: "Missing form id." };

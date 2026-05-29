@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { submitDynamicFormAction, type DynamicFormState } from "@/lib/actions/dynamicForms";
+import { TurnstileWidget } from "@/components/TurnstileWidget";
 import type { Database, FormFieldType, Json } from "@/types/database";
 
 type FormRow = Pick<
@@ -180,6 +181,7 @@ export default function DynamicFormRenderer({
         )}
       </div>
 
+      <TurnstileWidget />
       {state.status === "error" ? (
         <p className="dynamic-form-error" role="alert">
           {state.message}

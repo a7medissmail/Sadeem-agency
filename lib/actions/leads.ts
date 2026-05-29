@@ -5,6 +5,7 @@ import { leadSchema, type LeadInput } from "@/lib/validation/lead";
 import { sendEmail } from "@/lib/email/resend";
 import { getEmailBranding, leadConfirmation, leadNotification } from "@/lib/email/templates";
 import { checkRateLimit } from "@/lib/security/rateLimit";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 export type SubmitLeadState =
   | { status: "idle" }
@@ -23,6 +24,12 @@ export async function submitLeadAction(
   // honeypot: bots fill hidden "website" field; humans don't.
   if ((formData.get("website") as string)?.length) {
     return { status: "success" };
+  }
+
+  // Turnstile challenge
+  const turnstileToken = formData.get("cf-turnstile-response") as string | null;
+  if (!(await verifyTurnstile(turnstileToken))) {
+    return { status: "error", message: "Security check failed. Please try again." };
   }
 
   // Rate limit: max 5 leads per visitor IP per minute.

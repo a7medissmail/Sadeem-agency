@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { submitBookingAction, type SubmitBookingState } from "@/lib/actions/bookings";
+import { TurnstileWidget } from "@/components/TurnstileWidget";
 import type { ConsultationSlot } from "@/lib/booking/slots";
 
 type SlotsResponse = {
@@ -200,6 +201,7 @@ export default function ConsultationBooking() {
           </label>
         </div>
 
+        <TurnstileWidget />
         {state.status === "error" ? (
           <p className="consult-error" role="alert">{state.message}</p>
         ) : null}

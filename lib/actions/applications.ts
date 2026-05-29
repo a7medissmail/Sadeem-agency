@@ -10,6 +10,7 @@ import {
   formatApplicationValidationError,
 } from "@/lib/validation/careers";
 import { checkRateLimit } from "@/lib/security/rateLimit";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 type CustomFieldRow = Pick<
   Database["public"]["Tables"]["form_fields"]["Row"],
@@ -130,6 +131,12 @@ export async function submitApplicationAction(
   formData: FormData,
 ): Promise<SubmitApplicationState> {
   if ((formData.get("website") as string)?.length) return { status: "success" };
+
+  // Turnstile challenge
+  const turnstileToken = formData.get("cf-turnstile-response") as string | null;
+  if (!(await verifyTurnstile(turnstileToken))) {
+    return { status: "error", message: "Security check failed. Please try again." };
+  }
 
   // Rate limit: max 3 applications per visitor IP per 5 minutes (uploads are expensive).
   const limit = await checkRateLimit({ action: "application", max: 3, windowSeconds: 300 });
