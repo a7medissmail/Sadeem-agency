@@ -6,7 +6,7 @@ import type { Json } from "@/types/database";
 import { Button } from "@/components/admin/ui/Button";
 import { SaveStatus } from "@/components/admin/ui/SaveStatus";
 import { useAutoSave } from "@/components/admin/hooks/useAutoSave";
-import { FieldRow, Input, Textarea } from "@/components/admin/ui/Field";
+import { FieldRow, Input, Select, Textarea } from "@/components/admin/ui/Field";
 import { createTeamMemberAction, updateTeamMemberAction, type TeamFormState } from "./actions";
 
 const initial: TeamFormState = {};
@@ -15,6 +15,8 @@ type TeamMemberValues = {
   id?: string;
   name?: string;
   role?: string | null;
+  credential?: string | null;
+  category?: string | null;
   bio?: string | null;
   photo_url?: string | null;
   socials?: Json | null;
@@ -47,6 +49,22 @@ function Fields({ member, errors = {} }: { member?: TeamMemberValues; errors?: R
         <FieldRow label="Role">
           <Input name="role" defaultValue={member?.role ?? ""} maxLength={140} aria-invalid={Boolean(errors.role)} placeholder="Strategy lead" />
           <FieldError messages={errors.role} />
+        </FieldRow>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <FieldRow label="Section">
+          <Select name="category" defaultValue={member?.category ?? "founder"} aria-invalid={Boolean(errors.category)}>
+            <option value="founder">Founders</option>
+            <option value="team">The wider team</option>
+            <option value="advisor">Advisory Network</option>
+          </Select>
+          <FieldError messages={errors.category} />
+        </FieldRow>
+
+        <FieldRow label="Credential (optional)">
+          <Input name="credential" defaultValue={member?.credential ?? ""} maxLength={200} aria-invalid={Boolean(errors.credential)} placeholder="Former CMO, Acme" />
+          <FieldError messages={errors.credential} />
         </FieldRow>
       </div>
 

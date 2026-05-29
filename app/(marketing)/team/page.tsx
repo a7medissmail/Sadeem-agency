@@ -8,7 +8,7 @@ import RevealSection from "@/components/RevealSection";
 import SectionAwareNavbar from "@/components/SectionAwareNavbar";
 import SectionLabel from "@/components/SectionLabel";
 import TeamBeliefItem from "@/components/TeamBeliefItem";
-import TeamFounderCard from "@/components/TeamFounderCard";
+import TeamGrid from "@/components/TeamGrid";
 import { Icon } from "@/components/Icons";
 
 export const metadata = {
@@ -20,6 +20,8 @@ type TeamMember = {
   id: string;
   name: string;
   role: string | null;
+  credential: string | null;
+  category: string;
   bio: string | null;
   photo_url: string | null;
   socials: Json | null;
@@ -54,7 +56,7 @@ async function loadTeamMembers(): Promise<TeamMember[]> {
     const supabase = getSupabasePublic();
     const { data, error } = await supabase
       .from("team_members")
-      .select("id, name, role, bio, photo_url, socials, sort_order")
+      .select("id, name, role, credential, category, bio, photo_url, socials, sort_order")
       .eq("is_active", true)
       .order("sort_order", { ascending: true })
       .order("name", { ascending: true });
@@ -68,7 +70,10 @@ async function loadTeamMembers(): Promise<TeamMember[]> {
 
 export default async function TeamPage() {
   const members = await loadTeamMembers();
-  const memberCount = members.length;
+  const founders = members.filter((m) => m.category === "founder");
+  const team = members.filter((m) => m.category === "team");
+  const advisors = members.filter((m) => m.category === "advisor");
+  const memberCount = founders.length;
 
   return (
     <>
@@ -115,19 +120,8 @@ export default async function TeamPage() {
               </div>
             </div>
 
-            {members.length > 0 ? (
-              <div className="team-founder-grid">
-                {members.map((member, index) => (
-                  <TeamFounderCard
-                    bio={member.bio}
-                    index={index}
-                    key={member.id}
-                    name={member.name}
-                    photoUrl={member.photo_url}
-                    role={member.role}
-                  />
-                ))}
-              </div>
+            {founders.length > 0 ? (
+              <TeamGrid members={founders} />
             ) : (
               <div className="team-founders-empty">
                 <p>No active team members are published yet.</p>
@@ -136,6 +130,52 @@ export default async function TeamPage() {
             )}
           </div>
         </RevealSection>
+
+        {team.length > 0 ? (
+          <RevealSection className="team-founders light" data-section="02b" id="wider-team">
+            <div className="section-inner">
+              <div className="team-founders-head">
+                <div>
+                  <p className="team-brief-kicker">THE TEAM</p>
+                  <h2>
+                    The people
+                    <br />
+                    behind the <span>work.</span>
+                  </h2>
+                </div>
+                <div className="team-founders-controls" aria-hidden="true">
+                  <span>
+                    01 / <strong>{String(team.length).padStart(2, "0")}</strong>
+                  </span>
+                </div>
+              </div>
+              <TeamGrid members={team} />
+            </div>
+          </RevealSection>
+        ) : null}
+
+        {advisors.length > 0 ? (
+          <RevealSection className="team-founders light" data-section="02c" id="advisory-network">
+            <div className="section-inner">
+              <div className="team-founders-head">
+                <div>
+                  <p className="team-brief-kicker">ADVISORY NETWORK</p>
+                  <h2>
+                    Experts who
+                    <br />
+                    sharpen the <span>thinking.</span>
+                  </h2>
+                </div>
+                <div className="team-founders-controls" aria-hidden="true">
+                  <span>
+                    01 / <strong>{String(advisors.length).padStart(2, "0")}</strong>
+                  </span>
+                </div>
+              </div>
+              <TeamGrid members={advisors} />
+            </div>
+          </RevealSection>
+        ) : null}
 
         <RevealSection className="team-belief dark" data-section="03">
           <div className="team-orbit team-orbit-belief" aria-hidden="true" />

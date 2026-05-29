@@ -4498,6 +4498,13 @@ section.team-roster {
   font-size: clamp(30px, 2.8vw, 46px);
   letter-spacing: -0.035em;
 }
+.team-founder-credential {
+  margin: 6px 0 0;
+  color: rgba(245,243,240,0.82);
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.4;
+}
 .team-founder-focus {
   display: -webkit-box;
   margin-top: 14px;
@@ -4508,6 +4515,111 @@ section.team-roster {
   color: rgba(245,243,240,0.68);
   font-size: 14.5px;
   line-height: 1.55;
+}
+.team-founder-card.is-interactive {
+  cursor: pointer;
+}
+.team-founder-card.is-interactive:focus-visible {
+  outline: 2px solid var(--team-orange);
+  outline-offset: 3px;
+}
+
+/* ── Team member detail modal ─────────────────────────────────────────────── */
+.team-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(8,8,10,0.72);
+  backdrop-filter: blur(6px);
+  animation: teamModalFade 0.2s ease;
+}
+@keyframes teamModalFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.team-modal {
+  position: relative;
+  width: min(560px, 100%);
+  max-height: 88vh;
+  overflow-y: auto;
+  background: #0d0d0f;
+  border: 1px solid rgba(245,243,240,0.12);
+  border-radius: 4px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  animation: teamModalRise 0.26s cubic-bezier(0.2,0.7,0.2,1);
+}
+@keyframes teamModalRise {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.team-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(245,243,240,0.16);
+  background: rgba(13,13,15,0.6);
+  color: rgba(245,243,240,0.8);
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.team-modal-close:hover {
+  color: var(--white);
+  border-color: var(--team-orange);
+}
+.team-modal-photo {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: #141416;
+}
+.team-modal-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.team-modal-body {
+  padding: 28px 30px 32px;
+}
+.team-modal-role {
+  margin: 0 0 8px;
+  color: var(--team-orange);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.team-modal-name {
+  margin: 0;
+  font-size: clamp(26px, 4vw, 36px);
+  letter-spacing: -0.03em;
+  color: var(--white);
+}
+.team-modal-credential {
+  margin: 8px 0 0;
+  color: rgba(245,243,240,0.78);
+  font-size: 14px;
+  font-style: italic;
+}
+.team-modal-bio {
+  margin: 18px 0 0;
+  color: rgba(245,243,240,0.74);
+  font-size: 15px;
+  line-height: 1.65;
+  white-space: pre-line;
+}
+.team-modal-socials {
+  margin-top: 24px;
+  display: flex;
+  gap: 12px;
 }
 .team-founders-empty {
   border: 1px solid rgba(13,13,15,0.12);

@@ -193,8 +193,14 @@ export type Database = {
           socials: Json | null;
           sort_order: number;
           is_active: boolean;
+          category: string;
+          credential: string | null;
         };
-        Insert: Omit<Database["public"]["Tables"]["team_members"]["Row"], "id"> & { id?: string };
+        Insert: Omit<Database["public"]["Tables"]["team_members"]["Row"], "id" | "category" | "credential"> & {
+          id?: string;
+          category?: string;
+          credential?: string | null;
+        };
         Relationships: [];
         Update: Partial<Database["public"]["Tables"]["team_members"]["Insert"]>;
       };

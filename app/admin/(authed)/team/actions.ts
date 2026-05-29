@@ -56,6 +56,8 @@ function readForm(formData: FormData) {
   return {
     name: formData.get("name") ?? "",
     role: formData.get("role") ?? "",
+    credential: formData.get("credential") ?? "",
+    category: formData.get("category") ?? "founder",
     bio: formData.get("bio") ?? "",
     photo_url: formData.get("photo_url") ?? "",
     socials: {

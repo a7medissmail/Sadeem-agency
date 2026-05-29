@@ -31,6 +31,14 @@ const sortOrderFromForm = (value: unknown) => {
 const booleanFromForm = (value: unknown): boolean =>
   value === true || value === "on" || value === "true" || value === "1";
 
+export const teamCategories = ["founder", "team", "advisor"] as const;
+export type TeamCategory = (typeof teamCategories)[number];
+
+const categoryFromForm = (value: unknown): TeamCategory => {
+  const normalized = typeof value === "string" ? value.trim().toLowerCase() : "";
+  return teamCategories.includes(normalized as TeamCategory) ? (normalized as TeamCategory) : "founder";
+};
+
 const socialsSchema = z
   .object({
     website: nullableUrl("Website"),
@@ -46,6 +54,8 @@ const socialsSchema = z
 export const teamMemberSchema = z.object({
   name: requiredText("Name", 140),
   role: nullableText("Role", 140),
+  credential: nullableText("Credential", 200),
+  category: z.preprocess(categoryFromForm, z.enum(teamCategories)),
   bio: nullableText("Bio", 1400),
   photo_url: nullableUrl("Photo URL"),
   socials: socialsSchema,
@@ -73,6 +83,8 @@ export type TeamFieldErrors = Partial<Record<TeamFieldName, string[]>>;
 const FIELD_LABELS: Record<TeamFieldName, string> = {
   name: "Name",
   role: "Role",
+  credential: "Credential",
+  category: "Category",
   bio: "Bio",
   photo_url: "Photo",
   socials: "Social links",
