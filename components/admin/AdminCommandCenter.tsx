@@ -25,42 +25,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AdminThemeToggle } from "@/components/admin/AdminThemeToggle";
 import type { AdminSignal } from "@/lib/admin/signals";
+import { buildPaletteCommands, type PaletteCommand } from "@/lib/admin/navigation";
 
 export type { AdminSignal };
 
-type CommandItem = {
-  group: string;
-  label: string;
-  href: string;
-  hint: string;
-  shortcut?: string;
-  keywords?: string;
-};
-
-const commands: CommandItem[] = [
-  { group: "Command", label: "Dashboard",      href: "/admin",               hint: "Operational cockpit",                shortcut: "G D", keywords: "overview pulse cockpit" },
-  { group: "Command", label: "CRM Leads",      href: "/admin/leads",         hint: "Triage inbound demand",              shortcut: "G L", keywords: "crm lead sales pipeline" },
-  { group: "Command", label: "Consultations",  href: "/admin/bookings",      hint: "Bookings, links, availability",      shortcut: "G C", keywords: "calendar booking consultation availability" },
-  { group: "Command", label: "Email Studio",   href: "/admin/campaigns",     hint: "Campaigns and dispatches",           shortcut: "G E", keywords: "email resend campaign newsletter" },
-  { group: "Command", label: "Proposals",      href: "/admin/proposals",     hint: "Client briefs and quotations",       shortcut: "G P", keywords: "proposals briefs quotes clients rfp" },
-  { group: "Content", label: "Services",       href: "/admin/services",      hint: "Public service pages",               shortcut: "G V", keywords: "services offerings advisory" },
-  { group: "Content", label: "Workshops",      href: "/admin/courses",       hint: "Courses and cohorts",                shortcut: "G W", keywords: "courses workshops cohorts" },
-  { group: "Content", label: "Success Stories",href: "/admin/success-stories",hint: "Case studies and field notes",      shortcut: "G S", keywords: "stories cases success" },
-  { group: "Content", label: "Team",           href: "/admin/team",          hint: "Public team roster",                 shortcut: "G T", keywords: "founders team roster" },
-  { group: "Content", label: "Clients",        href: "/admin/clients",       hint: "Partner and client logos",           shortcut: "G I", keywords: "clients partners logos brands" },
-  { group: "Hiring",  label: "Roles",          href: "/admin/jobs",          hint: "Open jobs and internships",          shortcut: "G H", keywords: "careers jobs roles hiring" },
-  { group: "Hiring",  label: "Applications",   href: "/admin/applications",  hint: "Candidate pipeline",                 shortcut: "G A", keywords: "candidates applicants resumes hiring" },
-  { group: "System",  label: "Form Builder",   href: "/admin/forms",         hint: "Controlled fields and intake forms", shortcut: "G F", keywords: "forms fields proposal brief onboarding intake custom" },
-  { group: "System",  label: "Site Settings",  href: "/admin/settings",      hint: "Brand, footer, socials, favicon",    shortcut: "G ,", keywords: "settings logo footer favicon social" },
-  { group: "System",  label: "Users & Roles",  href: "/admin/users",         hint: "Staff access and permissions",       shortcut: "G U", keywords: "users roles permissions auth" },
-  { group: "Quick action", label: "New lead",          href: "/admin/leads/new",          hint: "Log an inbound lead manually",           keywords: "new lead crm add" },
-  { group: "Quick action", label: "New booking",       href: "/admin/bookings/new",       hint: "Create a manual consultation slot",       keywords: "new booking consultation" },
-  { group: "Quick action", label: "Add workshop",      href: "/admin/courses/new",        hint: "Create a new cohort announcement",        keywords: "new course workshop" },
-  { group: "Quick action", label: "Add success story", href: "/admin/success-stories/new",hint: "Draft a new case study",                  keywords: "new story case" },
-  { group: "Quick action", label: "Add job",           href: "/admin/jobs/new",           hint: "Open a new hiring role",                  keywords: "new job role" },
-  { group: "Quick action", label: "Build form",        href: "/admin/forms/new",          hint: "Create a reusable controlled form",        keywords: "new form fields intake" },
-  { group: "Quick action", label: "Write campaign",    href: "/admin/campaigns",          hint: "Compose a CRM dispatch",                  keywords: "new email campaign" },
-];
+// Derived from the single navigation source of truth
+const commands = buildPaletteCommands();
 
 // Build a shortcut lookup: "D" → "/admin", "L" → "/admin/leads" etc.
 const chordMap: Record<string, string> = {};
@@ -72,7 +42,7 @@ for (const cmd of commands) {
   }
 }
 
-function matchesCommand(item: CommandItem, query: string) {
+function matchesCommand(item: PaletteCommand, query: string) {
   const haystack = `${item.group} ${item.label} ${item.hint} ${item.keywords ?? ""}`.toLowerCase();
   return haystack.includes(query.toLowerCase());
 }
@@ -161,7 +131,17 @@ export function AdminCommandCenter({
         return;
       }
 
-      // ② G+letter chord navigation — skip if palette is open or focus is in a field
+      // ② "/" — open palette (when not already open and not focused in a text field)
+      if (event.key === "/" && !paletteOpenRef.current) {
+        const target = event.target as HTMLElement;
+        if (!["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) && !target.isContentEditable) {
+          event.preventDefault();
+          setPaletteOpen(true);
+          return;
+        }
+      }
+
+      // ③ G+letter chord navigation — skip if palette is open or focus is in a field
       if (paletteOpenRef.current) return;
       const target = event.target as HTMLElement;
       if (["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName)) return;
@@ -240,7 +220,7 @@ export function AdminCommandCenter({
   }, [activityOpen]);
 
   // ── Helpers ───────────────────────────────────────────────────────────────
-  function openCommand(item: CommandItem) {
+  function openCommand(item: PaletteCommand) {
     router.push(item.href);
     setPaletteOpen(false);
   }
@@ -261,7 +241,7 @@ export function AdminCommandCenter({
       <button type="button" className="admin-command-trigger" onClick={() => setPaletteOpen(true)}>
         <span className="admin-command-mark" aria-hidden="true">/_</span>
         <span className="admin-command-copy">Search pages, people, actions</span>
-        <span className="admin-command-kbd">Ctrl K</span>
+        <span className="admin-command-kbd">Ctrl K · /</span>
       </button>
 
       {/* Topbar actions */}

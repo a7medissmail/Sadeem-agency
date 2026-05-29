@@ -1,57 +1,15 @@
 import type { ReactNode } from "react";
-import { requireUser, getCurrentProfile } from "@/lib/auth";
+import { requireRole } from "@/lib/auth";
 import { signOutAction } from "@/app/admin/login/actions";
 import { AdminCommandCenter } from "@/components/admin/AdminCommandCenter";
 import { AdminNavLink } from "@/components/admin/AdminNavLink";
 import { loadAdminSignals, loadBadgeCounts } from "@/lib/admin/signals";
-
-// href → badge count mapping (populated from loadBadgeCounts)
-type BadgeMap = Record<string, number>;
-
-const navGroups = [
-  {
-    label: "Command",
-    items: [
-      { href: "/admin",            label: "Dashboard" },
-      { href: "/admin/leads",      label: "CRM Leads" },
-      { href: "/admin/bookings",   label: "Consultations" },
-      { href: "/admin/campaigns",  label: "Email Studio" },
-    ],
-  },
-  {
-    label: "Content",
-    items: [
-      { href: "/admin/services",           label: "Services" },
-      { href: "/admin/services/categories",label: "Categories" },
-      { href: "/admin/courses",            label: "Workshops" },
-      { href: "/admin/success-stories",    label: "Stories" },
-      { href: "/admin/team",               label: "Team" },
-      { href: "/admin/clients",            label: "Clients" },
-    ],
-  },
-  {
-    label: "Hiring",
-    items: [
-      { href: "/admin/jobs",         label: "Roles" },
-      { href: "/admin/applications", label: "Applications" },
-    ],
-  },
-  {
-    label: "System",
-    items: [
-      { href: "/admin/proposals",  label: "Proposals" },
-      { href: "/admin/forms",      label: "Form Builder" },
-      { href: "/admin/settings",   label: "Site Settings" },
-      { href: "/admin/users",      label: "Users & Roles" },
-    ],
-  },
-] as const;
+import { navGroups } from "@/lib/admin/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function AuthedAdminLayout({ children }: { children: ReactNode }) {
-  await requireUser();
-  const profile = await getCurrentProfile();
+  const profile = await requireRole(["admin", "editor"]);
   const profileLabel = profile?.full_name || profile?.email || "SADEEM";
 
   // Load signals and badge counts in parallel
@@ -60,7 +18,7 @@ export default async function AuthedAdminLayout({ children }: { children: ReactN
     loadBadgeCounts(),
   ]);
 
-  const badges: BadgeMap = {
+  const badges: Record<string, number> = {
     "/admin/leads":        badgeCounts.leads,
     "/admin/bookings":     badgeCounts.bookings,
     "/admin/applications": badgeCounts.applications,
