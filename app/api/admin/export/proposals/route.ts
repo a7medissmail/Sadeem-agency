@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentProfile } from "@/lib/auth";
+
+export const dynamic = "force-dynamic";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { toCsv, csvResponse } from "@/lib/export/csv";
 

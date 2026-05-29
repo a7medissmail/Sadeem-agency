@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getCurrentProfile } from "@/lib/auth";
 import { loadAdminSignals } from "@/lib/admin/signals";
 
+export const dynamic = "force-dynamic";
+
 /** GET /api/admin/signals — polled by AdminCommandCenter every 30 s */
 export async function GET() {
   const profile = await getCurrentProfile();
