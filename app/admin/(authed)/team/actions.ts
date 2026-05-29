@@ -65,6 +65,7 @@ function readForm(formData: FormData) {
       linkedin: formData.get("linkedin") ?? "",
       x: formData.get("x") ?? "",
       instagram: formData.get("instagram") ?? "",
+      facebook: formData.get("facebook") ?? "",
     },
     sort_order: formData.get("sort_order") ?? "",
     is_active: formData.get("is_active") || false,

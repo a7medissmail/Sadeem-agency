@@ -29,7 +29,7 @@ function FieldError({ messages }: { messages?: string[] }) {
   return <p className="text-[12.5px] leading-snug text-red-300">{messages[0]}</p>;
 }
 
-function socialValue(socials: Json | null | undefined, key: "website" | "linkedin" | "x" | "instagram") {
+function socialValue(socials: Json | null | undefined, key: "website" | "linkedin" | "x" | "instagram" | "facebook") {
   if (!socials || typeof socials !== "object" || Array.isArray(socials)) return "";
   const value = (socials as Record<string, unknown>)[key];
   return typeof value === "string" ? value : "";
@@ -103,6 +103,10 @@ function Fields({ member, errors = {} }: { member?: TeamMemberValues; errors?: R
         <FieldRow label="Instagram">
           <Input name="instagram" type="url" defaultValue={socialValue(member?.socials, "instagram")} placeholder="https://instagram.com/name" />
           <FieldError messages={errors.instagram} />
+        </FieldRow>
+        <FieldRow label="Facebook">
+          <Input name="facebook" type="url" defaultValue={socialValue(member?.socials, "facebook")} placeholder="https://facebook.com/name" />
+          <FieldError messages={errors.facebook} />
         </FieldRow>
       </div>
 

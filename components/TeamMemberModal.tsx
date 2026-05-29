@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { FaLinkedinIn, FaXTwitter, FaInstagram, FaGlobe } from "react-icons/fa6";
+import { FaLinkedinIn, FaXTwitter, FaInstagram, FaFacebookF, FaGlobe } from "react-icons/fa6";
 import type { Json } from "@/types/database";
 
 export type TeamMemberDetail = {
@@ -14,13 +14,14 @@ export type TeamMemberDetail = {
   socials: Json | null;
 };
 
-type SocialKey = "website" | "linkedin" | "x" | "instagram";
+type SocialKey = "website" | "linkedin" | "x" | "instagram" | "facebook";
 
 const socialMeta: Record<SocialKey, { label: string; Icon: React.ComponentType<{ "aria-hidden"?: boolean }> }> = {
   website: { label: "Website", Icon: FaGlobe },
   linkedin: { label: "LinkedIn", Icon: FaLinkedinIn },
   x: { label: "X / Twitter", Icon: FaXTwitter },
   instagram: { label: "Instagram", Icon: FaInstagram },
+  facebook: { label: "Facebook", Icon: FaFacebookF },
 };
 
 function socialLinks(socials: Json | null): { key: SocialKey; url: string }[] {

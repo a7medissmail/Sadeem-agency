@@ -45,6 +45,7 @@ const socialsSchema = z
     linkedin: nullableUrl("LinkedIn"),
     x: nullableUrl("X / Twitter"),
     instagram: nullableUrl("Instagram"),
+    facebook: nullableUrl("Facebook"),
   })
   .transform((socials) => {
     const entries = Object.entries(socials).filter((entry): entry is [string, string] => Boolean(entry[1]));
@@ -77,7 +78,7 @@ export const teamMemberSchema = z.object({
 });
 
 export type TeamMemberInput = z.infer<typeof teamMemberSchema>;
-export type TeamFieldName = keyof TeamMemberInput | "website" | "linkedin" | "x" | "instagram";
+export type TeamFieldName = keyof TeamMemberInput | "website" | "linkedin" | "x" | "instagram" | "facebook";
 export type TeamFieldErrors = Partial<Record<TeamFieldName, string[]>>;
 
 const FIELD_LABELS: Record<TeamFieldName, string> = {
@@ -94,6 +95,7 @@ const FIELD_LABELS: Record<TeamFieldName, string> = {
   linkedin: "LinkedIn",
   x: "X / Twitter",
   instagram: "Instagram",
+  facebook: "Facebook",
 };
 
 function fieldFromIssue(path: PropertyKey[]): TeamFieldName | null {
