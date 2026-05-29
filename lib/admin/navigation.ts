@@ -52,9 +52,10 @@ export const navGroups: NavGroup[] = [
   {
     label: "System",
     items: [
-      { href: "/admin/forms",    label: "Form Builder",  hint: "Controlled fields and intake forms", shortcut: "G F", keywords: "forms fields proposal brief onboarding intake custom" },
-      { href: "/admin/settings", label: "Site Settings", hint: "Brand, footer, socials, favicon",    shortcut: "G ,", keywords: "settings logo footer favicon social" },
-      { href: "/admin/users",    label: "Users & Roles", hint: "Staff access and permissions",       shortcut: "G U", keywords: "users roles permissions auth" },
+      { href: "/admin/forms",     label: "Form Builder",  hint: "Controlled fields and intake forms", shortcut: "G F", keywords: "forms fields proposal brief onboarding intake custom" },
+      { href: "/admin/settings",  label: "Site Settings", hint: "Brand, footer, socials, favicon",    shortcut: "G ,", keywords: "settings logo footer favicon social" },
+      { href: "/admin/users",     label: "Users & Roles", hint: "Staff access and permissions",       shortcut: "G U", keywords: "users roles permissions auth" },
+      { href: "/admin/audit-log", label: "Audit Log",     hint: "Who deleted what and when",          shortcut: "G O", keywords: "audit log history changes deleted actions" },
     ],
   },
 ];

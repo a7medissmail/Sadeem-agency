@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { formatTeamValidationError, teamMemberSchema, type TeamFieldErrors } from "@/lib/validation/team";
 
@@ -144,13 +145,14 @@ export async function toggleTeamMemberActiveAction(formData: FormData): Promise<
 }
 
 export async function deleteTeamMemberAction(formData: FormData): Promise<void> {
-  await requireRole(["admin"]);
+  const profile = await requireRole(["admin"]);
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing team member id");
 
   const admin = getSupabaseAdmin();
   const { error } = await admin.from("team_members").delete().eq("id", id);
   if (error) throw new Error(error.message);
+  await logAudit({ tableName: "team_members", recordId: id, action: "delete", actorId: profile.id, actorName: profile.full_name ?? profile.email ?? null });
 
   revalidatePath("/admin/team");
   revalidatePath("/team");

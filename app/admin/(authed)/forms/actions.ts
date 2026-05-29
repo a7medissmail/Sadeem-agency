@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import {
   formatFormDefinitionValidationError,
@@ -141,7 +142,7 @@ export async function updateFieldAction(_prev: FormFieldState, formData: FormDat
 }
 
 export async function deleteFieldAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  const profile = await requireRole(["admin", "editor"]);
   const id = formData.get("id") as string;
   const form_id = formData.get("form_id") as string;
   if (!id || !form_id) throw new Error("Missing field id");
@@ -149,17 +150,19 @@ export async function deleteFieldAction(formData: FormData): Promise<void> {
   const admin = getSupabaseAdmin();
   const { error } = await admin.from("form_fields").delete().eq("id", id);
   if (error) throw new Error(formDatabaseError(error.message));
+  await logAudit({ tableName: "form_fields", recordId: id, action: "delete", actorId: profile.id, actorName: profile.full_name ?? profile.email ?? null });
   revalidatePath(`/admin/forms/${form_id}`);
 }
 
 export async function deleteFormAction(formData: FormData): Promise<void> {
-  await requireRole(["admin"]);
+  const profile = await requireRole(["admin"]);
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing form id");
 
   const admin = getSupabaseAdmin();
   const { error } = await admin.from("forms").delete().eq("id", id);
   if (error) throw new Error(formDatabaseError(error.message));
+  await logAudit({ tableName: "forms", recordId: id, action: "delete", actorId: profile.id, actorName: profile.full_name ?? profile.email ?? null });
   revalidatePath("/admin/forms");
 }
 

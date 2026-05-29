@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { requireRole } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 import { sendEmail } from "@/lib/email/resend";
 import { proposalInviteClient, getEmailBranding } from "@/lib/email/templates";
 import type { Database } from "@/types/database";
@@ -94,13 +95,14 @@ export async function assignLeadOwnerAction(formData: FormData): Promise<void> {
 }
 
 export async function deleteLeadAction(formData: FormData): Promise<void> {
-  await requireRole(["admin"]);
+  const profile = await requireRole(["admin"]);
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing lead id");
 
   const admin = getSupabaseAdmin();
   const { error } = await admin.from("leads").delete().eq("id", id);
   if (error) throw new Error(error.message);
+  await logAudit({ tableName: "leads", recordId: id, action: "delete", actorId: profile.id, actorName: profile.full_name ?? profile.email ?? null });
   revalidatePath("/admin/leads");
   revalidatePath("/admin");
 }

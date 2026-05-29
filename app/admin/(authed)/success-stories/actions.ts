@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import {
   formatSuccessStoryValidationError,
@@ -154,13 +155,14 @@ export async function toggleSuccessStoryPublishedAction(formData: FormData): Pro
 }
 
 export async function deleteSuccessStoryAction(formData: FormData): Promise<void> {
-  await requireRole(["admin"]);
+  const profile = await requireRole(["admin"]);
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing story id");
 
   const admin = getSupabaseAdmin();
   const { error } = await admin.from("success_stories").delete().eq("id", id);
   if (error) throw new Error(storyDatabaseError(error.message));
+  await logAudit({ tableName: "success_stories", recordId: id, action: "delete", actorId: profile.id, actorName: profile.full_name ?? profile.email ?? null });
   revalidatePath("/admin/success-stories");
   revalidatePath("/success-stories");
   revalidatePath("/");

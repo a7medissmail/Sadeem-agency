@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/resend";
 import { campaignEmail, getEmailBranding } from "@/lib/email/templates";
@@ -191,12 +192,13 @@ export async function updateCampaignAction(formData: FormData): Promise<void> {
 }
 
 export async function deleteCampaignAction(formData: FormData): Promise<void> {
-  await requireRole(["admin"]);
+  const profile = await requireRole(["admin"]);
   const id = String(formData.get("id") ?? "");
   if (!id) throw new Error("Missing campaign id");
 
   const admin = getSupabaseAdmin();
   const { error } = await admin.from("email_campaigns").delete().eq("id", id);
   if (error) throw new Error(error.message);
+  await logAudit({ tableName: "email_campaigns", recordId: id, action: "delete", actorId: profile.id, actorName: profile.full_name ?? profile.email ?? null });
   revalidatePath("/admin/campaigns");
 }

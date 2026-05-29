@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { requireRole } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 import { inviteUserSchema, updateUserSchema } from "@/lib/validation/user";
 
 export type ActionResult = { ok?: true; error?: string };
@@ -38,7 +39,7 @@ export async function inviteUserAction(_prev: ActionResult, formData: FormData):
 }
 
 export async function updateUserAction(formData: FormData): Promise<void> {
-  await requireRole(["admin"]);
+  const profile = await requireRole(["admin"]);
   const parsed = updateUserSchema.safeParse({
     id: formData.get("id"),
     full_name: (formData.get("full_name") as string) || undefined,
@@ -50,6 +51,9 @@ export async function updateUserAction(formData: FormData): Promise<void> {
   const { id, ...rest } = parsed.data;
   const { error } = await admin.from("profiles").update(rest).eq("id", id);
   if (error) throw new Error(error.message);
+  if (parsed.data.role) {
+    await logAudit({ tableName: "profiles", recordId: id, action: "update", actorId: profile.id, actorName: profile.full_name ?? profile.email ?? null, meta: { field: "role", new_value: parsed.data.role } });
+  }
 
   revalidatePath("/admin/users");
 }
@@ -63,5 +67,6 @@ export async function deleteUserAction(formData: FormData): Promise<void> {
   const admin = getSupabaseAdmin();
   const { error } = await admin.auth.admin.deleteUser(id);
   if (error) throw new Error(error.message);
+  await logAudit({ tableName: "profiles", recordId: id, action: "delete", actorId: me.id, actorName: me.full_name ?? me.email ?? null });
   revalidatePath("/admin/users");
 }

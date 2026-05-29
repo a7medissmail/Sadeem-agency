@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { requireRole } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 import {
   courseSchema,
   formatCourseValidationError,
@@ -159,13 +160,14 @@ export async function toggleCourseActiveAction(formData: FormData): Promise<void
 }
 
 export async function deleteCourseAction(formData: FormData): Promise<void> {
-  await requireRole(["admin"]);
+  const profile = await requireRole(["admin"]);
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing course id");
 
   const admin = getSupabaseAdmin();
   const { error } = await admin.from("courses").delete().eq("id", id);
   if (error) throw new Error(error.message);
+  await logAudit({ tableName: "courses", recordId: id, action: "delete", actorId: profile.id, actorName: profile.full_name ?? profile.email ?? null });
   revalidatePath("/admin/courses");
   revalidatePath("/courses");
 }

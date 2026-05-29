@@ -4,6 +4,7 @@ import crypto from "crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/resend";
 import { briefReceivedClient, briefSubmittedAdmin, proposalInviteClient, getEmailBranding } from "@/lib/email/templates";
@@ -210,13 +211,14 @@ export async function emailProposalAction(
 // ─── Delete ───────────────────────────────────────────────────────────────────
 
 export async function deleteProposalAction(formData: FormData): Promise<void> {
-  await requireRole(["admin"]);
+  const profile = await requireRole(["admin"]);
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing proposal id");
 
   const admin = getSupabaseAdmin();
   const { error } = await admin.from("proposals").delete().eq("id", id);
   if (error) throw new Error(error.message);
+  await logAudit({ tableName: "proposals", recordId: id, action: "delete", actorId: profile.id, actorName: profile.full_name ?? profile.email ?? null });
   revalidatePath("/admin/proposals");
   redirect("/admin/proposals");
 }

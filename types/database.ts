@@ -676,6 +676,30 @@ export type Database = {
         Relationships: [];
         Update: Partial<Database["public"]["Tables"]["quotation_items"]["Insert"]>;
       };
+      audit_log: {
+        Row: {
+          id: string;
+          table_name: string;
+          record_id: string;
+          action: "delete" | "update";
+          actor_id: string | null;
+          actor_name: string | null;
+          meta: Record<string, unknown> | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          table_name: string;
+          record_id: string;
+          action: "delete" | "update";
+          actor_id?: string | null;
+          actor_name?: string | null;
+          meta?: Record<string, unknown> | null;
+          created_at?: string;
+        };
+        Relationships: [];
+        Update: Partial<Database["public"]["Tables"]["audit_log"]["Insert"]>;
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

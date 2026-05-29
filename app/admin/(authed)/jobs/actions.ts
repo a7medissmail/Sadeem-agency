@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import {
   formatJobValidationError,
@@ -91,7 +92,7 @@ export async function toggleJobOpenAction(formData: FormData): Promise<void> {
 }
 
 export async function deleteJobAction(formData: FormData): Promise<void> {
-  await requireRole(["admin"]);
+  const profile = await requireRole(["admin"]);
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing job id");
 
@@ -103,6 +104,7 @@ export async function deleteJobAction(formData: FormData): Promise<void> {
 
   const { error } = await admin.from("jobs").delete().eq("id", id);
   if (error) throw new Error(error.message);
+  await logAudit({ tableName: "jobs", recordId: id, action: "delete", actorId: profile.id, actorName: profile.full_name ?? profile.email ?? null });
 
   const resumePaths = (applications ?? [])
     .map((application) => application.resume_url)

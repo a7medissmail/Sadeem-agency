@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { getCurrentProfile } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { loadBadgeCounts } from "@/lib/admin/signals";
 
 export const metadata = { title: "Dashboard - SADEEM Admin" };
 
@@ -156,13 +157,37 @@ function PulsePanel({
   );
 }
 
+function NeedsActionTile({
+  count,
+  label,
+  href,
+}: {
+  count: number;
+  label: string;
+  href: string;
+}) {
+  const hasItems = count > 0;
+  return (
+    <Link
+      href={href}
+      className={`admin-needs-action-tile${hasItems ? "" : " is-zero"}`}
+    >
+      <span className="admin-needs-action-count">{count}</span>
+      <span className="admin-needs-action-label">{label}</span>
+      <span className="admin-needs-action-cta">Review →</span>
+    </Link>
+  );
+}
+
 export default async function AdminDashboard() {
   const profile = await getCurrentProfile();
   let data: Awaited<ReturnType<typeof dashboardData>> | null = null;
+  let badgeCounts: Awaited<ReturnType<typeof loadBadgeCounts>> | null = null;
   try {
-    data = await dashboardData();
+    [data, badgeCounts] = await Promise.all([dashboardData(), loadBadgeCounts()]);
   } catch {
     data = null;
+    badgeCounts = null;
   }
 
   const tiles = [
@@ -219,6 +244,18 @@ export default async function AdminDashboard() {
         <div className="rounded-md border border-amber-500/30 bg-amber-500/[0.06] px-4 py-3 text-[13px] text-amber-200">
           Couldn't read dashboard data. Confirm Supabase env vars and migrations are applied.
         </div>
+      ) : null}
+
+      {badgeCounts ? (
+        <section className="admin-needs-action">
+          <p className="admin-section-kicker">Needs attention</p>
+          <div className="admin-needs-action-grid">
+            <NeedsActionTile count={badgeCounts.leads}        label="New leads"          href="/admin/leads" />
+            <NeedsActionTile count={badgeCounts.bookings}     label="Missing meet links" href="/admin/bookings" />
+            <NeedsActionTile count={badgeCounts.applications} label="New applications"   href="/admin/applications" />
+            <NeedsActionTile count={badgeCounts.proposals}    label="New proposals"      href="/admin/proposals" />
+          </div>
+        </section>
       ) : null}
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/resend";
 import {
@@ -143,7 +144,7 @@ export async function addApplicationNoteAction(formData: FormData): Promise<void
 }
 
 export async function deleteApplicationAction(formData: FormData): Promise<void> {
-  await requireRole(["admin"]);
+  const profile = await requireRole(["admin"]);
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing application id");
 
@@ -156,6 +157,7 @@ export async function deleteApplicationAction(formData: FormData): Promise<void>
 
   const { error } = await admin.from("applications").delete().eq("id", id);
   if (error) throw new Error(error.message);
+  await logAudit({ tableName: "applications", recordId: id, action: "delete", actorId: profile.id, actorName: profile.full_name ?? profile.email ?? null });
 
   if (application?.resume_url && !/^https?:\/\//i.test(application.resume_url)) {
     await admin.storage.from(RESUME_BUCKET).remove([application.resume_url]);

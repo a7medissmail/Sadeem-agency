@@ -3,6 +3,7 @@
 import crypto from "crypto";
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
+import { logAudit } from "@/lib/audit";
 import { createBookingIcs } from "@/lib/calendar/ics";
 import { bookingConfirmation, bookingNotification, proposalInviteClient, getEmailBranding } from "@/lib/email/templates";
 import { sendEmail } from "@/lib/email/resend";
@@ -278,13 +279,14 @@ export async function updateAvailabilityRuleAction(formData: FormData): Promise<
 }
 
 export async function deleteAvailabilityRuleAction(formData: FormData): Promise<void> {
-  await requireRole(["admin"]);
+  const profile = await requireRole(["admin"]);
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing rule id");
 
   const admin = getSupabaseAdmin();
   const { error } = await admin.from("availability_rules").delete().eq("id", id);
   if (error) throw new Error(error.message);
+  await logAudit({ tableName: "availability_rules", recordId: id, action: "delete", actorId: profile.id, actorName: profile.full_name ?? profile.email ?? null });
 
   revalidatePath("/admin/bookings");
   revalidatePath("/api/consultation/slots");
