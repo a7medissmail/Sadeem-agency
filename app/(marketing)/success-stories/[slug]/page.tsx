@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import Footer from "@/components/Footer";
 import SectionAwareNavbar from "@/components/SectionAwareNavbar";
 import SectionLabel from "@/components/SectionLabel";
@@ -70,8 +71,7 @@ export default async function SuccessStoryDetailPage({ params }: { params: { slu
           <SectionLabel n="01" text="STORY" onDark />
           <div className="story-detail-bg" aria-hidden="true">
             {story.image_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={story.image_url} alt="" />
+              <Image src={story.image_url} alt="" fill sizes="100vw" />
             ) : null}
           </div>
           <div className="section-inner story-detail-hero-inner">

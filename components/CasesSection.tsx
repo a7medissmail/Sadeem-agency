@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import RevealSection from "./RevealSection";
 import SectionLabel from "./SectionLabel";
 import CaseSvg from "./scenes/CaseSvg";
@@ -63,8 +64,7 @@ function CaseTile({ story, kind, n }: { story: HomeStory; kind: string; n: strin
     <article className="case">
       <div className={`case-image case-${kind}`}>
         {story.image_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={story.image_url} alt="" />
+          <Image src={story.image_url} alt="" fill sizes="(max-width: 768px) 100vw, 33vw" />
         ) : (
           <CaseSvg kind={kind} />
         )}

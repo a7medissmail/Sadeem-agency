@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 type TeamFounderCardProps = {
   index: number;
@@ -25,8 +26,7 @@ export default function TeamFounderCard({ index, name, role, bio, photoUrl }: Te
     >
       <div className="team-founder-card-bg" aria-hidden="true">
         {photoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={photoUrl} alt="" />
+          <Image src={photoUrl} alt="" fill sizes="(max-width: 768px) 100vw, 33vw" />
         ) : null}
       </div>
       <div className="team-founder-number">{String(index + 1).padStart(2, "0")}</div>

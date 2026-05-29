@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import SectionAwareNavbar from "@/components/SectionAwareNavbar";
 import Footer from "@/components/Footer";
@@ -121,8 +122,7 @@ export default async function CourseDetail({ params }: Props) {
             <div className="course-detail-visual">
               <div className="course-detail-image">
                 {course.image_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={course.image_url} alt="" />
+                  <Image src={course.image_url} alt="" fill sizes="(max-width: 1024px) 100vw, 45vw" />
                 ) : (
                   <div className="course-detail-image-fallback" />
                 )}

@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
+import Image from "next/image";
 import Footer from "@/components/Footer";
 import SectionAwareNavbar from "@/components/SectionAwareNavbar";
 import SectionLabel from "@/components/SectionLabel";
@@ -84,8 +85,7 @@ export default async function SuccessStoriesPage() {
                   <Link href={`/success-stories/${story.slug}`} className="story-card" key={story.id}>
                     <div className="story-card-image">
                       {story.image_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={story.image_url} alt="" />
+                        <Image src={story.image_url} alt="" fill sizes="(max-width: 768px) 100vw, 33vw" />
                       ) : (
                         <div className="story-card-fallback" />
                       )}

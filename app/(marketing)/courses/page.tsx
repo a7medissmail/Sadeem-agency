@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
+import Image from "next/image";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import SectionAwareNavbar from "@/components/SectionAwareNavbar";
 import Footer from "@/components/Footer";
@@ -119,8 +120,7 @@ export default async function CoursesIndex() {
                     <Link key={course.id} href={`/courses/${course.slug}`} className="course-card">
                       <div className="course-card-image">
                         {course.image_url ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={course.image_url} alt="" loading="lazy" />
+                          <Image src={course.image_url} alt="" fill sizes="(max-width: 768px) 100vw, 33vw" />
                         ) : (
                           <div className="course-card-fallback" />
                         )}
