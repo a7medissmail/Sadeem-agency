@@ -27,7 +27,15 @@ async function loadJobs() {
 
     return { jobs: data ?? [], formsById, error: null as string | null };
   } catch (err) {
-    return { jobs: [], formsById: new Map<string, { name: string; is_active: boolean }>(), error: err instanceof Error ? err.message : "Unknown error" };
+    // Supabase returns PostgrestError objects (not Error instances) — surface
+    // their message instead of collapsing everything to "Unknown error".
+    const message =
+      err instanceof Error
+        ? err.message
+        : err && typeof err === "object" && "message" in err
+          ? String((err as { message: unknown }).message)
+          : "Unknown error";
+    return { jobs: [], formsById: new Map<string, { name: string; is_active: boolean }>(), error: message };
   }
 }
 
