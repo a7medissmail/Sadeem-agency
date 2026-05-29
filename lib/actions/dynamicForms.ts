@@ -6,7 +6,7 @@ import { checkRateLimit } from "@/lib/security/rateLimit";
 import { verifyTurnstile } from "@/lib/turnstile";
 
 const FORM_BUCKET = "form-attachments";
-const FILE_MAX_BYTES = 10 * 1024 * 1024;
+const FILE_MAX_BYTES = 5 * 1024 * 1024;
 const FILE_ALLOWED_TYPES = new Set<string>([
   "application/pdf",
   "application/msword",
@@ -97,7 +97,7 @@ function validateField(field: FieldRow, value: Json | string[] | { name: string;
     "type" in value
   ) {
     const fileMeta = value as { name: string; size: number; type: string };
-    if (fileMeta.size > FILE_MAX_BYTES) return `${field.label} must be under 10 MB`;
+    if (fileMeta.size > FILE_MAX_BYTES) return `${field.label} must be under 5 MB`;
     if (fileMeta.type && !FILE_ALLOWED_TYPES.has(fileMeta.type)) {
       return `${field.label} must be a PDF, Word document, or image (PNG/JPG/WebP)`;
     }

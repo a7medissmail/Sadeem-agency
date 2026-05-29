@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { toCsv, csvResponse } from "@/lib/export/csv";
 
-const ALLOWED_ROLES = ["admin", "editor", "viewer"] as const;
+const ALLOWED_ROLES = ["admin", "editor"] as const;
 
 export async function GET(
   _req: Request,
