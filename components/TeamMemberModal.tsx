@@ -59,7 +59,7 @@ export default function TeamMemberModal({
   return (
     <div className="team-modal-backdrop" role="presentation" onClick={onClose}>
       <div
-        className="team-modal"
+        className={`team-modal${member.photo_url ? " has-photo" : ""}`}
         role="dialog"
         aria-modal="true"
         aria-label={member.name}

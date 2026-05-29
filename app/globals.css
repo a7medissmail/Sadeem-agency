@@ -4577,7 +4577,7 @@ section.team-roster {
 }
 .team-modal-photo {
   position: relative;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   background: #141416;
 }
@@ -4585,9 +4585,29 @@ section.team-roster {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center top;
 }
 .team-modal-body {
   padding: 28px 30px 32px;
+}
+
+/* Desktop: photo becomes a proportioned left column, details on the right */
+@media (min-width: 760px) {
+  .team-modal.has-photo {
+    display: grid;
+    grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+    align-items: stretch;
+    width: min(860px, 100%);
+    overflow: hidden;
+  }
+  .team-modal.has-photo .team-modal-photo {
+    aspect-ratio: auto;
+    height: 100%;
+  }
+  .team-modal.has-photo .team-modal-body {
+    max-height: 88vh;
+    overflow-y: auto;
+  }
 }
 .team-modal-role {
   margin: 0 0 8px;
