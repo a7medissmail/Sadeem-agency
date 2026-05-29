@@ -131,10 +131,13 @@ function SourceDot({ source }: { source: LeadSource }) {
   return <span className={`h-2 w-2 rounded-full ${tone}`} aria-hidden="true" />;
 }
 
+/**
+ * Compact Trello-style card — shows only what's needed to triage.
+ * Full details open in the drawer.
+ */
 function LeadCard({
   lead,
   selected,
-  staff,
   onOpen,
 }: {
   lead: LeadBoardRow;
@@ -144,49 +147,47 @@ function LeadCard({
 }) {
   const signal = leadSignal(lead);
   return (
-    <article
-      className={`group border bg-[var(--admin-surface-strong)] p-4 transition-colors ${
-        selected ? "border-[var(--admin-accent)]" : "border-[var(--admin-border)] hover:border-[var(--admin-accent)]"
+    <button
+      type="button"
+      onClick={onOpen}
+      className={`group w-full border bg-[var(--admin-surface-strong)] px-3 py-2.5 text-left transition-colors ${
+        selected
+          ? "border-[var(--admin-accent)]"
+          : "border-[var(--admin-border)] hover:border-[var(--admin-accent)]"
       }`}
     >
-      <button type="button" onClick={onOpen} className="block w-full text-left">
-        <div className="mb-4 flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="truncate text-[15px] font-semibold text-[var(--admin-text)]">{lead.name}</p>
-            <p className="mt-1 truncate text-[12.5px] text-[var(--admin-muted)]">{lead.company || sourceLabels[lead.source]}</p>
-          </div>
-          <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)]">
-            {String(signal).padStart(2, "0")}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-subtle)]">
-          <SourceDot source={lead.source} />
-          <span>{sourceLabels[lead.source]}</span>
-          <span>/</span>
-          <span>{shortDateFmt.format(new Date(lead.created_at))}</span>
-        </div>
-
-        <div className="mt-4 flex flex-col gap-1.5 font-mono text-[10.5px] text-[var(--admin-subtle)]">
-          <span className="truncate">{lead.email}</span>
-          {lead.phone ? <span>{lead.phone}</span> : null}
-          <span>Owner: {ownerName(lead, staff)}</span>
-        </div>
-
-        {lead.message ? (
-          <p className="mt-4 line-clamp-3 text-[12.5px] leading-relaxed text-[var(--admin-muted)]">{lead.message}</p>
-        ) : (
-          <p className="mt-4 text-[12.5px] leading-relaxed text-[var(--admin-subtle)]">No message attached.</p>
-        )}
-      </button>
-
-      <div className="mt-4 flex items-center justify-between gap-3 border-t border-[var(--admin-border-soft)] pt-3 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">
-        <span>{lead.notes.length > 0 ? `${lead.notes.length} note${lead.notes.length === 1 ? "" : "s"}` : lead.marketing_unsubscribed_at ? "Unsubscribed" : "Can email"}</span>
-        <span className="text-[var(--admin-accent)]/70 transition-colors group-hover:text-[var(--admin-accent)]" aria-hidden="true">
-          Open →
+      {/* Row 1: name + signal */}
+      <div className="flex items-baseline justify-between gap-2">
+        <p className="truncate text-[13.5px] font-semibold leading-snug text-[var(--admin-text)]">
+          {lead.name}
+        </p>
+        <span className="shrink-0 font-mono text-[9px] tabular-nums text-[var(--admin-accent)]">
+          {String(signal).padStart(2, "0")}
         </span>
       </div>
-    </article>
+
+      {/* Row 2: source dot + label · date · optional note badge */}
+      <div className="mt-1.5 flex items-center gap-1.5 font-mono text-[9.5px] uppercase tracking-[0.14em] text-[var(--admin-subtle)]">
+        <SourceDot source={lead.source} />
+        <span>{sourceLabels[lead.source]}</span>
+        <span className="opacity-40">·</span>
+        <span>{shortDateFmt.format(new Date(lead.created_at))}</span>
+        {lead.notes.length > 0 && (
+          <>
+            <span className="opacity-40">·</span>
+            <span className="text-[var(--admin-accent)]">
+              {lead.notes.length}n
+            </span>
+          </>
+        )}
+        {lead.marketing_unsubscribed_at ? (
+          <>
+            <span className="opacity-40">·</span>
+            <span className="text-red-400/70">unsub</span>
+          </>
+        ) : null}
+      </div>
+    </button>
   );
 }
 
@@ -452,7 +453,7 @@ export function LeadsBoard({ leads, staff }: { leads: LeadBoardRow[]; staff: Sta
       <div className="overflow-x-auto pb-3">
         <div className="grid min-w-[1320px] grid-cols-[repeat(5,minmax(250px,1fr))] gap-4">
           {grouped.map((column) => (
-            <section key={column.status} className="min-h-[560px] border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
+            <section key={column.status} className="min-h-[300px] border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
               <div className="mb-4 flex items-start justify-between gap-3">
                 <div>
                   <Badge tone={statusTones[column.status]}>{statusLabels[column.status]}</Badge>
@@ -463,7 +464,7 @@ export function LeadsBoard({ leads, staff }: { leads: LeadBoardRow[]; staff: Sta
 
               <div className="flex flex-col gap-3">
                 {column.items.length === 0 ? (
-                  <div className="border border-dashed border-[var(--admin-border)] px-3 py-8 text-center text-[12.5px] text-[var(--admin-subtle)]">
+                  <div className="border border-dashed border-[var(--admin-border)] px-3 py-6 text-center text-[12px] text-[var(--admin-subtle)]">
                     No leads
                   </div>
                 ) : (

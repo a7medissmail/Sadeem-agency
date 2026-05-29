@@ -175,6 +175,10 @@ function FilterChip({
   );
 }
 
+/**
+ * Compact Trello-style candidate card — name, role, stage rail, date.
+ * Full dossier opens in the drawer on click.
+ */
 function CandidateCard({
   application,
   selected,
@@ -186,49 +190,48 @@ function CandidateCard({
 }) {
   const signal = candidateSignal(application);
   return (
-    <article
-      className={`group border bg-[var(--admin-surface-strong)] p-4 transition-colors ${
+    <button
+      type="button"
+      onClick={onOpen}
+      className={`group w-full border bg-[var(--admin-surface-strong)] px-3 py-2.5 text-left transition-colors ${
         selected
           ? "border-[var(--admin-accent)]"
           : "border-[var(--admin-border)] hover:border-[var(--admin-accent)]"
       }`}
     >
-      <button type="button" onClick={onOpen} className="block w-full text-left">
-        <div className="mb-4 flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="truncate text-[15px] font-semibold text-[var(--admin-text)]">{application.name}</p>
-            <p className="mt-1 truncate text-[12.5px] text-[var(--admin-muted)]">{roleName(application)}</p>
-          </div>
-          <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)]">
-            {String(signal).padStart(2, "0")}
-          </span>
-        </div>
-
-        <StageRail status={application.status} />
-
-        <div className="mt-4 flex flex-col gap-1.5 font-mono text-[10.5px] text-[var(--admin-subtle)]">
-          <span className="truncate">{application.email}</span>
-          {application.phone ? <span>{application.phone}</span> : null}
-          <span>{dateFmt.format(new Date(application.created_at))}</span>
-          <span>{application.ownerName ? `Owner: ${application.ownerName}` : "Unassigned"}</span>
-        </div>
-
-        {application.cover_note ? (
-          <p className="mt-4 line-clamp-3 text-[12.5px] leading-relaxed text-[var(--admin-muted)]">
-            {application.cover_note}
-          </p>
-        ) : (
-          <p className="mt-4 text-[12.5px] leading-relaxed text-[var(--admin-subtle)]">No cover note submitted.</p>
-        )}
-      </button>
-
-      <div className="mt-4 flex items-center justify-between gap-3 border-t border-[var(--admin-border-soft)] pt-3 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">
-        <span>{application.notes.length > 0 ? `${application.notes.length} note${application.notes.length === 1 ? "" : "s"}` : "No notes"}</span>
-        <span className="text-[var(--admin-accent)]/70 transition-colors group-hover:text-[var(--admin-accent)]" aria-hidden="true">
-          Review →
+      {/* Row 1: name + score */}
+      <div className="flex items-baseline justify-between gap-2">
+        <p className="truncate text-[13.5px] font-semibold leading-snug text-[var(--admin-text)]">
+          {application.name}
+        </p>
+        <span className="shrink-0 font-mono text-[9px] tabular-nums text-[var(--admin-accent)]">
+          {String(signal).padStart(2, "0")}
         </span>
       </div>
-    </article>
+
+      {/* Row 2: role title */}
+      <p className="mt-0.5 truncate font-mono text-[9.5px] uppercase tracking-[0.14em] text-[var(--admin-subtle)]">
+        {roleName(application)}
+      </p>
+
+      {/* Row 3: slim stage rail */}
+      <div className="mt-2">
+        <StageRail status={application.status} />
+      </div>
+
+      {/* Row 4: date · notes badge */}
+      <div className="mt-1.5 flex items-center gap-1.5 font-mono text-[9.5px] uppercase tracking-[0.14em] text-[var(--admin-subtle)]">
+        <span>{shortDateFmt.format(new Date(application.created_at))}</span>
+        {application.notes.length > 0 && (
+          <>
+            <span className="opacity-40">·</span>
+            <span className="text-[var(--admin-accent)]">
+              {application.notes.length}n
+            </span>
+          </>
+        )}
+      </div>
+    </button>
   );
 }
 
@@ -595,7 +598,7 @@ export function ApplicationsBoard({ applications, staff }: { applications: Appli
       <div className="overflow-x-auto pb-3">
         <div className="grid min-w-[1320px] grid-cols-[repeat(5,minmax(250px,1fr))] gap-4">
           {grouped.map((column) => (
-            <section key={column.status} className="min-h-[560px] border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
+            <section key={column.status} className="min-h-[300px] border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
               <div className="mb-4 flex items-start justify-between gap-3">
                 <div>
                   <Badge tone={statusTones[column.status]}>{statusLabels[column.status]}</Badge>
@@ -606,7 +609,7 @@ export function ApplicationsBoard({ applications, staff }: { applications: Appli
 
               <div className="flex flex-col gap-3">
                 {column.items.length === 0 ? (
-                  <div className="border border-dashed border-[var(--admin-border)] px-3 py-8 text-center text-[12.5px] text-[var(--admin-subtle)]">
+                  <div className="border border-dashed border-[var(--admin-border)] px-3 py-6 text-center text-[12px] text-[var(--admin-subtle)]">
                     No candidates
                   </div>
                 ) : (

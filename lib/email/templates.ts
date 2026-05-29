@@ -617,6 +617,108 @@ export function applicationRejection({
   return { subject, html };
 }
 
+// ─── Application shortlisted (interview stage) ────────────────────────────────
+
+export function applicationShortlisted({
+  name,
+  jobTitle,
+  brand,
+}: {
+  name: string;
+  jobTitle: string;
+  brand?: EmailBranding;
+}) {
+  const subject = `You've been shortlisted — ${jobTitle}`;
+
+  const body = `
+<tr>
+  <td class="lp" style="padding:44px 40px 8px 40px;">
+    <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.28em;color:${L.gray};text-transform:uppercase;margin-bottom:18px;">Interview invite</div>
+    <h1 class="lt" style="margin:0 0 20px;font-family:${L.sans};font-weight:700;font-size:32px;line-height:1.05;letter-spacing:-0.025em;color:${L.text};">
+      Great news, ${esc(name)}.
+    </h1>
+    <p style="margin:0;font-family:${L.sans};font-size:14.5px;line-height:1.6;color:${L.gray};max-width:48ch;">
+      Your application for <strong style="color:${L.text};">${esc(jobTitle)}</strong> has been shortlisted.
+    </p>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:32px 40px 0 40px;">
+    <div style="height:1px;background:${L.rule};font-size:0;line-height:0;">&nbsp;</div>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:28px 40px 44px 40px;">
+    <p style="margin:0 0 16px;font-family:${L.sans};font-size:14.5px;line-height:1.6;color:${L.sub};">
+      We reviewed your application and would like to invite you to an interview. A member of our team will reach out shortly to coordinate a time.
+    </p>
+    <p style="margin:0;font-family:${L.sans};font-size:13.5px;line-height:1.65;color:${L.gray};">
+      We appreciate the effort you put in and look forward to the conversation.
+    </p>
+  </td>
+</tr>`;
+
+  const html = lightShell({
+    preview: `You've been shortlisted for ${jobTitle} — we'd like to invite you to an interview.`,
+    masthead: lMasthead("SADEEM", "Careers", brand),
+    body,
+    footerLines: `SADEEM · Strategic growth advisory<br />${brand?.footerEmail ?? "hello@sadeem.agency"}`,
+  });
+
+  return { subject, html };
+}
+
+// ─── Application offer ────────────────────────────────────────────────────────
+
+export function applicationOffer({
+  name,
+  jobTitle,
+  brand,
+}: {
+  name: string;
+  jobTitle: string;
+  brand?: EmailBranding;
+}) {
+  const subject = `We'd like to make you an offer — ${jobTitle}`;
+
+  const body = `
+<tr>
+  <td class="lp" style="padding:44px 40px 8px 40px;">
+    <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.28em;color:${L.gray};text-transform:uppercase;margin-bottom:18px;">Offer extended</div>
+    <h1 class="lt" style="margin:0 0 20px;font-family:${L.sans};font-weight:700;font-size:32px;line-height:1.05;letter-spacing:-0.025em;color:${L.text};">
+      Welcome aboard, ${esc(name)}.
+    </h1>
+    <p style="margin:0;font-family:${L.sans};font-size:14.5px;line-height:1.6;color:${L.gray};max-width:48ch;">
+      We're delighted to extend an offer for the <strong style="color:${L.text};">${esc(jobTitle)}</strong> position.
+    </p>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:32px 40px 0 40px;">
+    <div style="height:1px;background:${L.rule};font-size:0;line-height:0;">&nbsp;</div>
+  </td>
+</tr>
+<tr>
+  <td class="lp" style="padding:28px 40px 44px 40px;">
+    <p style="margin:0 0 16px;font-family:${L.sans};font-size:14.5px;line-height:1.6;color:${L.sub};">
+      A member of our team will follow up with the full details and next steps very shortly.
+    </p>
+    <p style="margin:0;font-family:${L.sans};font-size:13.5px;line-height:1.65;color:${L.gray};">
+      We are excited to have you join the SADEEM team and can't wait to get started.
+    </p>
+  </td>
+</tr>`;
+
+  const html = lightShell({
+    preview: `We'd like to extend an offer for ${jobTitle}.`,
+    masthead: lMasthead("SADEEM", "Careers", brand),
+    body,
+    footerLines: `SADEEM · Strategic growth advisory<br />${brand?.footerEmail ?? "hello@sadeem.agency"}`,
+  });
+
+  return { subject, html };
+}
+
 export function bookingConfirmation({
   name,
   slotLabel,

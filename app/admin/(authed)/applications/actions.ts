@@ -4,7 +4,12 @@ import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/resend";
-import { applicationRejection, getEmailBranding } from "@/lib/email/templates";
+import {
+  applicationRejection,
+  applicationShortlisted,
+  applicationOffer,
+  getEmailBranding,
+} from "@/lib/email/templates";
 import { applicationStatuses } from "@/lib/validation/careers";
 import type { ApplicationStatus } from "@/types/database";
 
@@ -40,22 +45,37 @@ export async function updateApplicationStatusAction(formData: FormData): Promise
     });
   }
 
-  if (application.status !== status && status === "rejected") {
-    const { data: job } = await admin.from("jobs").select("title").eq("id", application.job_id).maybeSingle();
+  // Send a candidate-facing email whenever the status advances to a
+  // meaningful milestone. Guard: only send when status actually changed.
+  const statusChanged = application.status !== status;
+  if (statusChanged && ["interview", "offer", "rejected"].includes(status)) {
+    const { data: job } = await admin
+      .from("jobs")
+      .select("title")
+      .eq("id", application.job_id)
+      .maybeSingle();
+    const jobTitle = job?.title ?? "the role";
     const brand = await getEmailBranding();
-    const email = applicationRejection({
-      name: application.name,
-      jobTitle: job?.title ?? "the role",
-      brand,
-    });
 
-    await sendEmail({
-      channel: "careers",
-      to: application.email,
-      subject: email.subject,
-      html: email.html,
-      replyTo: process.env.TEAM_NOTIFY_TO,
-    });
+    let emailPayload: { subject: string; html: string } | null = null;
+
+    if (status === "interview") {
+      emailPayload = applicationShortlisted({ name: application.name, jobTitle, brand });
+    } else if (status === "offer") {
+      emailPayload = applicationOffer({ name: application.name, jobTitle, brand });
+    } else if (status === "rejected") {
+      emailPayload = applicationRejection({ name: application.name, jobTitle, brand });
+    }
+
+    if (emailPayload) {
+      await sendEmail({
+        channel: "careers",
+        to: application.email,
+        subject: emailPayload.subject,
+        html: emailPayload.html,
+        replyTo: process.env.TEAM_NOTIFY_TO,
+      });
+    }
   }
 
   revalidatePath("/admin/applications");
