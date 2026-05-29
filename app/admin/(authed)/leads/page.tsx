@@ -6,6 +6,7 @@ import { SearchBar } from "@/components/admin/ui/SearchBar";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { LeadsBoard, type LeadBoardRow, type StaffRow } from "./LeadsBoard";
+import type { BriefFormLite } from "@/components/admin/ui/QuickBrief";
 
 export const metadata = { title: "Leads - SADEEM Admin" };
 
@@ -38,13 +39,18 @@ async function loadData(q: string) {
       );
     }
 
-    const [leads, staff] = await Promise.all([
+    const [leads, staff, formsRes] = await Promise.all([
       leadsQuery,
       admin
         .from("profiles")
         .select("id, full_name, role")
         .in("role", ["admin", "editor"])
         .order("full_name", { ascending: true }),
+      admin
+        .from("forms")
+        .select("id, name")
+        .eq("purpose", "proposal")
+        .order("name", { ascending: true }),
     ]);
 
     if (leads.error) throw leads.error;
@@ -53,6 +59,7 @@ async function loadData(q: string) {
     return {
       leads: (leads.data ?? []) as LeadBoardRow[],
       staff: (staff.data ?? []) as StaffRow[],
+      forms: (formsRes.data ?? []) as BriefFormLite[],
       /** true when exactly PAGE_CAP rows were returned — more rows exist */
       capped: (leads.data?.length ?? 0) >= PAGE_CAP,
       error: null as string | null,
@@ -63,6 +70,7 @@ async function loadData(q: string) {
     return {
       leads: [] as LeadBoardRow[],
       staff: [] as StaffRow[],
+      forms: [] as BriefFormLite[],
       capped: false,
       error: message,
     };
@@ -76,7 +84,7 @@ export default async function LeadsPage({
 }) {
   await requireRole(["admin", "editor", "viewer"]);
   const q = sp(searchParams.q).trim();
-  const { leads, staff, error, capped } = await loadData(q);
+  const { leads, staff, forms, error, capped } = await loadData(q);
 
   return (
     <div className="flex flex-col gap-8">
@@ -120,7 +128,7 @@ export default async function LeadsPage({
         </p>
       ) : null}
 
-      <LeadsBoard leads={leads} staff={staff} />
+      <LeadsBoard leads={leads} staff={staff} forms={forms} />
     </div>
   );
 }

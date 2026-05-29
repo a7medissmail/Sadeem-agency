@@ -566,6 +566,8 @@ export type Database = {
           reviewed_at: string | null;
           created_by: string | null;
           internal_notes: string | null;
+          lead_id: string | null;
+          booking_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -586,6 +588,8 @@ export type Database = {
           reviewed_at?: string | null;
           created_by?: string | null;
           internal_notes?: string | null;
+          lead_id?: string | null;
+          booking_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };

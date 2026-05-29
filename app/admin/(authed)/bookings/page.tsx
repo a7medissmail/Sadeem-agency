@@ -7,6 +7,7 @@ import { SearchBar } from "@/components/admin/ui/SearchBar";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { BookingsBoard, type AvailabilityRuleRow, type BookingBoardRow } from "./BookingsBoard";
+import type { BriefFormLite } from "@/components/admin/ui/QuickBrief";
 
 export const metadata = { title: "Bookings - SADEEM Admin" };
 
@@ -37,13 +38,18 @@ async function loadData(q: string, page: number) {
       );
     }
 
-    const [bookingsResult, rulesResult] = await Promise.all([
+    const [bookingsResult, rulesResult, formsResult] = await Promise.all([
       bookingsQuery,
       admin
         .from("availability_rules")
         .select("id, weekday, start_time, end_time, slot_minutes, buffer_minutes, active")
         .order("weekday", { ascending: true })
         .order("start_time", { ascending: true }),
+      admin
+        .from("forms")
+        .select("id, name")
+        .eq("purpose", "proposal")
+        .order("name", { ascending: true }),
     ]);
 
     if (bookingsResult.error) throw bookingsResult.error;
@@ -55,6 +61,7 @@ async function loadData(q: string, page: number) {
     return {
       bookings: (bookingsResult.data ?? []) as BookingBoardRow[],
       rules: (rulesResult.data ?? []) as AvailabilityRuleRow[],
+      forms: (formsResult.data ?? []) as BriefFormLite[],
       totalCount,
       totalPages,
       error: null as string | null,
@@ -63,6 +70,7 @@ async function loadData(q: string, page: number) {
     return {
       bookings: [] as BookingBoardRow[],
       rules: [] as AvailabilityRuleRow[],
+      forms: [] as BriefFormLite[],
       totalCount: 0,
       totalPages: 1,
       error: err instanceof Error ? err.message : "Unknown error",
@@ -79,7 +87,7 @@ export default async function BookingsAdminPage({
   const q = sp(searchParams.q).trim();
   const page = Math.max(1, parseInt(sp(searchParams.page) || "1", 10));
 
-  const { bookings, rules, totalCount, totalPages, error } = await loadData(q, page);
+  const { bookings, rules, forms, totalCount, totalPages, error } = await loadData(q, page);
 
   return (
     <div className="flex flex-col gap-8">
@@ -121,7 +129,7 @@ export default async function BookingsAdminPage({
         </p>
       ) : null}
 
-      <BookingsBoard bookings={bookings} rules={rules} />
+      <BookingsBoard bookings={bookings} rules={rules} forms={forms} />
 
       <AdminPagination
         page={page}

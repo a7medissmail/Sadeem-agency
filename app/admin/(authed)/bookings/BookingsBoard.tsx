@@ -8,12 +8,14 @@ import { bookingStatuses } from "@/lib/validation/booking";
 import type { BookingStatus } from "@/types/database";
 import {
   createAvailabilityRuleAction,
+  createBriefFromBookingAction,
   deleteAvailabilityRuleAction,
   sendBookingDetailsAction,
   updateAvailabilityRuleAction,
   updateBookingDetailsAction,
   updateBookingStatusAction,
 } from "./actions";
+import { QuickBriefPanel, type BriefFormLite } from "@/components/admin/ui/QuickBrief";
 
 export type BookingBoardRow = {
   id: string;
@@ -166,7 +168,7 @@ function BookingCard({
   );
 }
 
-function BookingDossier({ booking }: { booking: BookingBoardRow | null }) {
+function BookingDossier({ booking, forms }: { booking: BookingBoardRow | null; forms: BriefFormLite[] }) {
   if (!booking) {
     return (
       <aside className="border border-dashed border-[var(--admin-border)] bg-[var(--admin-panel)] p-6 text-[13px] text-[var(--admin-muted)]">
@@ -261,6 +263,13 @@ function BookingDossier({ booking }: { booking: BookingBoardRow | null }) {
                 Email details
               </Button>
             </form>
+
+            <QuickBriefPanel
+              forms={forms}
+              createBrief={(formId, days, emailNow) =>
+                createBriefFromBookingAction(booking.id, formId, days, emailNow)
+              }
+            />
           </section>
         </div>
       </div>
@@ -357,7 +366,7 @@ function AvailabilityRules({ rules }: { rules: AvailabilityRuleRow[] }) {
   );
 }
 
-export function BookingsBoard({ bookings, rules }: { bookings: BookingBoardRow[]; rules: AvailabilityRuleRow[] }) {
+export function BookingsBoard({ bookings, rules, forms }: { bookings: BookingBoardRow[]; rules: AvailabilityRuleRow[]; forms: BriefFormLite[] }) {
   // Text search is now server-side (URL ?q= param). Only the status chip filter
   // remains client-side — it's fast within the current page of 50 records.
   const [status, setStatus] = useState<BookingStatus | "all">("all");
@@ -422,7 +431,7 @@ export function BookingsBoard({ bookings, rules }: { bookings: BookingBoardRow[]
             ))
           )}
         </div>
-        <BookingDossier booking={selected} />
+        <BookingDossier booking={selected} forms={forms} />
       </section>
 
       <AvailabilityRules rules={rules} />

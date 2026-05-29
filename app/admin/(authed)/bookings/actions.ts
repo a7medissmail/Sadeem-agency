@@ -1,9 +1,10 @@
 "use server";
 
+import crypto from "crypto";
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
 import { createBookingIcs } from "@/lib/calendar/ics";
-import { bookingConfirmation, bookingNotification, getEmailBranding } from "@/lib/email/templates";
+import { bookingConfirmation, bookingNotification, proposalInviteClient, getEmailBranding } from "@/lib/email/templates";
 import { sendEmail } from "@/lib/email/resend";
 import { bookingTimeZone } from "@/lib/google/calendar";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
@@ -171,6 +172,80 @@ export async function sendBookingDetailsAction(formData: FormData): Promise<void
   ]);
 
   revalidatePath("/admin/bookings");
+}
+
+// ─── Quick Brief from a Booking ───────────────────────────────────────────────
+
+export async function createBriefFromBookingAction(
+  bookingId: string,
+  formId: string | null,
+  days: number,
+  emailNow: boolean,
+): Promise<{ rawToken?: string; error?: string }> {
+  const profile = await requireRole(["admin", "editor"]);
+
+  const admin = getSupabaseAdmin();
+  const { data: booking, error: readError } = await admin
+    .from("bookings")
+    .select("name, email")
+    .eq("id", bookingId)
+    .single();
+
+  if (readError || !booking) return { error: readError?.message ?? "Booking not found" };
+
+  const safeDays = Number.isFinite(days) && days > 0 && days <= 365 ? days : 14;
+  const expires_at = new Date(Date.now() + safeDays * 86_400_000).toISOString();
+  const title = `Brief — ${booking.name}`;
+
+  const raw = crypto.randomBytes(32).toString("hex");
+  const hash = crypto.createHash("sha256").update(raw).digest("hex");
+  const prefix = raw.slice(0, 8);
+
+  const { error: insertError } = await admin.from("proposals").insert({
+    form_id: formId,
+    title,
+    client_name: booking.name,
+    client_email: booking.email,
+    client_company: null,
+    token_hash: hash,
+    token_prefix: prefix,
+    status: emailNow ? "sent" : "draft",
+    expires_at,
+    sent_at: emailNow ? new Date().toISOString() : null,
+    created_by: profile.id,
+    booking_id: bookingId,
+  });
+
+  if (insertError) return { error: insertError.message };
+
+  revalidatePath("/admin/proposals");
+  revalidatePath("/admin/bookings");
+
+  if (emailNow) {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://sadeem.agency";
+    const portalUrl = `${baseUrl}/p/${raw}`;
+    const expiresDate = new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(
+      new Date(expires_at),
+    );
+
+    void (async () => {
+      try {
+        const brand = await getEmailBranding();
+        const { subject, html } = proposalInviteClient({
+          clientName: booking.name,
+          proposalTitle: title,
+          portalUrl,
+          expiresDate,
+          brand,
+        });
+        await sendEmail({ channel: "briefs", to: booking.email, subject, html });
+      } catch (err) {
+        console.error("[brief] booking invite email failed:", err);
+      }
+    })();
+  }
+
+  return { rawToken: raw };
 }
 
 export async function createAvailabilityRuleAction(formData: FormData): Promise<void> {
