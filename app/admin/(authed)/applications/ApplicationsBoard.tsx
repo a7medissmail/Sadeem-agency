@@ -206,23 +206,44 @@ function DraggableCard({ id, children }: { id: string; children: React.ReactNode
 
 // ─── Droppable column ─────────────────────────────────────────────────────────
 
+/**
+ * The entire column (header + cards list) is the droppable target so the user
+ * can drop a card anywhere inside the column, not just over existing cards.
+ */
 function DroppableColumn({
   status,
+  count,
   children,
 }: {
   status: ApplicationStatus;
+  count: number;
   children: React.ReactNode;
 }) {
   const { isOver, setNodeRef } = useDroppable({ id: status });
   return (
-    <div
+    <section
       ref={setNodeRef}
-      className={`flex flex-col gap-2 transition-colors ${
-        isOver ? "rounded outline outline-2 outline-[var(--admin-accent)]" : ""
+      className={`min-h-[300px] border p-4 transition-colors ${
+        isOver
+          ? "border-[var(--admin-accent)] bg-[var(--admin-accent-soft)]"
+          : "border-[var(--admin-border)] bg-[var(--admin-panel)]"
       }`}
     >
-      {children}
-    </div>
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <Badge tone={statusTones[status]}>{statusLabels[status]}</Badge>
+          <p className="mt-2 text-[12px] text-[var(--admin-subtle)]">
+            {statusNotes[status]}
+          </p>
+        </div>
+        <span className="font-mono text-[10px] text-[var(--admin-subtle)]">
+          {String(count).padStart(2, "0")}
+        </span>
+      </div>
+      <div className="flex flex-col gap-2">
+        {children}
+      </div>
+    </section>
   );
 }
 
@@ -719,40 +740,27 @@ export function ApplicationsBoard({ applications, staff }: { applications: Appli
         <div className="overflow-x-auto pb-3">
           <div className="grid min-w-[1320px] grid-cols-[repeat(5,minmax(250px,1fr))] gap-4">
             {grouped.map((column) => (
-              <section
+              <DroppableColumn
                 key={column.status}
-                className="min-h-[300px] border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4"
+                status={column.status}
+                count={column.items.length}
               >
-                <div className="mb-4 flex items-start justify-between gap-3">
-                  <div>
-                    <Badge tone={statusTones[column.status]}>{statusLabels[column.status]}</Badge>
-                    <p className="mt-2 text-[12px] text-[var(--admin-subtle)]">
-                      {statusNotes[column.status]}
-                    </p>
+                {column.items.length === 0 ? (
+                  <div className="border border-dashed border-[var(--admin-border)] px-3 py-6 text-center text-[12px] text-[var(--admin-subtle)]">
+                    No candidates
                   </div>
-                  <span className="font-mono text-[10px] text-[var(--admin-subtle)]">
-                    {String(column.items.length).padStart(2, "0")}
-                  </span>
-                </div>
-
-                <DroppableColumn status={column.status}>
-                  {column.items.length === 0 ? (
-                    <div className="border border-dashed border-[var(--admin-border)] px-3 py-6 text-center text-[12px] text-[var(--admin-subtle)]">
-                      No candidates
-                    </div>
-                  ) : (
-                    column.items.map((application) => (
-                      <DraggableCard key={application.id} id={application.id}>
-                        <CandidateCard
-                          application={application}
-                          selected={application.id === selectedId}
-                          onOpen={() => setSelectedId(application.id)}
-                        />
-                      </DraggableCard>
-                    ))
-                  )}
-                </DroppableColumn>
-              </section>
+                ) : (
+                  column.items.map((application) => (
+                    <DraggableCard key={application.id} id={application.id}>
+                      <CandidateCard
+                        application={application}
+                        selected={application.id === selectedId}
+                        onOpen={() => setSelectedId(application.id)}
+                      />
+                    </DraggableCard>
+                  ))
+                )}
+              </DroppableColumn>
             ))}
           </div>
         </div>

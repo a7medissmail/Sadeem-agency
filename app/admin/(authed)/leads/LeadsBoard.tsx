@@ -20,11 +20,13 @@ import type { Database, LeadSource, LeadStatus } from "@/types/database";
 import {
   addLeadNoteAction,
   assignLeadOwnerAction,
+  createBriefFromLeadAction,
   deleteLeadAction,
   moveLeadAction,
   updateLeadStatusAction,
 } from "./actions";
 import { Textarea } from "@/components/admin/ui/Field";
+import { QuickBriefPanel, type BriefFormLite } from "@/components/admin/ui/QuickBrief";
 
 type LeadNote = {
   id: string;
@@ -167,23 +169,44 @@ function DraggableCard({ id, children }: { id: string; children: React.ReactNode
 
 // ─── Droppable column ─────────────────────────────────────────────────────────
 
+/**
+ * The entire column (header + cards list) is the droppable target so the user
+ * can drop a card anywhere inside the column, not just over existing cards.
+ */
 function DroppableColumn({
   status,
+  count,
   children,
 }: {
   status: LeadStatus;
+  count: number;
   children: React.ReactNode;
 }) {
   const { isOver, setNodeRef } = useDroppable({ id: status });
   return (
-    <div
+    <section
       ref={setNodeRef}
-      className={`flex flex-col gap-2 transition-colors ${
-        isOver ? "rounded outline outline-2 outline-[var(--admin-accent)]" : ""
+      className={`min-h-[300px] border p-4 transition-colors ${
+        isOver
+          ? "border-[var(--admin-accent)] bg-[var(--admin-accent-soft)]"
+          : "border-[var(--admin-border)] bg-[var(--admin-panel)]"
       }`}
     >
-      {children}
-    </div>
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <Badge tone={statusTones[status]}>{statusLabels[status]}</Badge>
+          <p className="mt-2 text-[12px] text-[var(--admin-subtle)]">
+            {statusNotes[status]}
+          </p>
+        </div>
+        <span className="font-mono text-[10px] text-[var(--admin-subtle)]">
+          {String(count).padStart(2, "0")}
+        </span>
+      </div>
+      <div className="flex flex-col gap-2">
+        {children}
+      </div>
+    </section>
   );
 }
 
@@ -252,10 +275,12 @@ function LeadCard({
 function LeadDrawer({
   lead,
   staff,
+  forms,
   onClose,
 }: {
   lead: LeadBoardRow | null;
   staff: StaffRow[];
+  forms: BriefFormLite[];
   onClose: () => void;
 }) {
   if (!lead) return null;
@@ -415,6 +440,12 @@ function LeadDrawer({
                 >
                   Email lead
                 </a>
+                <QuickBriefPanel
+                  forms={forms}
+                  createBrief={(formId, days, emailNow) =>
+                    createBriefFromLeadAction(lead.id, formId, days, emailNow)
+                  }
+                />
                 <form
                   action={deleteLeadAction}
                   className="mt-3"
@@ -436,7 +467,7 @@ function LeadDrawer({
   );
 }
 
-export function LeadsBoard({ leads, staff }: { leads: LeadBoardRow[]; staff: StaffRow[] }) {
+export function LeadsBoard({ leads, staff, forms }: { leads: LeadBoardRow[]; staff: StaffRow[]; forms: BriefFormLite[] }) {
   const router = useRouter();
   const [, startTransition] = useTransition();
 
@@ -569,41 +600,28 @@ export function LeadsBoard({ leads, staff }: { leads: LeadBoardRow[]; staff: Sta
         <div className="overflow-x-auto pb-3">
           <div className="grid min-w-[1320px] grid-cols-[repeat(5,minmax(250px,1fr))] gap-4">
             {grouped.map((column) => (
-              <section
+              <DroppableColumn
                 key={column.status}
-                className="min-h-[300px] border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4"
+                status={column.status}
+                count={column.items.length}
               >
-                <div className="mb-4 flex items-start justify-between gap-3">
-                  <div>
-                    <Badge tone={statusTones[column.status]}>{statusLabels[column.status]}</Badge>
-                    <p className="mt-2 text-[12px] text-[var(--admin-subtle)]">
-                      {statusNotes[column.status]}
-                    </p>
+                {column.items.length === 0 ? (
+                  <div className="border border-dashed border-[var(--admin-border)] px-3 py-6 text-center text-[12px] text-[var(--admin-subtle)]">
+                    No leads
                   </div>
-                  <span className="font-mono text-[10px] text-[var(--admin-subtle)]">
-                    {String(column.items.length).padStart(2, "0")}
-                  </span>
-                </div>
-
-                <DroppableColumn status={column.status}>
-                  {column.items.length === 0 ? (
-                    <div className="border border-dashed border-[var(--admin-border)] px-3 py-6 text-center text-[12px] text-[var(--admin-subtle)]">
-                      No leads
-                    </div>
-                  ) : (
-                    column.items.map((lead) => (
-                      <DraggableCard key={lead.id} id={lead.id}>
-                        <LeadCard
-                          lead={lead}
-                          staff={staff}
-                          selected={lead.id === selectedId}
-                          onOpen={() => setSelectedId(lead.id)}
-                        />
-                      </DraggableCard>
-                    ))
-                  )}
-                </DroppableColumn>
-              </section>
+                ) : (
+                  column.items.map((lead) => (
+                    <DraggableCard key={lead.id} id={lead.id}>
+                      <LeadCard
+                        lead={lead}
+                        staff={staff}
+                        selected={lead.id === selectedId}
+                        onOpen={() => setSelectedId(lead.id)}
+                      />
+                    </DraggableCard>
+                  ))
+                )}
+              </DroppableColumn>
             ))}
           </div>
         </div>
@@ -623,7 +641,7 @@ export function LeadsBoard({ leads, staff }: { leads: LeadBoardRow[]; staff: Sta
         </DragOverlay>
       </DndContext>
 
-      <LeadDrawer lead={selected} staff={staff} onClose={() => setSelectedId(null)} />
+      <LeadDrawer lead={selected} staff={staff} forms={forms} onClose={() => setSelectedId(null)} />
     </div>
   );
 }
