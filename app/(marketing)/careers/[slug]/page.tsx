@@ -1,8 +1,8 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabasePublic } from "@/lib/supabase/public";
 import Footer from "@/components/Footer";
 import JobApplicationForm from "@/components/JobApplicationForm";
 import RevealSection from "@/components/RevealSection";
@@ -37,7 +37,7 @@ type ApplicationFormField = Pick<
 
 async function loadJob(slug: string): Promise<CareerDetailRow | null> {
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = getSupabasePublic();
     const { data, error } = await supabase
       .from("jobs")
       .select("id, slug, title, type, department, location, body, requirements, application_form_id")
@@ -56,7 +56,7 @@ async function loadApplicationForm(formId: string | null): Promise<{ form: Appli
   if (!formId) return { form: null, fields: [] };
 
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = getSupabasePublic();
     const { data: form, error: formError } = await supabase
       .from("forms")
       .select("id, name, description, submit_label, success_message")

@@ -1,5 +1,4 @@
 import "server-only";
-import { unstable_noStore as noStore } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { ClientPartnerRole, Database } from "@/types/database";
 
@@ -47,8 +46,6 @@ export async function getPublicClientSection(): Promise<{
   anchor: PublicClientPartner | null;
   grid: PublicClientPartner[];
 }> {
-  noStore();
-
   try {
     const admin = getSupabaseAdmin();
     const [sectionResult, partnersResult] = await Promise.all([

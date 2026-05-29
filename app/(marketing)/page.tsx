@@ -12,6 +12,8 @@ import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import { getPublicClientSection } from "@/lib/site/clients";
 
+export const revalidate = 300;
+
 export default async function Home() {
   const { section, anchor, grid } = await getPublicClientSection();
 

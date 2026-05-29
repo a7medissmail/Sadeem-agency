@@ -8,6 +8,11 @@ import { getPublicSiteSettings } from "@/lib/site/settings";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://sadeem-agency.vercel.app";
 
+// ISR: the public shell (footer/logo/favicon from site_settings) regenerates at
+// most every 5 min; admin edits call revalidatePath("/", "layout") for instant
+// updates. Admin routes opt back into dynamic via their own nested layout.
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {

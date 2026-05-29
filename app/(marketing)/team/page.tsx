@@ -1,7 +1,7 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 import Link from "next/link";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabasePublic } from "@/lib/supabase/public";
 import type { Json } from "@/types/database";
 import Footer from "@/components/Footer";
 import RevealSection from "@/components/RevealSection";
@@ -51,7 +51,7 @@ const beliefs = [
 
 async function loadTeamMembers(): Promise<TeamMember[]> {
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = getSupabasePublic();
     const { data, error } = await supabase
       .from("team_members")
       .select("id, name, role, bio, photo_url, socials, sort_order")

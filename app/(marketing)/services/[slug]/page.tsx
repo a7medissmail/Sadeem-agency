@@ -1,8 +1,8 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabasePublic } from "@/lib/supabase/public";
 import SectionAwareNavbar from "@/components/SectionAwareNavbar";
 import Footer from "@/components/Footer";
 import RevealSection from "@/components/RevealSection";
@@ -37,7 +37,7 @@ type CategoryInfo = {
 
 async function loadService(slug: string): Promise<ServiceDetail | null> {
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = getSupabasePublic();
     const { data } = await supabase
       .from("services")
       .select("id, slug, title, category, tagline, intro, body, deliverables, icon_key, sort_order")
@@ -53,7 +53,7 @@ async function loadService(slug: string): Promise<ServiceDetail | null> {
 
 async function loadRelated(service: ServiceDetail): Promise<RelatedService[]> {
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = getSupabasePublic();
     const { data } = await supabase
       .from("services")
       .select("slug, title, tagline")
@@ -70,7 +70,7 @@ async function loadRelated(service: ServiceDetail): Promise<RelatedService[]> {
 
 async function loadCategoryInfo(slug: string): Promise<CategoryInfo | null> {
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = getSupabasePublic();
     const { data } = await supabase
       .from("service_categories")
       .select("label, tagline, description")

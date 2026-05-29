@@ -1,7 +1,7 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 import Link from "next/link";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabasePublic } from "@/lib/supabase/public";
 import SectionAwareNavbar from "@/components/SectionAwareNavbar";
 import Footer from "@/components/Footer";
 import RevealSection from "@/components/RevealSection";
@@ -32,7 +32,7 @@ type ServiceRow = {
 
 async function loadData(): Promise<{ categories: CategoryRow[]; services: ServiceRow[] }> {
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = getSupabasePublic();
     const [catResult, svcResult] = await Promise.all([
       supabase
         .from("service_categories")

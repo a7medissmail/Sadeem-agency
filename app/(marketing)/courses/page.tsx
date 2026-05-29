@@ -1,8 +1,8 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 import Link from "next/link";
 import Image from "next/image";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabasePublic } from "@/lib/supabase/public";
 import SectionAwareNavbar from "@/components/SectionAwareNavbar";
 import Footer from "@/components/Footer";
 import SectionLabel from "@/components/SectionLabel";
@@ -30,7 +30,7 @@ export const metadata = {
 
 async function loadCourses(): Promise<CourseIndexRow[]> {
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = getSupabasePublic();
     const { data, error } = await supabase
       .from("courses")
       .select("id, slug, title, summary, location, starts_at, ends_at, capacity, price, currency, image_url")

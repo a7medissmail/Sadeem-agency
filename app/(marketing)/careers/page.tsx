@@ -1,7 +1,7 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 import Link from "next/link";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabasePublic } from "@/lib/supabase/public";
 import Footer from "@/components/Footer";
 import RevealSection from "@/components/RevealSection";
 import SectionAwareNavbar from "@/components/SectionAwareNavbar";
@@ -27,7 +27,7 @@ export const metadata = {
 
 async function loadJobs(): Promise<CareerRow[]> {
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = getSupabasePublic();
     const { data, error } = await supabase
       .from("jobs")
       .select("id, slug, title, type, department, location, body, requirements, created_at")

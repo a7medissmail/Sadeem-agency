@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 import Link from "next/link";
 import Image from "next/image";
@@ -7,7 +7,7 @@ import SectionAwareNavbar from "@/components/SectionAwareNavbar";
 import SectionLabel from "@/components/SectionLabel";
 import RevealSection from "@/components/RevealSection";
 import { Icon } from "@/components/Icons";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabasePublic } from "@/lib/supabase/public";
 
 export const metadata = {
   title: "Success Stories - SADEEM",
@@ -27,7 +27,7 @@ type Story = {
 
 async function loadStories(): Promise<Story[]> {
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = getSupabasePublic();
     const { data, error } = await supabase
       .from("success_stories")
       .select("id, slug, title, industry, summary, image_url, metric_value, metric_label")

@@ -101,11 +101,9 @@ export async function updateSiteSettingsAction(
 
   if (error) return { error: error.message };
 
-  revalidatePath("/");
-  revalidatePath("/team");
-  revalidatePath("/courses");
-  revalidatePath("/careers");
-  revalidatePath("/consultation");
+  // Logo / footer / favicon live in the root layout — layout-scoped revalidation
+  // busts the cached shell across every route that uses it.
+  revalidatePath("/", "layout");
   revalidatePath("/admin/settings");
   return { ok: true };
 }
