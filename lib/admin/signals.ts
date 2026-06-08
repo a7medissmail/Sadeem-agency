@@ -43,7 +43,6 @@ function signalWhen(value: string) {
 export async function loadAdminSignals(): Promise<AdminSignal[]> {
   try {
     const admin = getSupabaseAdmin();
-    const now = new Date().toISOString();
 
     const [leads, bookings, applications, campaigns, proposals, quotations] = await Promise.all([
       admin
@@ -53,9 +52,8 @@ export async function loadAdminSignals(): Promise<AdminSignal[]> {
         .limit(3),
       admin
         .from("bookings")
-        .select("name, email, slot_start, meet_link, status")
-        .gte("slot_start", now)
-        .order("slot_start", { ascending: true })
+        .select("name, email, slot_start, meet_link, status, created_at")
+        .order("created_at", { ascending: false })
         .limit(3),
       admin
         .from("applications")
@@ -91,12 +89,12 @@ export async function loadAdminSignals(): Promise<AdminSignal[]> {
         when: signalWhen(lead.created_at),
       })),
       ...(bookings.data ?? []).map((booking) => ({
-        sortAt: booking.slot_start,
+        sortAt: booking.created_at,
         kind: "Booking",
         title: `${booking.name} reserved a consultation.`,
-        detail: booking.meet_link ? "Meeting link attached" : `${booking.status} — link pending`,
+        detail: `${booking.meet_link ? "Meeting link attached" : `${booking.status} — link pending`} · ${signalWhen(booking.slot_start)}`,
         href: "/admin/bookings",
-        when: signalWhen(booking.slot_start),
+        when: signalWhen(booking.created_at),
         tone: (booking.meet_link ? "muted" : "accent") as "muted" | "accent",
       })),
       ...(applications.data ?? []).map((application) => ({
