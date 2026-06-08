@@ -6583,6 +6583,30 @@ section.team-roster {
   letter-spacing: 0;
   line-height: 1.15;
 }
+/* Brief stepper in Arabic: drop mono/uppercase/letter-spacing, use Arabic font */
+.portal-ar .brief-label,
+.portal-ar .brief-step-count,
+.portal-ar .brief-step-label,
+.portal-ar .brief-btn-back,
+.portal-ar .brief-btn-next,
+.portal-ar .brief-btn-submit,
+.portal-ar .brief-draft-note {
+  font-family: "IBM Plex Sans Arabic", system-ui, sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.portal-ar .brief-step-title,
+.portal-ar .brief-step-subtitle,
+.portal-ar .brief-hint,
+.portal-ar .brief-select,
+.portal-ar .brief-input,
+.portal-ar .brief-textarea,
+.portal-ar .brief-chip,
+.portal-ar .brief-success-title,
+.portal-ar .brief-success-body {
+  font-family: "IBM Plex Sans Arabic", "Geist", system-ui, sans-serif;
+}
+.portal-ar .brief-step-title { letter-spacing: 0; }
 
 .portal-tick {
   display: inline-block;

@@ -269,6 +269,7 @@ export default async function ProposalPortalPage({ params }: Props) {
             clientName={proposal.client_name}
             clientEmail={proposal.client_email}
             successMessage={formData?.success_message}
+            locale={proposal.locale}
           />
         </div>
       </main>
