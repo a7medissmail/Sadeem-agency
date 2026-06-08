@@ -8,6 +8,7 @@ import type { QuotationStatus } from "@/types/database";
 import {
   saveQuotationAction,
   sendQuotationAction,
+  regenerateQuotationLinkAction,
   deleteQuotationAction,
   type QuotationItemInput,
   type SaveQuotationState,
@@ -228,6 +229,18 @@ export function QuotationBuilder({
   const [saveState, saveAction] = useFormState<SaveQuotationState, FormData>(saveQuotationAction, {});
   const [sendState, sendAction] = useFormState<SendQuotationState, FormData>(sendQuotationAction, {});
   const [isDeleting, startDelete] = useTransition();
+  const [isRegen, startRegen] = useTransition();
+
+  function handleRegenerate() {
+    if (!quotationId) return;
+    if (!window.confirm("Regenerate the link?\n\nThe previously shared link will STOP working. Use this only to revoke access — normal “Send” keeps the same link.")) return;
+    startRegen(async () => {
+      const fd = new FormData();
+      fd.set("id", quotationId);
+      const res = await regenerateQuotationLinkAction(fd);
+      if (res.rawToken) setRawToken(res.rawToken);
+    });
+  }
 
   // Computed totals
   const parsedItems: QuotationItemInput[] = items.map((item, i) => ({
@@ -491,7 +504,7 @@ export function QuotationBuilder({
             sendAction(merged);
           }}
           onSubmit={(e) => {
-            if (!window.confirm("Send this quotation to the client?\n\nThis will email the portal link and regenerate the access token. Any previously shared link will stop working.")) {
+            if (!window.confirm("Send this quotation to the client?\n\nThis emails the portal link. The link stays the same — re-sending a reminder won’t break it.")) {
               e.preventDefault();
             }
           }}
@@ -501,7 +514,15 @@ export function QuotationBuilder({
           <Button type="submit" variant="outline" size="sm">
             Send quote to client →
           </Button>
-          <p className="qb-hint mt-1">Emails the client a private portal link. The token is also shown above to copy manually.</p>
+          <p className="qb-hint mt-1">Emails the client a private portal link. The same link is reused on re-send, so it never breaks.</p>
+          <button
+            type="button"
+            onClick={handleRegenerate}
+            disabled={isRegen}
+            className="mt-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)] transition-colors hover:text-[var(--admin-danger)] disabled:opacity-50"
+          >
+            {isRegen ? "Regenerating…" : "Regenerate link (revoke old)"}
+          </button>
         </form>
       )}
     </div>

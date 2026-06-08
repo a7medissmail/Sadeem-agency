@@ -161,32 +161,36 @@ export async function sendQuotationAction(
   const id = formData.get("id") as string;
   if (!id) return { error: "Missing quotation id." };
 
-  const { raw, hash, prefix } = generateToken();
   const admin = getSupabaseAdmin();
 
-  // Fetch quotation + linked proposal for the email
+  // Fetch quotation + linked proposal for the email (incl. existing token)
   const { data: quotation, error: fetchError } = await admin
     .from("quotations")
-    .select("id, title, total, currency, validity_days, proposal_id")
+    .select("id, title, total, currency, validity_days, proposal_id, token")
     .eq("id", id)
     .single();
   if (fetchError || !quotation) return { error: fetchError?.message ?? "Quotation not found." };
 
-  const { error } = await admin
-    .from("quotations")
-    .update({
-      token_hash: hash,
-      token_prefix: prefix,
-      status: "sent",
-      sent_at: new Date().toISOString(),
-    })
-    .eq("id", id);
-
-  if (error) return { error: error.message };
+  // Reuse the existing link if one exists; only generate on first send so the
+  // client's link never breaks when you re-send a reminder.
+  let raw = quotation.token ?? "";
+  const sentMeta = { status: "sent" as const, sent_at: new Date().toISOString() };
+  let result;
+  if (raw) {
+    result = await admin.from("quotations").update(sentMeta).eq("id", id);
+  } else {
+    const t = generateToken();
+    raw = t.raw;
+    result = await admin
+      .from("quotations")
+      .update({ ...sentMeta, token: t.raw, token_hash: t.hash, token_prefix: t.prefix })
+      .eq("id", id);
+  }
+  if (result.error) return { error: result.error.message };
   revalidatePath("/admin/proposals");
 
   // Fire-and-forget email to client
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://sadeem.agency";
+  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://sadeem.agency").replace(/\/+$/, "");
   const portalUrl = `${baseUrl}/q/${raw}`;
   void (async () => {
     try {
@@ -218,6 +222,28 @@ export async function sendQuotationAction(
     }
   })();
 
+  return { ok: true, rawToken: raw };
+}
+
+// ─── Regenerate quotation link (explicit revoke) ──────────────────────────────
+// Rotates the token so any previously shared link stops working. Use only when
+// you want to revoke access — normal "Send" reuses the stable link.
+export async function regenerateQuotationLinkAction(
+  formData: FormData,
+): Promise<{ ok?: boolean; rawToken?: string; error?: string }> {
+  await requireRole(["admin", "editor"]);
+  const id = formData.get("id") as string;
+  if (!id) return { error: "Missing quotation id." };
+
+  const { raw, hash, prefix } = generateToken();
+  const admin = getSupabaseAdmin();
+  const { error } = await admin
+    .from("quotations")
+    .update({ token: raw, token_hash: hash, token_prefix: prefix })
+    .eq("id", id);
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin/proposals");
   return { ok: true, rawToken: raw };
 }
 

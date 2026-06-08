@@ -616,6 +616,7 @@ export type Database = {
           discount_pct: number;
           tax_pct: number;
           total: number;
+          token: string | null;
           token_hash: string | null;
           token_prefix: string | null;
           status: QuotationStatus;
@@ -640,6 +641,7 @@ export type Database = {
           discount_pct?: number;
           tax_pct?: number;
           total?: number;
+          token?: string | null;
           token_hash?: string | null;
           token_prefix?: string | null;
           status?: QuotationStatus;
