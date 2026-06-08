@@ -6567,6 +6567,23 @@ section.team-roster {
   margin-bottom: 20px;
 }
 
+/* ── Arabic / RTL brief portal ─────────────────────────────────────────────── */
+.portal-ar {
+  font-family: "IBM Plex Sans Arabic", "Geist", system-ui, sans-serif;
+}
+.portal-ar .portal-eyebrow,
+.portal-ar .portal-header-badge {
+  font-family: "IBM Plex Sans Arabic", system-ui, sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.portal-ar .portal-heading,
+.portal-ar .portal-heading--sm {
+  font-family: "IBM Plex Sans Arabic", "Geist", system-ui, sans-serif;
+  letter-spacing: 0;
+  line-height: 1.15;
+}
+
 .portal-tick {
   display: inline-block;
   width: 24px;

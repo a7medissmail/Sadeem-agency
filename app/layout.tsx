@@ -61,7 +61,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap"
           rel="stylesheet"
         />
         <link rel="icon" href={siteSettings.faviconUrl ?? "/favicon.svg"} type={siteSettings.faviconUrl ? undefined : "image/svg+xml"} />

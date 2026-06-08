@@ -4,6 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { SadeemMark } from "@/components/marks";
 import { recordProposalOpenAction } from "@/app/admin/(authed)/proposals/actions";
 import BriefStepper from "./BriefStepper";
+import { portalDict } from "./strings";
 
 // No layout wrapping — standalone page, no site navbar/footer.
 export const dynamic = "force-dynamic";
@@ -42,6 +43,7 @@ type PortalProposal = {
   status: string;
   expires_at: string;
   submitted_at: string | null;
+  locale: string;
   form: PortalForm_ | PortalForm_[] | null;
 };
 
@@ -66,7 +68,7 @@ async function lookupProposal(rawToken: string): Promise<PortalProposal | null> 
     const { data } = await admin
       .from("proposals")
       .select(
-        "id, form_id, title, client_name, client_email, client_company, status, expires_at, submitted_at, form:forms(id, name, slug, submit_label, success_message, fields:form_fields(id, field_key, label, type, placeholder, help_text, options, is_required, sort_order))",
+        "id, form_id, title, client_name, client_email, client_company, status, expires_at, submitted_at, locale, form:forms(id, name, slug, submit_label, success_message, fields:form_fields(id, field_key, label, type, placeholder, help_text, options, is_required, sort_order))",
       )
       .eq("token_hash", hash)
       .single();
@@ -95,9 +97,10 @@ async function getLogo(): Promise<string | null> {
 
 // ─── Helper components ────────────────────────────────────────────────────────
 
-function PortalShell({ children }: { children: React.ReactNode }) {
+function PortalShell({ children, locale = "en" }: { children: React.ReactNode; locale?: string }) {
+  const dir = locale === "ar" ? "rtl" : "ltr";
   return (
-    <div className="portal-page">
+    <div className={`portal-page${locale === "ar" ? " portal-ar" : ""}`} dir={dir} lang={locale}>
       <div className="portal-bg" aria-hidden="true">
         <div className="portal-grid" />
         <div className="portal-vignette" />
@@ -107,7 +110,7 @@ function PortalShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function PortalHeader({ logoUrl }: { logoUrl: string | null }) {
+function PortalHeader({ logoUrl, badge }: { logoUrl: string | null; badge: string }) {
   return (
     <header className="portal-header">
       <a href="/" aria-label="SADEEM" className="portal-logo">
@@ -118,7 +121,7 @@ function PortalHeader({ logoUrl }: { logoUrl: string | null }) {
           <SadeemMark />
         )}
       </a>
-      <span className="portal-header-badge">Private brief</span>
+      <span className="portal-header-badge">{badge}</span>
     </header>
   );
 }
@@ -131,31 +134,29 @@ export default async function ProposalPortalPage({ params }: Props) {
 
   // ── Not found ──────────────────────────────────────────────────────────────
   if (!proposal) {
+    const tEn = portalDict("en");
     return (
-      <PortalShell>
-        <PortalHeader logoUrl={logoUrl} />
+      <PortalShell locale="en">
+        <PortalHeader logoUrl={logoUrl} badge={tEn.badge} />
         <main className="portal-stage">
           <div className="portal-center">
             <div className="portal-eyebrow">
               <span className="portal-tick" />
-              <span>Brief Portal</span>
+              <span>{tEn.eyebrow}</span>
             </div>
-            <h1 className="portal-heading">Link not found.</h1>
-            <p className="portal-sub">
-              This link doesn&apos;t match any brief in our system.
-              If you believe this is an error, contact us at{" "}
-              <a href="mailto:hello@sadeem.agency" style={{ color: "var(--accent)" }}>
-                hello@sadeem.agency
-              </a>
-            </p>
+            <h1 className="portal-heading">{tEn.notFound.title}</h1>
+            <p className="portal-sub">{tEn.notFound.body("hello@sadeem.agency")}</p>
           </div>
         </main>
         <footer className="portal-footer">
-          <span>SADEEM · Strategic Growth Advisory</span>
+          <span>{tEn.footer.tagline}</span>
         </footer>
       </PortalShell>
     );
   }
+
+  const t = portalDict(proposal.locale);
+  const firstName = proposal.client_name.split(" ")[0];
 
   // ── Expired ────────────────────────────────────────────────────────────────
   const isExpired =
@@ -163,33 +164,31 @@ export default async function ProposalPortalPage({ params }: Props) {
 
   if (isExpired && proposal.status !== "submitted") {
     return (
-      <PortalShell>
-        <PortalHeader logoUrl={logoUrl} />
+      <PortalShell locale={proposal.locale}>
+        <PortalHeader logoUrl={logoUrl} badge={t.badge} />
         <main className="portal-stage">
           <div className="portal-center">
             <div className="portal-eyebrow">
               <span className="portal-tick" />
-              <span>Brief Portal</span>
+              <span>{t.eyebrow}</span>
               <span>·</span>
-              <span style={{ color: "var(--accent)" }}>Expired</span>
+              <span style={{ color: "var(--accent)" }}>{t.expired.tag}</span>
             </div>
             <h1 className="portal-heading">
-              Hi {proposal.client_name.split(" ")[0]},<br />
-              this link has expired.
+              {t.expired.hi(firstName)}<br />
+              {t.expired.line2}
             </h1>
-            <p className="portal-sub">
-              Reach out to us directly and we&apos;ll send a fresh link.
-            </p>
+            <p className="portal-sub">{t.expired.body}</p>
             <a
-              href={`mailto:hello@sadeem.agency?subject=${encodeURIComponent(`Expired brief: ${proposal.title}`)}`}
+              href={`mailto:hello@sadeem.agency?subject=${encodeURIComponent(t.expired.subject(proposal.title))}`}
               className="portal-cta"
             >
-              Contact us
+              {t.expired.cta}
             </a>
           </div>
         </main>
         <footer className="portal-footer">
-          <span>SADEEM · Strategic Growth Advisory</span>
+          <span>{t.footer.tagline}</span>
         </footer>
       </PortalShell>
     );
@@ -198,26 +197,22 @@ export default async function ProposalPortalPage({ params }: Props) {
   // ── Already submitted ──────────────────────────────────────────────────────
   if (proposal.status === "submitted" || proposal.submitted_at) {
     return (
-      <PortalShell>
-        <PortalHeader logoUrl={logoUrl} />
+      <PortalShell locale={proposal.locale}>
+        <PortalHeader logoUrl={logoUrl} badge={t.badge} />
         <main className="portal-stage">
           <div className="portal-center">
             <div className="portal-eyebrow">
               <span className="portal-tick" />
-              <span>Brief Portal</span>
+              <span>{t.eyebrow}</span>
               <span>·</span>
-              <span style={{ color: "var(--accent)" }}>Submitted</span>
+              <span style={{ color: "var(--accent)" }}>{t.submitted.tag}</span>
             </div>
-            <h1 className="portal-heading">Already received.</h1>
-            <p className="portal-sub">
-              We have your brief for{" "}
-              <strong style={{ color: "var(--white)" }}>{proposal.title}</strong>.
-              Our team will be in touch shortly.
-            </p>
+            <h1 className="portal-heading">{t.submitted.title}</h1>
+            <p className="portal-sub">{t.submitted.body(proposal.title)}</p>
           </div>
         </main>
         <footer className="portal-footer">
-          <span>SADEEM · Strategic Growth Advisory</span>
+          <span>{t.footer.tagline}</span>
         </footer>
       </PortalShell>
     );
@@ -240,35 +235,34 @@ export default async function ProposalPortalPage({ params }: Props) {
         }))
     : [];
 
-  const firstName = proposal.client_name.split(" ")[0];
-
   return (
-    <PortalShell>
-      <PortalHeader logoUrl={logoUrl} />
+    <PortalShell locale={proposal.locale}>
+      <PortalHeader logoUrl={logoUrl} badge={t.badge} />
       <main className="portal-stage portal-stage--form">
         <div className="portal-form-wrap">
           {/* Greeting */}
           <div className="portal-greeting">
             <div className="portal-eyebrow">
               <span className="portal-tick" />
-              <span>Brief Portal</span>
+              <span>{t.eyebrow}</span>
               <span>·</span>
-              <span style={{ color: "var(--accent)" }}>Private</span>
+              <span style={{ color: "var(--accent)" }}>{t.greeting.tag}</span>
             </div>
             <h1 className="portal-heading portal-heading--sm">
-              Hi {firstName}, let&apos;s map
+              {t.greeting.lead(firstName)}
               <br />
               <span style={{ color: "var(--accent)" }}>{proposal.title}.</span>
             </h1>
             {proposal.client_company ? (
               <p className="portal-sub portal-sub--sm">
-                This brief is prepared for {proposal.client_company}.
+                {t.greeting.sub(proposal.client_company)}
               </p>
             ) : null}
           </div>
 
           {/* Guided 6-step brief — always uses SADEEM's structured brief,
-              regardless of which form (if any) is attached to the proposal */}
+              regardless of which form (if any) is attached to the proposal.
+              (Stepper copy is translated in a later slice; it inherits RTL here.) */}
           <BriefStepper
             proposalId={proposal.id}
             formId={formData?.id ?? null}
@@ -279,9 +273,9 @@ export default async function ProposalPortalPage({ params }: Props) {
         </div>
       </main>
       <footer className="portal-footer">
-        <span>SADEEM · Strategic Growth Advisory</span>
+        <span>{t.footer.tagline}</span>
         <span style={{ color: "rgba(245,243,240,0.35)" }}>
-          Questions?{" "}
+          {t.footer.questions}{" "}
           <a href="mailto:hello@sadeem.agency" style={{ color: "var(--accent)", textDecoration: "none" }}>
             hello@sadeem.agency
           </a>

@@ -574,6 +574,7 @@ export type Database = {
           internal_notes: string | null;
           lead_id: string | null;
           booking_id: string | null;
+          locale: string;
           created_at: string;
           updated_at: string;
         };
@@ -596,6 +597,7 @@ export type Database = {
           internal_notes?: string | null;
           lead_id?: string | null;
           booking_id?: string | null;
+          locale?: string;
           created_at?: string;
           updated_at?: string;
         };
