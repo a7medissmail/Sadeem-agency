@@ -1,17 +1,8 @@
-// Original brand glyph treatment + anonymized client logo marks.
+// SADEEM wordmark fallback (used when no uploaded logo) + anonymized client marks.
 
 export function SadeemMark({ dark = false }: { dark?: boolean }) {
-  const stroke = dark ? "#0D0D0F" : "#F5F3F0";
   return (
     <div className="brand-mark" data-mark-dark={dark ? "1" : "0"}>
-      <svg width="38" height="22" viewBox="0 0 60 22" aria-hidden="true">
-        <g stroke={stroke} strokeWidth="1.4" fill="none">
-          <path d="M2 4 L10 4 L10 11 L18 11 L18 18 L2 18" />
-          <path d="M22 4 L30 4 L30 18 L22 18 Z M22 11 L30 11" />
-          <path d="M34 18 L34 4 L42 4 L42 18 M34 11 L42 11" />
-          <path d="M46 18 L46 4 L54 11 L46 18 M54 4 L54 18" />
-        </g>
-      </svg>
       <span className="brand-word">SADEEM</span>
     </div>
   );
