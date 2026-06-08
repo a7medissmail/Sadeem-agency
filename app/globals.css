@@ -252,6 +252,9 @@ body:has([data-admin-theme="dark"]) {
 
 .brand-mark { display: inline-flex; align-items: center; gap: 10px; }
 .brand-word { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.32em; color: currentColor; }
+/* Baked-in SADEEM logo fallback (shown when no Site Settings logo is uploaded) */
+.sadeem-logo-fallback { height: 26px; width: auto; display: block; }
+.footer-brand .sadeem-logo-fallback { height: 30px; }
 .mainnav-logo { display: inline-flex; align-items: center; min-width: 118px; }
 .brand-logo-img {
   display: block;

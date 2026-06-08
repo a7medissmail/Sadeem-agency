@@ -1,10 +1,15 @@
-// SADEEM wordmark fallback (used when no uploaded logo) + anonymized client marks.
+// SADEEM logo fallback (used when no logo is uploaded in Site Settings)
+// + anonymized client marks.
 
 export function SadeemMark({ dark = false }: { dark?: boolean }) {
   return (
-    <div className="brand-mark" data-mark-dark={dark ? "1" : "0"}>
-      <span className="brand-word">SADEEM</span>
-    </div>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/sadeem-logo-white.png"
+      alt="SADEEM"
+      className="sadeem-logo-fallback"
+      data-mark-dark={dark ? "1" : "0"}
+    />
   );
 }
 
