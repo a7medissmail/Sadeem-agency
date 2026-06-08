@@ -59,11 +59,11 @@ export const BRIEF_STEPS: BriefStep[] = [
         placeholder: { en: "Annual revenue range", ar: "نطاق الإيرادات السنوية" },
         options: [
           opt("Pre-revenue", "ما قبل الإيرادات"),
-          opt("Under 1M SAR", "أقل من مليون ريال"),
-          opt("1M–10M SAR", "1–10 مليون ريال"),
-          opt("10M–50M SAR", "10–50 مليون ريال"),
-          opt("50M–200M SAR", "50–200 مليون ريال"),
-          opt("200M+ SAR", "أكثر من 200 مليون ريال"),
+          opt("Under $1M", "أقل من مليون دولار"),
+          opt("$1M–$10M", "1–10 مليون دولار"),
+          opt("$10M–$50M", "10–50 مليون دولار"),
+          opt("$50M–$100M", "50–100 مليون دولار"),
+          opt("$100M+", "أكثر من 100 مليون دولار"),
         ],
       },
       {
@@ -90,8 +90,8 @@ export const BRIEF_STEPS: BriefStep[] = [
         label: { en: "Primary challenge", ar: "التحدّي الأساسي" },
         hint: { en: "In your own words — what's the core problem you need help solving?", ar: "بكلماتك — ما المشكلة الجوهرية التي تحتاج المساعدة في حلّها؟" },
         placeholder: {
-          en: "e.g. Our sales team is strong but we can't convert pipeline to closed deals. Revenue has plateaued at 8M SAR for two years...",
-          ar: "مثال: فريق المبيعات قوي لكننا لا نحوّل الفرص إلى صفقات مغلقة. الإيرادات متوقفة عند 8 مليون ريال منذ سنتين...",
+          en: "e.g. Our sales team is strong but we can't convert pipeline to closed deals. Revenue has plateaued at $8M for two years...",
+          ar: "مثال: فريق المبيعات قوي لكننا لا نحوّل الفرص إلى صفقات مغلقة. الإيرادات متوقفة عند 8 مليون دولار منذ سنتين...",
         },
       },
       {
@@ -136,8 +136,8 @@ export const BRIEF_STEPS: BriefStep[] = [
         label: { en: "Success in 12 months", ar: "النجاح خلال 12 شهراً" },
         hint: { en: "Longer horizon — where does the business need to be?", ar: "أفق أبعد — أين يجب أن يكون النشاط؟" },
         placeholder: {
-          en: "e.g. 30M SAR ARR, operating in 3 GCC markets, team scaled to 80 people with proper management structure...",
-          ar: "مثال: 30 مليون ريال إيراد سنوي متكرر، والعمل في 3 أسواق خليجية، وتوسيع الفريق إلى 80 شخصاً بهيكل إداري سليم...",
+          en: "e.g. $30M ARR, operating in 3 GCC markets, team scaled to 80 people with proper management structure...",
+          ar: "مثال: 30 مليون دولار إيراد سنوي متكرر، والعمل في 3 أسواق خليجية، وتوسيع الفريق إلى 80 شخصاً بهيكل إداري سليم...",
         },
       },
       {
@@ -224,11 +224,11 @@ export const BRIEF_STEPS: BriefStep[] = [
         hint: { en: "This helps us scope the right depth of work. All ranges are treated confidentially.", ar: "هذا يساعدنا على تحديد العمق المناسب للعمل. كل النطاقات تُعامَل بسرّية." },
         placeholder: { en: "Select a range", ar: "اختر نطاقاً" },
         options: [
-          opt("Under 50K SAR", "أقل من 50 ألف ريال"),
-          opt("50K–150K SAR", "50–150 ألف ريال"),
-          opt("150K–500K SAR", "150–500 ألف ريال"),
-          opt("500K–1M SAR", "500 ألف – مليون ريال"),
-          opt("Above 1M SAR", "أكثر من مليون ريال"),
+          opt("Under $15K", "أقل من 15 ألف دولار"),
+          opt("$15K–$50K", "15–50 ألف دولار"),
+          opt("$50K–$150K", "50–150 ألف دولار"),
+          opt("$150K–$500K", "150–500 ألف دولار"),
+          opt("Above $500K", "أكثر من 500 ألف دولار"),
           opt("Prefer not to say", "أفضّل عدم الإفصاح"),
         ],
       },
