@@ -4,6 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { SadeemMark } from "@/components/marks";
 import { recordQuotationViewAction } from "@/app/admin/(authed)/proposals/quotation-actions";
 import QuoteResponse from "./QuoteResponse";
+import { quoteDict } from "./strings";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,7 @@ type QuoteProposal = {
   title: string;
   client_name: string;
   client_company: string | null;
+  locale: string;
 };
 
 type QuoteData = {
@@ -44,7 +46,7 @@ type QuoteData = {
   declined_at: string | null;
   notes: string | null;
   items: QuoteItem[];
-  proposal: QuoteProposal | null;
+  proposal: QuoteProposal | QuoteProposal[] | null;
 };
 
 // ── Lookup ────────────────────────────────────────────────────────────────────
@@ -60,14 +62,13 @@ async function lookupQuotation(rawToken: string): Promise<QuoteData | null> {
         discount_pct, tax_pct, subtotal, total,
         status, sent_at, accepted_at, declined_at, notes,
         items:quotation_items(id, sort_order, name, description, quantity, unit, unit_price, total),
-        proposal:proposals(title, client_name, client_company)
+        proposal:proposals(title, client_name, client_company, locale)
       `)
       .eq("token_hash", hash)
       .single();
 
     if (!data) return null;
 
-    // Sort items
     const raw = data as unknown as QuoteData;
     raw.items = [...(raw.items ?? [])].sort((a, b) => a.sort_order - b.sort_order);
     return raw;
@@ -82,6 +83,10 @@ async function getLogo(): Promise<string | null> {
     const { data } = await admin.from("site_settings").select("logo_light_url").eq("id", true).maybeSingle();
     return data?.logo_light_url ?? null;
   } catch { return null; }
+}
+
+function proposalOf(q: QuoteData): QuoteProposal | null {
+  return Array.isArray(q.proposal) ? (q.proposal[0] ?? null) : q.proposal;
 }
 
 // ── Metadata ──────────────────────────────────────────────────────────────────
@@ -104,9 +109,10 @@ function fmt(amount: number, currency: string) {
   }).format(amount);
 }
 
-function Shell({ children }: { children: React.ReactNode }) {
+function Shell({ children, locale = "en" }: { children: React.ReactNode; locale?: string }) {
+  const dir = locale === "ar" ? "rtl" : "ltr";
   return (
-    <div className="qp-page">
+    <div className={`qp-page${locale === "ar" ? " qp-ar portal-ar" : ""}`} dir={dir} lang={locale}>
       <div className="portal-bg" aria-hidden="true">
         <div className="portal-grid" />
         <div className="portal-vignette" />
@@ -116,7 +122,7 @@ function Shell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Header({ logoUrl }: { logoUrl: string | null }) {
+function Header({ logoUrl, badge }: { logoUrl: string | null; badge: string }) {
   return (
     <header className="portal-header">
       <a href="/" aria-label="SADEEM" className="portal-logo">
@@ -124,7 +130,7 @@ function Header({ logoUrl }: { logoUrl: string | null }) {
           ? <img src={logoUrl} alt="SADEEM" className="brand-logo-img" style={{ height: 28 }} />
           : <SadeemMark />}
       </a>
-      <span className="portal-header-badge">Quotation</span>
+      <span className="portal-header-badge">{badge}</span>
     </header>
   );
 }
@@ -137,23 +143,25 @@ export default async function QuotationPortalPage({ params }: Props) {
 
   // Not found
   if (!q) {
+    const t = quoteDict("en");
     return (
-      <Shell>
-        <Header logoUrl={logoUrl} />
+      <Shell locale="en">
+        <Header logoUrl={logoUrl} badge={t.badge} />
         <main className="portal-stage">
           <div className="portal-center">
-            <div className="portal-eyebrow"><span className="portal-tick" /><span>Quotation</span></div>
-            <h1 className="portal-heading">Link not found.</h1>
-            <p className="portal-sub">
-              This link doesn&apos;t match any quotation in our system. Contact us at{" "}
-              <a href="mailto:hello@sadeem.agency" style={{ color: "var(--accent)" }}>hello@sadeem.agency</a>
-            </p>
+            <div className="portal-eyebrow"><span className="portal-tick" /><span>{t.badge}</span></div>
+            <h1 className="portal-heading">{t.notFound.title}</h1>
+            <p className="portal-sub">{t.notFound.body("hello@sadeem.agency")}</p>
           </div>
         </main>
-        <footer className="portal-footer"><span>SADEEM · Strategic Growth Advisory</span></footer>
+        <footer className="portal-footer"><span>{t.footer.tagline}</span></footer>
       </Shell>
     );
   }
+
+  const proposal = proposalOf(q);
+  const locale = proposal?.locale === "ar" ? "ar" : "en";
+  const t = quoteDict(locale);
 
   // Expired
   const isExpired = q.status === "expired" ||
@@ -161,17 +169,17 @@ export default async function QuotationPortalPage({ params }: Props) {
 
   if (isExpired && !["accepted", "declined"].includes(q.status)) {
     return (
-      <Shell>
-        <Header logoUrl={logoUrl} />
+      <Shell locale={locale}>
+        <Header logoUrl={logoUrl} badge={t.badge} />
         <main className="portal-stage">
           <div className="portal-center">
-            <div className="portal-eyebrow"><span className="portal-tick" /><span>Quotation</span><span>·</span><span style={{ color: "var(--accent)" }}>Expired</span></div>
-            <h1 className="portal-heading">This quote has expired.</h1>
-            <p className="portal-sub">Reach out and we&apos;ll send a refreshed version.</p>
-            <a href={`mailto:hello@sadeem.agency?subject=${encodeURIComponent(`Expired quote: ${q.title}`)}`} className="portal-cta">Contact us</a>
+            <div className="portal-eyebrow"><span className="portal-tick" /><span>{t.badge}</span><span>·</span><span style={{ color: "var(--accent)" }}>{t.expired.tag}</span></div>
+            <h1 className="portal-heading">{t.expired.title}</h1>
+            <p className="portal-sub">{t.expired.body}</p>
+            <a href={`mailto:hello@sadeem.agency?subject=${encodeURIComponent(t.expired.subject(q.title))}`} className="portal-cta">{t.expired.cta}</a>
           </div>
         </main>
-        <footer className="portal-footer"><span>SADEEM · Strategic Growth Advisory</span></footer>
+        <footer className="portal-footer"><span>{t.footer.tagline}</span></footer>
       </Shell>
     );
   }
@@ -179,15 +187,14 @@ export default async function QuotationPortalPage({ params }: Props) {
   // Record view (fire-and-forget)
   void recordQuotationViewAction(q.id);
 
-  const proposal = Array.isArray(q.proposal) ? q.proposal[0] : q.proposal;
-  const canRespond = ["sent", "viewed"].includes(q.status);
   const disc = q.discount_pct || 0;
   const tax = q.tax_pct || 0;
   const afterDiscount = q.subtotal * (1 - disc / 100);
+  const statusLabel = q.status === "accepted" ? t.status.accepted : t.status.declined;
 
   return (
-    <Shell>
-      <Header logoUrl={logoUrl} />
+    <Shell locale={locale}>
+      <Header logoUrl={logoUrl} badge={t.badge} />
       <main className="qp-main">
         <div className="qp-wrap">
 
@@ -195,21 +202,21 @@ export default async function QuotationPortalPage({ params }: Props) {
           <div className="qp-cover">
             <div className="portal-eyebrow">
               <span className="portal-tick" />
-              <span>Quotation</span>
+              <span>{t.badge}</span>
               {["accepted", "declined"].includes(q.status) && (
                 <>
                   <span>·</span>
-                  <span style={{ color: q.status === "accepted" ? "#34d399" : "#f87171", textTransform: "capitalize" }}>
-                    {q.status}
+                  <span style={{ color: q.status === "accepted" ? "#34d399" : "#f87171" }}>
+                    {statusLabel}
                   </span>
                 </>
               )}
             </div>
-            <h1 className="qp-title">{q.title}</h1>
+            <h1 className="qp-title"><bdi>{q.title}</bdi></h1>
             {proposal && (
               <p className="qp-subtitle">
-                Prepared for <strong style={{ color: "var(--white)" }}>{proposal.client_name}</strong>
-                {proposal.client_company ? ` · ${proposal.client_company}` : ""}
+                {t.preparedFor} <strong style={{ color: "var(--white)" }}><bdi>{proposal.client_name}</bdi></strong>
+                {proposal.client_company ? <> · <bdi>{proposal.client_company}</bdi></> : ""}
               </p>
             )}
             {q.intro_text && <p className="qp-intro">{q.intro_text}</p>}
@@ -218,16 +225,16 @@ export default async function QuotationPortalPage({ params }: Props) {
           {/* Line items */}
           <div className="qp-table-wrap">
             <div className="qp-table-header">
-              <span>Service</span>
-              <span className="qp-col-right">Qty</span>
-              <span>Unit</span>
-              <span className="qp-col-right">Unit price</span>
-              <span className="qp-col-right">Total</span>
+              <span>{t.table.service}</span>
+              <span className="qp-col-right">{t.table.qty}</span>
+              <span>{t.table.unit}</span>
+              <span className="qp-col-right">{t.table.unitPrice}</span>
+              <span className="qp-col-right">{t.table.total}</span>
             </div>
             {q.items.map((item) => (
               <div key={item.id} className="qp-table-row">
                 <div className="qp-item-name-cell">
-                  <span className="qp-item-name">{item.name}</span>
+                  <span className="qp-item-name"><bdi>{item.name}</bdi></span>
                   {item.description && <span className="qp-item-desc">{item.description}</span>}
                 </div>
                 <span className="qp-col-right qp-item-num">{item.quantity}</span>
@@ -241,23 +248,23 @@ export default async function QuotationPortalPage({ params }: Props) {
           {/* Totals */}
           <div className="qp-totals">
             <div className="qp-total-line">
-              <span>Subtotal</span>
+              <span>{t.totals.subtotal}</span>
               <span>{fmt(q.subtotal, q.currency)}</span>
             </div>
             {disc > 0 && (
               <div className="qp-total-line">
-                <span>Discount ({disc}%)</span>
+                <span>{t.totals.discount} ({disc}%)</span>
                 <span>−{fmt(q.subtotal * disc / 100, q.currency)}</span>
               </div>
             )}
             {tax > 0 && (
               <div className="qp-total-line">
-                <span>Tax ({tax}%)</span>
+                <span>{t.totals.tax} ({tax}%)</span>
                 <span>{fmt(afterDiscount * tax / 100, q.currency)}</span>
               </div>
             )}
             <div className="qp-total-line qp-total-line--grand">
-              <span>Total</span>
+              <span>{t.totals.grand}</span>
               <span>{fmt(q.total, q.currency)}</span>
             </div>
           </div>
@@ -265,8 +272,10 @@ export default async function QuotationPortalPage({ params }: Props) {
           {/* Validity */}
           {q.sent_at && (
             <p className="qp-validity">
-              This quote is valid for {q.validity_days} days from{" "}
-              {new Intl.DateTimeFormat("en", { dateStyle: "long" }).format(new Date(q.sent_at))}.
+              {t.validity(
+                q.validity_days,
+                new Intl.DateTimeFormat(locale === "ar" ? "ar" : "en", { dateStyle: "long" }).format(new Date(q.sent_at)),
+              )}
             </p>
           )}
 
@@ -274,14 +283,15 @@ export default async function QuotationPortalPage({ params }: Props) {
           <QuoteResponse
             quotationId={q.id}
             initialStatus={q.status}
+            locale={locale}
           />
 
         </div>
       </main>
       <footer className="portal-footer">
-        <span>SADEEM · Strategic Growth Advisory</span>
+        <span>{t.footer.tagline}</span>
         <span style={{ color: "rgba(245,243,240,0.35)" }}>
-          Questions?{" "}
+          {t.footer.questions}{" "}
           <a href="mailto:hello@sadeem.agency" style={{ color: "var(--accent)", textDecoration: "none" }}>
             hello@sadeem.agency
           </a>

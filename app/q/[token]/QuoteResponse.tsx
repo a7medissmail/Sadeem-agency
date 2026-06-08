@@ -2,13 +2,18 @@
 
 import { useState, useTransition } from "react";
 import { clientRespondQuotationAction } from "@/app/admin/(authed)/proposals/quotation-actions";
+import { quoteDict } from "./strings";
 
 type Props = {
   quotationId: string;
   initialStatus: string;
+  locale?: string;
 };
 
-export default function QuoteResponse({ quotationId, initialStatus }: Props) {
+const CONTACT_EMAIL = "hello@sadeem.agency";
+
+export default function QuoteResponse({ quotationId, initialStatus, locale }: Props) {
+  const t = quoteDict(locale).resp;
   const [status, setStatus] = useState(initialStatus);
   const [showDeclineForm, setShowDeclineForm] = useState(false);
   const [declineReason, setDeclineReason] = useState("");
@@ -19,7 +24,7 @@ export default function QuoteResponse({ quotationId, initialStatus }: Props) {
     startTransition(async () => {
       const result = await clientRespondQuotationAction(quotationId, "accepted");
       if (result.ok) setStatus("accepted");
-      else setError(result.error ?? "Something went wrong.");
+      else setError(result.error ?? t.genericError);
     });
   }
 
@@ -27,7 +32,7 @@ export default function QuoteResponse({ quotationId, initialStatus }: Props) {
     startTransition(async () => {
       const result = await clientRespondQuotationAction(quotationId, "declined", declineReason);
       if (result.ok) { setStatus("declined"); setShowDeclineForm(false); }
-      else setError(result.error ?? "Something went wrong.");
+      else setError(result.error ?? t.genericError);
     });
   }
 
@@ -35,10 +40,8 @@ export default function QuoteResponse({ quotationId, initialStatus }: Props) {
     return (
       <div className="qp-response qp-response--accepted">
         <div className="qp-response-icon">✓</div>
-        <h3 className="qp-response-title">Quote accepted.</h3>
-        <p className="qp-response-body">
-          Our team has been notified. We&apos;ll be in touch shortly with next steps.
-        </p>
+        <h3 className="qp-response-title">{t.acceptedTitle}</h3>
+        <p className="qp-response-body">{t.acceptedBody}</p>
       </div>
     );
   }
@@ -47,10 +50,9 @@ export default function QuoteResponse({ quotationId, initialStatus }: Props) {
     return (
       <div className="qp-response qp-response--declined">
         <div className="qp-response-icon">✕</div>
-        <h3 className="qp-response-title">Quote declined.</h3>
+        <h3 className="qp-response-title">{t.declinedTitle}</h3>
         <p className="qp-response-body">
-          We&apos;ve received your response. If you&apos;d like to discuss alternatives, reach out at{" "}
-          <a href="mailto:hello@sadeem.agency" style={{ color: "var(--accent)" }}>hello@sadeem.agency</a>.
+          {t.declinedBody(CONTACT_EMAIL)}
         </p>
       </div>
     );
@@ -59,21 +61,21 @@ export default function QuoteResponse({ quotationId, initialStatus }: Props) {
   if (showDeclineForm) {
     return (
       <div className="qp-action-panel">
-        <p className="qp-action-label">Why are you declining? (optional)</p>
+        <p className="qp-action-label">{t.declineLabel}</p>
         <textarea
           value={declineReason}
           onChange={(e) => setDeclineReason(e.target.value)}
           className="qp-decline-textarea"
           rows={3}
-          placeholder="e.g. Budget constraints, timing not right, going with another provider..."
+          placeholder={t.declinePlaceholder}
         />
         {error && <p className="qp-error">{error}</p>}
         <div className="qp-action-btns">
           <button type="button" onClick={() => setShowDeclineForm(false)} className="qp-btn-back" disabled={isPending}>
-            Cancel
+            {t.cancel}
           </button>
           <button type="button" onClick={handleDecline} className="qp-btn-decline" disabled={isPending}>
-            {isPending ? "Sending…" : "Confirm decline"}
+            {isPending ? t.sending : t.confirmDecline}
           </button>
         </div>
       </div>
@@ -85,15 +87,13 @@ export default function QuoteResponse({ quotationId, initialStatus }: Props) {
       {error && <p className="qp-error">{error}</p>}
       <div className="qp-action-btns">
         <button type="button" onClick={() => setShowDeclineForm(true)} className="qp-btn-decline-soft" disabled={isPending}>
-          Decline
+          {t.decline}
         </button>
         <button type="button" onClick={handleAccept} className="qp-btn-accept" disabled={isPending}>
-          {isPending ? "Processing…" : "Accept quote →"}
+          {isPending ? t.processing : t.accept}
         </button>
       </div>
-      <p className="qp-action-note">
-        By accepting, you confirm your intent to proceed with the outlined scope. This is not a binding contract.
-      </p>
+      <p className="qp-action-note">{t.note}</p>
     </div>
   );
 }

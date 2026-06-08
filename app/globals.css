@@ -7494,6 +7494,34 @@ section.team-roster {
   flex-direction: column;
   overflow-x: hidden;
 }
+/* Arabic / RTL quotation portal */
+.qp-ar {
+  font-family: "IBM Plex Sans Arabic", "Geist", system-ui, sans-serif;
+}
+.qp-ar .qp-table-header,
+.qp-ar .qp-validity,
+.qp-ar .qp-total-line,
+.qp-ar .qp-action-label,
+.qp-ar .qp-action-note,
+.qp-ar .qp-btn-accept,
+.qp-ar .qp-btn-decline,
+.qp-ar .qp-btn-decline-soft,
+.qp-ar .qp-btn-back {
+  font-family: "IBM Plex Sans Arabic", system-ui, sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.qp-ar .qp-title,
+.qp-ar .qp-subtitle,
+.qp-ar .qp-intro,
+.qp-ar .qp-item-name,
+.qp-ar .qp-item-desc,
+.qp-ar .qp-response-title,
+.qp-ar .qp-response-body {
+  font-family: "IBM Plex Sans Arabic", "Geist", system-ui, sans-serif;
+}
+.qp-ar .qp-title { letter-spacing: 0; }
+
 .qp-main {
   flex: 1;
   display: flex;
