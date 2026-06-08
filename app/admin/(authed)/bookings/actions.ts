@@ -240,6 +240,7 @@ export async function createBriefFromBookingAction(
           portalUrl,
           expiresDate,
           brand,
+          locale,
         });
         await sendEmail({ channel: "briefs", to: booking.email, subject, html });
       } catch (err) {

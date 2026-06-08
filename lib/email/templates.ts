@@ -44,15 +44,20 @@ function lightShell({
   body,
   footerLines,
   width = 640,
+  lang = "en",
+  dir = "ltr",
 }: {
   preview: string;
   masthead: string;        // prebuilt masthead row HTML
   body: string;            // main content HTML
   footerLines: string;     // plain footer text (Geist Mono, small)
   width?: number;
+  lang?: string;
+  dir?: "ltr" | "rtl";
 }) {
+  const arFont = lang === "ar" ? "'IBM Plex Sans Arabic',Tahoma," : "";
   return `<!doctype html>
-<html lang="en">
+<html lang="${lang}" dir="${dir}">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -65,12 +70,12 @@ function lightShell({
 }
 </style>
 </head>
-<body style="margin:0;padding:0;background:${L.outer};font-family:${L.sans};-webkit-font-smoothing:antialiased;">
+<body dir="${dir}" style="margin:0;padding:0;background:${L.outer};font-family:${arFont}${L.sans};-webkit-font-smoothing:antialiased;">
 ${lightShellHidden(preview)}
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:${L.outer};">
   <tr>
     <td align="center" style="padding:0;">
-      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="${width}" class="lw" style="width:${width}px;max-width:${width}px;background:${L.bg};">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="${width}" class="lw" dir="${dir}" style="width:${width}px;max-width:${width}px;background:${L.bg};">
         ${masthead}
         ${body}
         <tr>
@@ -846,12 +851,54 @@ export function briefReceivedClient({
   clientName,
   proposalTitle,
   brand,
+  locale = "en",
 }: {
   clientName: string;
   proposalTitle: string;
   brand?: EmailBranding;
+  locale?: string;
 }) {
-  const subject = `We received your brief — ${proposalTitle}`;
+  const ar = locale === "ar";
+  const t = ar
+    ? {
+        subject: `استلمنا موجزك — ${proposalTitle}`,
+        badge: "تم استلام الموجز",
+        thankYou: `شكراً لك، ${esc(clientName)}.`,
+        h1: `الآن يبدأ<br />العمل<br /><span style="color:${L.accent};">الحقيقي.</span>`,
+        intro: `وصلنا موجزك الخاص بـ <strong style="color:${L.white};">${esc(proposalTitle)}</strong>. سنراجعه ونعود إليك برد مُفصّل — بلا قوالب جاهزة ولا حشو.`,
+        whatNext: "ما الذي سيحدث تالياً",
+        threeSteps: "ثلاث خطوات، بلا مفاجآت.",
+        s1t: "مراجعة الموجز",
+        s1b: "يقرأ فريقنا موجزك بالكامل — السياق والتحدي والأولويات — قبل أن ننطق بكلمة.",
+        s2t: "مكالمة تحديد النطاق",
+        s2b: "نحدّد مكالمة مركّزة مدتها 45 دقيقة لاختبار الموجز وتأكيد الشكل المناسب للتعاون.",
+        s3t: "العرض",
+        s3b: "تستلم عرضاً محدّد النطاق ومُسعّراً. شروط واضحة — بلا مراحل خفية ولا التزامات غامضة.",
+        questions: "أسئلة قبل أن نتواصل؟ رُدّ مباشرة على هذا الإيميل أو راسلنا على",
+        masthead2: "بوابة الموجز",
+        preview: "تم استلام الموجز — سنتواصل معك قريباً.",
+        footer: "SADEEM · استشارات النمو الاستراتيجي<br />hello@sadeem.agency",
+      }
+    : {
+        subject: `We received your brief — ${proposalTitle}`,
+        badge: "Brief received",
+        thankYou: `Thank you, ${esc(clientName)}.`,
+        h1: `Now the<br />real work<br /><span style="color:${L.accent};">starts.</span>`,
+        intro: `Your brief for <strong style="color:${L.white};">${esc(proposalTitle)}</strong> is in. We'll review it and come back with a tailored response — no boilerplate, no filler.`,
+        whatNext: "What happens next",
+        threeSteps: "Three steps, no surprises.",
+        s1t: "Brief review",
+        s1b: "Our team reads your brief in full — context, challenge, and priorities — before we say a word.",
+        s2t: "Scoping call",
+        s2b: "We schedule a focused 45-minute conversation to pressure-test the brief and confirm the right engagement shape.",
+        s3t: "Proposal",
+        s3b: "You receive a scoped, priced proposal. Straightforward terms — no hidden phases, no retainer theatre.",
+        questions: "Questions before we reach out? Reply directly to this email or write to",
+        masthead2: "Brief portal",
+        preview: "Brief received — we'll be in touch shortly.",
+        footer: "SADEEM · Strategic growth advisory<br />hello@sadeem.agency",
+      };
+  const subject = t.subject;
 
   const heroBlock = `
 <tr>
@@ -862,19 +909,19 @@ export function briefReceivedClient({
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
             <tr>
               <td style="font-family:${L.mono};font-size:11px;letter-spacing:0.32em;color:${L.white};">SADEEM</td>
-              <td align="right" style="font-family:${L.mono};font-size:10px;letter-spacing:0.22em;color:rgba(245,243,240,0.5);text-transform:uppercase;">Brief received</td>
+              <td align="right" style="font-family:${L.mono};font-size:10px;letter-spacing:0.22em;color:rgba(245,243,240,0.5);text-transform:uppercase;">${t.badge}</td>
             </tr>
           </table>
         </td>
       </tr>
       <tr>
         <td class="lp" style="padding:56px 36px 52px 36px;">
-          <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.32em;color:${L.accent};text-transform:uppercase;margin-bottom:22px;">Thank you, ${esc(clientName)}.</div>
+          <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.32em;color:${L.accent};text-transform:uppercase;margin-bottom:22px;">${t.thankYou}</div>
           <h1 class="lt" style="margin:0;font-family:${L.sans};font-weight:700;font-size:44px;line-height:0.98;letter-spacing:-0.035em;color:${L.white};text-transform:uppercase;">
-            Now the<br />real work<br /><span style="color:${L.accent};">starts.</span>
+            ${t.h1}
           </h1>
           <p style="margin:28px 0 0;font-family:${L.sans};font-size:15px;line-height:1.6;color:rgba(245,243,240,0.72);max-width:36ch;">
-            Your brief for <strong style="color:${L.white};">${esc(proposalTitle)}</strong> is in. We'll review it and come back with a tailored response — no boilerplate, no filler.
+            ${t.intro}
           </p>
         </td>
       </tr>
@@ -885,8 +932,8 @@ export function briefReceivedClient({
   const timelineBlock = `
 <tr>
   <td class="lp" style="padding:44px 36px 12px 36px;">
-    <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.28em;color:${L.accent};text-transform:uppercase;margin-bottom:6px;">What happens next</div>
-    <h2 style="margin:0 0 28px;font-family:${L.sans};font-weight:700;font-size:26px;line-height:1.05;letter-spacing:-0.02em;color:${L.text};">Three steps, no surprises.</h2>
+    <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.28em;color:${L.accent};text-transform:uppercase;margin-bottom:6px;">${t.whatNext}</div>
+    <h2 style="margin:0 0 28px;font-family:${L.sans};font-weight:700;font-size:26px;line-height:1.05;letter-spacing:-0.02em;color:${L.text};">${t.threeSteps}</h2>
   </td>
 </tr>
 <tr>
@@ -895,8 +942,8 @@ export function briefReceivedClient({
       <tr>
         <td valign="top" width="80" style="padding:22px 0;font-family:${L.mono};font-size:11px;letter-spacing:0.24em;color:${L.accent};">01</td>
         <td valign="top" style="padding:22px 0;">
-          <div style="font-family:${L.sans};font-weight:600;font-size:16px;letter-spacing:-0.01em;color:${L.text};margin-bottom:5px;">Brief review</div>
-          <div style="font-family:${L.sans};font-size:13.5px;line-height:1.55;color:${L.gray};">Our team reads your brief in full — context, challenge, and priorities — before we say a word.</div>
+          <div style="font-family:${L.sans};font-weight:600;font-size:16px;letter-spacing:-0.01em;color:${L.text};margin-bottom:5px;">${t.s1t}</div>
+          <div style="font-family:${L.sans};font-size:13.5px;line-height:1.55;color:${L.gray};">${t.s1b}</div>
         </td>
       </tr>
     </table>
@@ -904,8 +951,8 @@ export function briefReceivedClient({
       <tr>
         <td valign="top" width="80" style="padding:22px 0;font-family:${L.mono};font-size:11px;letter-spacing:0.24em;color:${L.accent};">02</td>
         <td valign="top" style="padding:22px 0;">
-          <div style="font-family:${L.sans};font-weight:600;font-size:16px;letter-spacing:-0.01em;color:${L.text};margin-bottom:5px;">Scoping call</div>
-          <div style="font-family:${L.sans};font-size:13.5px;line-height:1.55;color:${L.gray};">We schedule a focused 45-minute conversation to pressure-test the brief and confirm the right engagement shape.</div>
+          <div style="font-family:${L.sans};font-weight:600;font-size:16px;letter-spacing:-0.01em;color:${L.text};margin-bottom:5px;">${t.s2t}</div>
+          <div style="font-family:${L.sans};font-size:13.5px;line-height:1.55;color:${L.gray};">${t.s2b}</div>
         </td>
       </tr>
     </table>
@@ -913,8 +960,8 @@ export function briefReceivedClient({
       <tr>
         <td valign="top" width="80" style="padding:22px 0;font-family:${L.mono};font-size:11px;letter-spacing:0.24em;color:${L.accent};">03</td>
         <td valign="top" style="padding:22px 0;">
-          <div style="font-family:${L.sans};font-weight:600;font-size:16px;letter-spacing:-0.01em;color:${L.text};margin-bottom:5px;">Proposal</div>
-          <div style="font-family:${L.sans};font-size:13.5px;line-height:1.55;color:${L.gray};">You receive a scoped, priced proposal. Straightforward terms — no hidden phases, no retainer theatre.</div>
+          <div style="font-family:${L.sans};font-weight:600;font-size:16px;letter-spacing:-0.01em;color:${L.text};margin-bottom:5px;">${t.s3t}</div>
+          <div style="font-family:${L.sans};font-size:13.5px;line-height:1.55;color:${L.gray};">${t.s3b}</div>
         </td>
       </tr>
     </table>
@@ -923,16 +970,18 @@ export function briefReceivedClient({
 <tr>
   <td class="lp" style="padding:36px 36px 8px 36px;">
     <p style="margin:0;font-family:${L.sans};font-size:14px;line-height:1.6;color:${L.gray};">
-      Questions before we reach out? Reply directly to this email or write to <a href="mailto:hello@sadeem.agency" style="color:${L.accent};text-decoration:none;border-bottom:1px solid ${L.accent};padding-bottom:1px;">hello@sadeem.agency</a>
+      ${t.questions} <a href="mailto:hello@sadeem.agency" style="color:${L.accent};text-decoration:none;border-bottom:1px solid ${L.accent};padding-bottom:1px;">hello@sadeem.agency</a>
     </p>
   </td>
 </tr>`;
 
   const html = lightShell({
-    preview: `Brief received — we'll be in touch shortly.`,
-    masthead: lMasthead("SADEEM", "Brief portal", brand),
+    preview: t.preview,
+    masthead: lMasthead("SADEEM", t.masthead2, brand),
     body: heroBlock + timelineBlock,
-    footerLines: `SADEEM · Strategic growth advisory<br />hello@sadeem.agency`,
+    footerLines: t.footer,
+    lang: ar ? "ar" : "en",
+    dir: ar ? "rtl" : "ltr",
   });
 
   return { subject, html };
@@ -1180,14 +1229,47 @@ export function proposalInviteClient({
   portalUrl,
   expiresDate,
   brand,
+  locale = "en",
 }: {
   clientName: string;
   proposalTitle: string;
   portalUrl: string;
   expiresDate: string;
   brand?: EmailBranding;
+  locale?: string;
 }) {
-  const subject = `Your brief portal is ready — ${proposalTitle}`;
+  const ar = locale === "ar";
+  const email = brand?.footerEmail ?? "hello@sadeem.agency";
+  const t = ar
+    ? {
+        subject: `بوابة الموجز جاهزة — ${proposalTitle}`,
+        badge: "موجز خاص",
+        hi: `أهلاً ${esc(clientName)}.`,
+        h1: `بوابة<br />الموجز<br /><span style="color:${L.accent};">جاهزة.</span>`,
+        intro: `جهّزنا لك بوابة خاصة لـ <strong style="color:${L.white};">${esc(proposalTitle)}</strong>. استخدم الرابط بالأسفل لفتحها، اقرأ الموجز، وشاركنا سياقك.`,
+        openEyebrow: "افتح بوابتك",
+        expiry: `الرابط خاص وينتهي في <strong style="color:${L.sub};">${esc(expiresDate)}</strong>. لا تُعِد توجيهه — أنت وحدك من ينبغي أن يصل لهذا الموجز.`,
+        cta: "افتح بوابة الموجز",
+        questions: "لو عندك أي أسئلة قبل ملئه، رُدّ على هذا الإيميل أو راسلنا على",
+        masthead2: "بوابة الموجز",
+        preview: `بوابة موجز سديم الخاصة بـ "${proposalTitle}" جاهزة.`,
+        footer: `SADEEM · استشارات النمو الاستراتيجي<br />${email}<br />هذا الرابط شخصي — لا تُعِد توجيهه.`,
+      }
+    : {
+        subject: `Your brief portal is ready — ${proposalTitle}`,
+        badge: "Private brief",
+        hi: `Hi, ${esc(clientName)}.`,
+        h1: `Your brief<br />portal is<br /><span style="color:${L.accent};">ready.</span>`,
+        intro: `We prepared a private portal for <strong style="color:${L.white};">${esc(proposalTitle)}</strong>. Use the link below to open it, read through the brief, and share your context.`,
+        openEyebrow: "Open your portal",
+        expiry: `The link is private and expires on <strong style="color:${L.sub};">${esc(expiresDate)}</strong>. Do not forward it — only you should access this brief.`,
+        cta: "Open your brief portal",
+        questions: "If you have questions before filling it in, reply to this email or write to",
+        masthead2: "Brief portal",
+        preview: `Your private SADEEM brief portal for "${proposalTitle}" is ready.`,
+        footer: `SADEEM · Strategic growth advisory<br />${email}<br />This link is personal — do not forward.`,
+      };
+  const subject = t.subject;
 
   const heroBlock = `
 <tr>
@@ -1198,19 +1280,19 @@ export function proposalInviteClient({
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
             <tr>
               <td style="font-family:${L.mono};font-size:11px;letter-spacing:0.32em;color:${L.white};">SADEEM</td>
-              <td align="right" style="font-family:${L.mono};font-size:10px;letter-spacing:0.22em;color:rgba(245,243,240,0.5);text-transform:uppercase;">Private brief</td>
+              <td align="right" style="font-family:${L.mono};font-size:10px;letter-spacing:0.22em;color:rgba(245,243,240,0.5);text-transform:uppercase;">${t.badge}</td>
             </tr>
           </table>
         </td>
       </tr>
       <tr>
         <td class="lp" style="padding:52px 36px 48px 36px;">
-          <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.32em;color:${L.accent};text-transform:uppercase;margin-bottom:20px;">Hi, ${esc(clientName)}.</div>
+          <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.32em;color:${L.accent};text-transform:uppercase;margin-bottom:20px;">${t.hi}</div>
           <h1 class="lt" style="margin:0;font-family:${L.sans};font-weight:700;font-size:40px;line-height:1.0;letter-spacing:-0.03em;color:${L.white};">
-            Your brief<br />portal is<br /><span style="color:${L.accent};">ready.</span>
+            ${t.h1}
           </h1>
           <p style="margin:26px 0 0;font-family:${L.sans};font-size:15px;line-height:1.6;color:rgba(245,243,240,0.72);max-width:38ch;">
-            We prepared a private portal for <strong style="color:${L.white};">${esc(proposalTitle)}</strong>. Use the link below to open it, read through the brief, and share your context.
+            ${t.intro}
           </p>
         </td>
       </tr>
@@ -1222,11 +1304,11 @@ export function proposalInviteClient({
 ${heroBlock}
 <tr>
   <td class="lp" style="padding:40px 36px 0 36px;">
-    <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.28em;color:${L.accent};text-transform:uppercase;margin-bottom:16px;">Open your portal</div>
+    <div style="font-family:${L.mono};font-size:10.5px;letter-spacing:0.28em;color:${L.accent};text-transform:uppercase;margin-bottom:16px;">${t.openEyebrow}</div>
     <p style="margin:0 0 22px;font-family:${L.sans};font-size:14.5px;line-height:1.6;color:${L.gray};max-width:46ch;">
-      The link is private and expires on <strong style="color:${L.sub};">${esc(expiresDate)}</strong>. Do not forward it — only you should access this brief.
+      ${t.expiry}
     </p>
-    ${lCta(portalUrl, "Open your brief portal")}
+    ${lCta(portalUrl, t.cta)}
   </td>
 </tr>
 <tr>
@@ -1237,16 +1319,18 @@ ${heroBlock}
 <tr>
   <td class="lp" style="padding:28px 36px 8px 36px;">
     <p style="margin:0;font-family:${L.sans};font-size:13.5px;line-height:1.65;color:${L.gray};">
-      If you have questions before filling it in, reply to this email or write to <a href="mailto:${esc(brand?.footerEmail ?? "hello@sadeem.agency")}" style="color:${L.accent};text-decoration:none;border-bottom:1px solid ${L.accent};padding-bottom:1px;">${esc(brand?.footerEmail ?? "hello@sadeem.agency")}</a>
+      ${t.questions} <a href="mailto:${esc(email)}" style="color:${L.accent};text-decoration:none;border-bottom:1px solid ${L.accent};padding-bottom:1px;">${esc(email)}</a>
     </p>
   </td>
 </tr>`;
 
   const html = lightShell({
-    preview: `Your private SADEEM brief portal for "${proposalTitle}" is ready.`,
-    masthead: lMasthead("SADEEM", "Brief portal", brand),
+    preview: t.preview,
+    masthead: lMasthead("SADEEM", t.masthead2, brand),
     body,
-    footerLines: `SADEEM · Strategic growth advisory<br />${brand?.footerEmail ?? "hello@sadeem.agency"}<br />This link is personal — do not forward.`,
+    footerLines: t.footer,
+    lang: ar ? "ar" : "en",
+    dir: ar ? "rtl" : "ltr",
   });
 
   return { subject, html };

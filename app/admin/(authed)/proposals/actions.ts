@@ -165,7 +165,7 @@ export async function emailProposalAction(
   const admin = getSupabaseAdmin();
   const { data: proposal, error: fetchError } = await admin
     .from("proposals")
-    .select("title, client_name, client_email, expires_at, status")
+    .select("title, client_name, client_email, expires_at, status, locale")
     .eq("id", id)
     .single();
   if (fetchError || !proposal) return { error: fetchError?.message ?? "Proposal not found" };
@@ -199,6 +199,7 @@ export async function emailProposalAction(
         portalUrl,
         expiresDate,
         brand,
+        locale: proposal.locale,
       });
       await sendEmail({ channel: "briefs", to: proposal.client_email, subject, html });
     } catch (err) {
@@ -265,7 +266,7 @@ export async function submitProposalAction(
   // Verify proposal is still open & not expired
   const { data: proposal } = await admin
     .from("proposals")
-    .select("id, status, expires_at, form_id, title, client_company")
+    .select("id, status, expires_at, form_id, title, client_company, locale")
     .eq("id", proposalId)
     .single();
 
@@ -321,7 +322,7 @@ export async function submitProposalAction(
       const proposalTitle = proposal.title;
 
       // 1. Client confirmation — from briefs@ (client-facing engagement channel)
-      const { subject: cs, html: ch } = briefReceivedClient({ clientName, proposalTitle, brand });
+      const { subject: cs, html: ch } = briefReceivedClient({ clientName, proposalTitle, brand, locale: proposal.locale });
       await sendEmail({ channel: "briefs", to: clientEmail, subject: cs, html: ch });
 
       // 2. Admin notification — from hello@ (internal ops channel)

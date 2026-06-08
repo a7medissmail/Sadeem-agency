@@ -174,6 +174,7 @@ export async function createBriefFromLeadAction(
           portalUrl,
           expiresDate,
           brand,
+          locale,
         });
         await sendEmail({ channel: "briefs", to: lead.email, subject, html });
       } catch (err) {
