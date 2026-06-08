@@ -442,8 +442,8 @@ function LeadDrawer({
                 </a>
                 <QuickBriefPanel
                   forms={forms}
-                  createBrief={(formId, days, emailNow) =>
-                    createBriefFromLeadAction(lead.id, formId, days, emailNow)
+                  createBrief={(formId, days, emailNow, locale) =>
+                    createBriefFromLeadAction(lead.id, formId, days, emailNow, locale)
                   }
                 />
                 <form

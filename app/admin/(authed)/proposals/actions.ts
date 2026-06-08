@@ -38,6 +38,7 @@ export async function createProposalAction(
   const client_email = (formData.get("client_email") as string | null)?.trim() ?? "";
   const client_company = (formData.get("client_company") as string | null)?.trim() || null;
   const form_id = (formData.get("form_id") as string | null) || null;
+  const locale = (formData.get("locale") as string | null) === "ar" ? "ar" : "en";
   const daysRaw = parseInt(formData.get("expires_days") as string, 10);
   const days = Number.isFinite(daysRaw) && daysRaw > 0 ? daysRaw : 14;
 
@@ -61,6 +62,7 @@ export async function createProposalAction(
     status: "draft",
     expires_at,
     created_by: profile.id,
+    locale,
   });
 
   if (error) return { error: error.message };

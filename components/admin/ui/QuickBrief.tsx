@@ -22,11 +22,12 @@ export type BriefFormLite = { id: string; name: string };
 
 type Props = {
   forms: BriefFormLite[];
-  /** Partial-applied server action: (formId, days, emailNow) → { rawToken?, error? } */
+  /** Partial-applied server action: (formId, days, emailNow, locale) → { rawToken?, error? } */
   createBrief: (
     formId: string | null,
     days: number,
     emailNow: boolean,
+    locale: string,
   ) => Promise<{ rawToken?: string; error?: string }>;
 };
 
@@ -38,6 +39,7 @@ export function QuickBriefPanel({ forms, createBrief }: Props) {
   const [open, setOpen] = useState(false);
   const [formId, setFormId] = useState<string>("");
   const [days, setDays] = useState(14);
+  const [locale, setLocale] = useState("en");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<{ token?: string; error?: string } | null>(null);
   const [copied, setCopied] = useState(false);
@@ -48,13 +50,14 @@ export function QuickBriefPanel({ forms, createBrief }: Props) {
     setCopied(false);
     setFormId("");
     setDays(14);
+    setLocale("en");
   }
 
   function run(emailNow: boolean) {
     setBusy(true);
     startTransition(async () => {
       try {
-        const res = await createBrief(formId || null, days, emailNow);
+        const res = await createBrief(formId || null, days, emailNow, locale);
         setResult({ token: res.rawToken, error: res.error });
       } catch (err) {
         setResult({ error: err instanceof Error ? err.message : "Unexpected error" });
@@ -174,6 +177,16 @@ export function QuickBriefPanel({ forms, createBrief }: Props) {
         <option value="7">Expires in 7 days</option>
         <option value="14">Expires in 14 days</option>
         <option value="30">Expires in 30 days</option>
+      </Select>
+
+      <Select
+        value={locale}
+        onChange={(e) => setLocale(e.target.value)}
+        aria-label="Client language"
+        className="w-full"
+      >
+        <option value="en">Client language: English</option>
+        <option value="ar">Client language: العربية</option>
       </Select>
 
       <div className="grid grid-cols-2 gap-2">

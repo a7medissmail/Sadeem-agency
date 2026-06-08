@@ -266,8 +266,8 @@ function BookingDossier({ booking, forms }: { booking: BookingBoardRow | null; f
 
             <QuickBriefPanel
               forms={forms}
-              createBrief={(formId, days, emailNow) =>
-                createBriefFromBookingAction(booking.id, formId, days, emailNow)
+              createBrief={(formId, days, emailNow, locale) =>
+                createBriefFromBookingAction(booking.id, formId, days, emailNow, locale)
               }
             />
           </section>

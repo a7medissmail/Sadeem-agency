@@ -182,6 +182,7 @@ export async function createBriefFromBookingAction(
   formId: string | null,
   days: number,
   emailNow: boolean,
+  locale: string = "en",
 ): Promise<{ rawToken?: string; error?: string }> {
   const profile = await requireRole(["admin", "editor"]);
 
@@ -215,6 +216,7 @@ export async function createBriefFromBookingAction(
     sent_at: emailNow ? new Date().toISOString() : null,
     created_by: profile.id,
     booking_id: bookingId,
+    locale: locale === "ar" ? "ar" : "en",
   });
 
   if (insertError) return { error: insertError.message };

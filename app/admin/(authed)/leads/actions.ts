@@ -114,6 +114,7 @@ export async function createBriefFromLeadAction(
   formId: string | null,
   days: number,
   emailNow: boolean,
+  locale: string = "en",
 ): Promise<{ rawToken?: string; error?: string }> {
   const profile = await requireRole(["admin", "editor"]);
 
@@ -149,6 +150,7 @@ export async function createBriefFromLeadAction(
     sent_at: emailNow ? new Date().toISOString() : null,
     created_by: profile.id,
     lead_id: leadId,
+    locale: locale === "ar" ? "ar" : "en",
   });
 
   if (insertError) return { error: insertError.message };

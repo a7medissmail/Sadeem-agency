@@ -569,6 +569,12 @@ function CreateProposalPanel({
         <FieldRow label="Expires in (days)">
           <Input name="expires_days" type="number" min={1} max={90} defaultValue="14" />
         </FieldRow>
+        <FieldRow label="Client language">
+          <Select name="locale" defaultValue="en" className="w-full">
+            <option value="en">English</option>
+            <option value="ar">العربية (Arabic)</option>
+          </Select>
+        </FieldRow>
       </div>
 
       <Button type="submit" className="mt-2">
