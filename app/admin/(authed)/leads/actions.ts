@@ -130,7 +130,7 @@ export async function createBriefFromLeadAction(
   // Validate expiry
   const safeDays = Number.isFinite(days) && days > 0 && days <= 365 ? days : 14;
   const expires_at = new Date(Date.now() + safeDays * 86_400_000).toISOString();
-  const title = `Brief — ${lead.name}`;
+  const title = locale === "ar" ? `موجز — ${lead.name}` : `Brief — ${lead.name}`;
 
   // Generate token (hash stored, raw returned once to admin)
   const raw = crypto.randomBytes(32).toString("hex");

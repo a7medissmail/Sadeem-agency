@@ -197,7 +197,7 @@ export async function createBriefFromBookingAction(
 
   const safeDays = Number.isFinite(days) && days > 0 && days <= 365 ? days : 14;
   const expires_at = new Date(Date.now() + safeDays * 86_400_000).toISOString();
-  const title = `Brief — ${booking.name}`;
+  const title = locale === "ar" ? `موجز — ${booking.name}` : `Brief — ${booking.name}`;
 
   const raw = crypto.randomBytes(32).toString("hex");
   const hash = crypto.createHash("sha256").update(raw).digest("hex");

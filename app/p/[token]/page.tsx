@@ -251,7 +251,7 @@ export default async function ProposalPortalPage({ params }: Props) {
             <h1 className="portal-heading portal-heading--sm">
               {t.greeting.lead(firstName)}
               <br />
-              <span style={{ color: "var(--accent)" }}><bdi>{proposal.title}</bdi>.</span>
+              <span style={{ color: "var(--accent)" }}><bdi>{proposal.title}</bdi></span>
             </h1>
             {proposal.client_company ? (
               <p className="portal-sub portal-sub--sm">
