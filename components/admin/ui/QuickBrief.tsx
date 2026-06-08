@@ -31,7 +31,7 @@ type Props = {
   ) => Promise<{ rawToken?: string; error?: string }>;
 };
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://sadeem.agency";
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://sadeem.agency").replace(/\/+$/, "");
 
 export function QuickBriefPanel({ forms, createBrief }: Props) {
   const [, startTransition] = useTransition();

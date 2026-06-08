@@ -357,7 +357,7 @@ function CandidateDrawer({
   return (
     <div className="fixed inset-0 z-[70] bg-black/55 backdrop-blur-sm" role="presentation" onMouseDown={onClose}>
       <aside
-        className="ml-auto flex h-full w-full max-w-[720px] flex-col border-l border-[var(--admin-border)] bg-[var(--admin-surface-strong)] shadow-[var(--admin-shadow)]"
+        className="ml-auto flex h-full w-full max-w-[820px] flex-col border-l border-[var(--admin-border)] bg-[var(--admin-surface-strong)] shadow-[var(--admin-shadow)]"
         role="dialog"
         aria-modal="true"
         aria-label={`Review ${application.name}`}

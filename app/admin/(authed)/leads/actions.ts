@@ -159,7 +159,7 @@ export async function createBriefFromLeadAction(
   revalidatePath("/admin/leads");
 
   if (emailNow) {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://sadeem.agency";
+    const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://sadeem.agency").replace(/\/+$/, "");
     const portalUrl = `${baseUrl}/p/${raw}`;
     const expiresDate = new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(
       new Date(expires_at),

@@ -183,7 +183,7 @@ export async function emailProposalAction(
     .eq("id", id);
   if (updateError) return { error: updateError.message };
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://sadeem.agency";
+  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://sadeem.agency").replace(/\/+$/, "");
   const portalUrl = `${baseUrl}/p/${raw}`;
   const expiresDate = new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(
     new Date(proposal.expires_at),
@@ -314,7 +314,7 @@ export async function submitProposalAction(
   revalidatePath("/admin/proposals");
 
   // Fire-and-forget emails — never block or fail the action
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://sadeem.agency";
+  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://sadeem.agency").replace(/\/+$/, "");
   const team = process.env.TEAM_NOTIFY_TO;
   void (async () => {
     try {
