@@ -175,7 +175,7 @@ function ItemRow({
           value={item.unit_price}
           onChange={(e) => onChange(item._key, "unit_price", e.target.value)}
           min="0"
-          step="100"
+          step="any"
           placeholder="Unit price"
           className="qb-input qb-item-price"
         />
