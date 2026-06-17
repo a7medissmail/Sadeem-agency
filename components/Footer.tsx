@@ -83,27 +83,24 @@ export default function Footer() {
               { label: "Our approach", href: "/#approach" },
               { label: "Team", href: "/team" },
               { label: "Careers", href: "/careers" },
-              { label: "Success stories", href: "/success-stories" },
             ]}
           />
           <FooterCol
             title="Services"
             items={[
-              { label: "Strategy", href: "/#services" },
-              { label: "Growth & marketing", href: "/#services" },
-              { label: "Operations", href: "/#services" },
-              { label: "Transformation", href: "/#services" },
-              { label: "M&A advisory", href: "/#services" },
+              { label: "Strategy", href: "/services#strategy" },
+              { label: "Enablement", href: "/services#enablement" },
+              { label: "Execution support", href: "/services#execution" },
+              { label: "Workshops", href: "/courses" },
+              { label: "All services", href: "/services" },
             ]}
           />
           <FooterCol
-            title="Industries"
+            title="Get started"
             items={[
-              { label: "Manufacturing", href: "/#cases" },
-              { label: "Technology", href: "/#cases" },
-              { label: "Retail", href: "/#cases" },
-              { label: "Healthcare", href: "/#contact" },
-              { label: "Real estate", href: "/#contact" },
+              { label: "Success stories", href: "/success-stories" },
+              { label: "Book a consultation", href: "/consultation" },
+              { label: "Contact us", href: "/#contact" },
             ]}
           />
           <div className="footer-col">

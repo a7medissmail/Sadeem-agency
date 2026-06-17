@@ -6,6 +6,7 @@ import { sendEmail } from "@/lib/email/resend";
 import { getEmailBranding, leadConfirmation, leadNotification } from "@/lib/email/templates";
 import { checkRateLimit } from "@/lib/security/rateLimit";
 import { verifyTurnstile } from "@/lib/turnstile";
+import { redirect } from "next/navigation";
 
 export type SubmitLeadState =
   | { status: "idle" }
@@ -49,7 +50,18 @@ export async function submitLeadAction(
 
   const { name, email, phone, company, source } = parsed.data;
   const context = String(formData.get("context") ?? "").trim();
-  const message = [context, parsed.data.message].filter(Boolean).join("\n\n") || null;
+  const role = String(formData.get("role") ?? "").trim();
+  const stage = String(formData.get("company_stage") ?? "").trim();
+  const timeline = String(formData.get("timeline") ?? "").trim();
+  const qualifier = [
+    role && `Role: ${role}`,
+    stage && `Stage: ${stage}`,
+    timeline && `Timeline: ${timeline}`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const message =
+    [context, qualifier, parsed.data.message].filter(Boolean).join("\n\n") || null;
 
   const supabase = createSupabaseServerClient();
   const { error } = await supabase.from("leads").insert({
@@ -79,5 +91,5 @@ export async function submitLeadAction(
       : Promise.resolve(),
   ]);
 
-  return { status: "success" };
+  redirect("/thank-you");
 }

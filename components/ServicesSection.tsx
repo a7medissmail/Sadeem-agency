@@ -59,11 +59,9 @@ export default async function ServicesSection() {
           href: `/services#${cat.slug}`,
         }))
       : [
-          { Glyph: Icon.Strategy,  title: "Strategy",           body: "Winning positions, defined.",   href: "/services" },
-          { Glyph: Icon.Growth,    title: "Growth & Marketing", body: "Demand, engineered.",            href: "/services" },
-          { Glyph: Icon.Ops,       title: "Operations",         body: "Scale without friction.",        href: "/services" },
-          { Glyph: Icon.Transform, title: "Transformation",     body: "Built to outlast change.",       href: "/services" },
-          { Glyph: Icon.Merge,     title: "M&A Advisory",       body: "Value unlocked through deals.",  href: "/services" },
+          { Glyph: Icon.Strategy, title: "Strategy",           body: "Clarity before action.",      href: "/services#strategy" },
+          { Glyph: Icon.Growth,   title: "Enablement",         body: "Capability that compounds.",  href: "/services#enablement" },
+          { Glyph: Icon.Ops,      title: "Execution Support",  body: "Discipline that delivers.",   href: "/services#execution" },
         ];
 
   return (

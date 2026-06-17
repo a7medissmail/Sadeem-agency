@@ -71,7 +71,7 @@ export default function LeadForm({
           />
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-black/55">Email</span>
+          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-black/55">Work email</span>
           <input
             name="email"
             type="email"
@@ -81,30 +81,67 @@ export default function LeadForm({
           />
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-black/55">
-            Phone <span className="text-black/30">(optional)</span>
-          </span>
-          <input
-            name="phone"
-            type="tel"
-            autoComplete="tel"
-            className="bg-white border border-black/15 px-3.5 py-3 outline-none focus:border-[var(--accent)] text-black"
-          />
-        </label>
-        <label className="flex flex-col gap-1.5">
-          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-black/55">
-            Company <span className="text-black/30">(optional)</span>
-          </span>
+          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-black/55">Company</span>
           <input
             name="company"
+            required
             autoComplete="organization"
             className="bg-white border border-black/15 px-3.5 py-3 outline-none focus:border-[var(--accent)] text-black"
           />
         </label>
+        <label className="flex flex-col gap-1.5">
+          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-black/55">Your role</span>
+          <select
+            name="role"
+            required
+            defaultValue=""
+            className="bg-white border border-black/15 px-3.5 py-3 outline-none focus:border-[var(--accent)] text-black"
+          >
+            <option value="" disabled>
+              Select…
+            </option>
+            <option>Founder / CEO</option>
+            <option>CMO / Head of Growth</option>
+            <option>COO / Operations</option>
+            <option>Other</option>
+          </select>
+        </label>
+        <label className="flex flex-col gap-1.5">
+          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-black/55">
+            Company stage <span className="text-black/30">(optional)</span>
+          </span>
+          <select
+            name="company_stage"
+            defaultValue=""
+            className="bg-white border border-black/15 px-3.5 py-3 outline-none focus:border-[var(--accent)] text-black"
+          >
+            <option value="">Select…</option>
+            <option>Pre-revenue</option>
+            <option>Under $1M revenue</option>
+            <option>$1M–$10M revenue</option>
+            <option>$10M+ revenue</option>
+            <option>Just exploring</option>
+          </select>
+        </label>
+        <label className="flex flex-col gap-1.5">
+          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-black/55">
+            Timeline <span className="text-black/30">(optional)</span>
+          </span>
+          <select
+            name="timeline"
+            defaultValue=""
+            className="bg-white border border-black/15 px-3.5 py-3 outline-none focus:border-[var(--accent)] text-black"
+          >
+            <option value="">Select…</option>
+            <option>Now / urgent</option>
+            <option>This quarter</option>
+            <option>Just exploring</option>
+          </select>
+        </label>
       </div>
       <label className="flex flex-col gap-1.5">
         <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-black/55">
-          What would you like to explore?
+          What are you trying to solve?
         </span>
         <textarea
           name="message"
