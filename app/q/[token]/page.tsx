@@ -2,7 +2,7 @@ import crypto from "crypto";
 import type { Metadata } from "next";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { SadeemMark } from "@/components/marks";
-import { recordQuotationViewAction } from "@/app/admin/(authed)/proposals/quotation-actions";
+import { recordQuotationView } from "@/lib/portal/activity";
 import QuoteResponse from "./QuoteResponse";
 import { quoteDict } from "./strings";
 
@@ -185,7 +185,7 @@ export default async function QuotationPortalPage({ params }: Props) {
   }
 
   // Record view (fire-and-forget)
-  void recordQuotationViewAction(q.id);
+  void recordQuotationView(q.id);
 
   const disc = q.discount_pct || 0;
   const tax = q.tax_pct || 0;
@@ -281,7 +281,7 @@ export default async function QuotationPortalPage({ params }: Props) {
 
           {/* Response buttons */}
           <QuoteResponse
-            quotationId={q.id}
+            token={token}
             initialStatus={q.status}
             locale={locale}
           />

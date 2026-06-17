@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { checkRateLimit } from "@/lib/security/rateLimit";
 import { sendEmail } from "@/lib/email/resend";
 import { briefReceivedClient, briefSubmittedAdmin, proposalInviteClient, getEmailBranding } from "@/lib/email/templates";
 import type { ProposalStatus } from "@/types/database";
@@ -226,48 +227,40 @@ export async function deleteProposalAction(formData: FormData): Promise<void> {
   redirect("/admin/proposals");
 }
 
-// ─── Portal: record open + submit ─────────────────────────────────────────────
-// These actions are called from the public /p/[token] portal.
-// They use requireRole([])-free paths and validate via the token instead.
-
-export async function recordProposalOpenAction(proposalId: string): Promise<void> {
-  const admin = getSupabaseAdmin();
-  // Only update to 'opened' if currently 'sent' (idempotent)
-  await admin
-    .from("proposals")
-    .update({ status: "opened", opened_at: new Date().toISOString() })
-    .eq("id", proposalId)
-    .in("status", ["sent"]);
-}
-
-export async function markProposalInProgressAction(proposalId: string): Promise<void> {
-  const admin = getSupabaseAdmin();
-  await admin
-    .from("proposals")
-    .update({ status: "in_progress" })
-    .eq("id", proposalId)
-    .in("status", ["opened"]);
-}
+// ─── Portal: submit ───────────────────────────────────────────────────────────
+// Called from the public /p/[token] portal. No session auth — the caller must
+// present the raw magic-link token, which we hash and look up server-side.
+// Never trust raw row ids from the client here: they are not secrets.
 
 export type SubmitProposalState = {
   ok?: boolean;
   error?: string;
 };
 
+const MAX_BRIEF_ANSWERS = 150;
+const MAX_BRIEF_ANSWER_CHARS = 10_000;
+
 export async function submitProposalAction(
-  proposalId: string,
-  formId: string | null,
-  clientName: string,
-  clientEmail: string,
+  rawToken: string,
   answers: Record<string, string>,
 ): Promise<SubmitProposalState> {
+  if (!rawToken || typeof rawToken !== "string") return { error: "Proposal not found." };
+  if (!answers || typeof answers !== "object" || Array.isArray(answers)) {
+    return { error: "Invalid answers." };
+  }
+
+  // Throttle: public token-authenticated endpoint.
+  const limit = await checkRateLimit({ action: "brief-submit", max: 5, windowSeconds: 300 });
+  if (!limit.ok) return { error: limit.reason };
+
+  const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
   const admin = getSupabaseAdmin();
 
-  // Verify proposal is still open & not expired
+  // Resolve via token + verify proposal is still open & not expired
   const { data: proposal } = await admin
     .from("proposals")
-    .select("id, status, expires_at, form_id, title, client_company, locale")
-    .eq("id", proposalId)
+    .select("id, status, expires_at, form_id, title, client_name, client_email, client_company, locale")
+    .eq("token_hash", tokenHash)
     .single();
 
   if (!proposal) return { error: "Proposal not found." };
@@ -275,15 +268,19 @@ export async function submitProposalAction(
   if (proposal.status === "expired" || new Date(proposal.expires_at) < new Date())
     return { error: "expired" };
 
+  // Respondent identity comes from the proposal row, not the client.
+  const clientName = proposal.client_name;
+  const clientEmail = proposal.client_email;
+
   // Create form submission
   const { data: submission, error: subError } = await admin
     .from("form_submissions")
     .insert({
-      form_id: formId || null,
+      form_id: proposal.form_id ?? null,
       respondent_name: clientName,
       respondent_email: clientEmail,
       related_type: "proposal",
-      related_id: proposalId,
+      related_id: proposal.id,
       status: "new",
     })
     .select("id")
@@ -291,13 +288,15 @@ export async function submitProposalAction(
 
   if (subError || !submission) return { error: subError?.message ?? "Failed to save submission." };
 
-  // Insert answers
-  const answerRows = Object.entries(answers).map(([field_key, rawValue]) => ({
-    submission_id: submission.id,
-    field_id: null as string | null,
-    field_key,
-    value: rawValue as unknown as import("@/types/database").Json,
-  }));
+  // Insert answers (bounded: this is a public endpoint)
+  const answerRows = Object.entries(answers)
+    .slice(0, MAX_BRIEF_ANSWERS)
+    .map(([field_key, rawValue]) => ({
+      submission_id: submission.id,
+      field_id: null as string | null,
+      field_key: String(field_key).slice(0, 120),
+      value: String(rawValue).slice(0, MAX_BRIEF_ANSWER_CHARS) as unknown as import("@/types/database").Json,
+    }));
 
   if (answerRows.length > 0) {
     const { error: ansError } = await admin.from("form_answers").insert(answerRows);
@@ -308,7 +307,7 @@ export async function submitProposalAction(
   const { error: updateError } = await admin
     .from("proposals")
     .update({ status: "submitted", submitted_at: new Date().toISOString() })
-    .eq("id", proposalId);
+    .eq("id", proposal.id);
 
   if (updateError) return { error: updateError.message };
   revalidatePath("/admin/proposals");

@@ -4,6 +4,7 @@ import crypto from "crypto";
 import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { checkRateLimit } from "@/lib/security/rateLimit";
 import { sendEmail } from "@/lib/email/resend";
 import { quotationAcceptedAdmin, quotationAcceptedClient, quotationInviteClient, getEmailBranding } from "@/lib/email/templates";
 import type { QuotationStatus } from "@/types/database";
@@ -274,17 +275,10 @@ export async function deleteQuotationAction(formData: FormData): Promise<void> {
   revalidatePath("/admin/proposals");
 }
 
-// ─── Portal: record quotation view + client accept/decline ────────────────────
-// Called from /q/[token] — no auth, validated by token server-side
-
-export async function recordQuotationViewAction(quotationId: string): Promise<void> {
-  const admin = getSupabaseAdmin();
-  await admin
-    .from("quotations")
-    .update({ status: "viewed", viewed_at: new Date().toISOString() })
-    .eq("id", quotationId)
-    .in("status", ["sent"]); // idempotent: only advance from 'sent'
-}
+// ─── Portal: client accept/decline ────────────────────────────────────────────
+// Called from /q/[token] — no session auth. The caller must present the raw
+// magic-link token; we hash it and resolve the quotation server-side. Never
+// trust raw row ids from the client here: they are not secrets.
 
 export type ClientRespondState = {
   ok?: boolean;
@@ -293,17 +287,25 @@ export type ClientRespondState = {
 };
 
 export async function clientRespondQuotationAction(
-  quotationId: string,
+  rawToken: string,
   action: "accepted" | "declined",
   declineReason?: string,
 ): Promise<ClientRespondState> {
+  if (!rawToken || typeof rawToken !== "string") return { error: "Quotation not found." };
+  if (action !== "accepted" && action !== "declined") return { error: "Invalid action." };
+
+  // Throttle: public token-authenticated endpoint.
+  const limit = await checkRateLimit({ action: "quote-respond", max: 10, windowSeconds: 300 });
+  if (!limit.ok) return { error: limit.reason };
+
+  const tokenHash = crypto.createHash("sha256").update(rawToken).digest("hex");
   const admin = getSupabaseAdmin();
 
-  // Re-verify the quotation is in a respondable state
+  // Resolve via token + re-verify the quotation is in a respondable state
   const { data: q } = await admin
     .from("quotations")
-    .select("id, status, accepted_at, declined_at, title, total, currency, token_prefix, proposal_id")
-    .eq("id", quotationId)
+    .select("id, status, accepted_at, declined_at, title, total, currency, token_prefix, proposal_id, sent_at, validity_days")
+    .eq("token_hash", tokenHash)
     .single();
 
   if (!q) return { error: "Quotation not found." };
@@ -313,13 +315,19 @@ export async function clientRespondQuotationAction(
     return { error: "This quotation can no longer be responded to." };
   }
 
+  // Same expiry rule the portal page renders with — enforce it server-side too.
+  const expired =
+    q.sent_at && new Date(q.sent_at).getTime() + (q.validity_days ?? 30) * 86_400_000 < Date.now();
+  if (expired) return { error: "This quotation has expired." };
+
+  const reason = declineReason ? String(declineReason).slice(0, 2000) : null;
   const now = new Date().toISOString();
   const update =
     action === "accepted"
       ? { status: "accepted" as QuotationStatus, accepted_at: now }
-      : { status: "declined" as QuotationStatus, declined_at: now, decline_reason: declineReason ?? null };
+      : { status: "declined" as QuotationStatus, declined_at: now, decline_reason: reason };
 
-  const { error } = await admin.from("quotations").update(update).eq("id", quotationId);
+  const { error } = await admin.from("quotations").update(update).eq("id", q.id);
   if (error) return { error: error.message };
 
   // When accepted, advance the parent proposal to "converted"
@@ -355,7 +363,7 @@ export async function clientRespondQuotationAction(
             clientName: proposal.client_name,
             proposalTitle: proposal.title,
             quotationTitle: q.title,
-            engagementRef: q.token_prefix ?? quotationId.slice(0, 8),
+            engagementRef: q.token_prefix ?? q.id.slice(0, 8),
             total: q.total,
             currency: q.currency ?? "SAR",
             brand,
@@ -389,7 +397,7 @@ export async function clientRespondQuotationAction(
               currency: q.currency ?? "SAR",
               adminUrl,
               action: "declined",
-              declineReason: declineReason ?? null,
+              declineReason: reason,
               brand,
             });
             await sendEmail({ channel: "hello", to: team, subject: ts, html: th, replyTo: proposal.client_email });

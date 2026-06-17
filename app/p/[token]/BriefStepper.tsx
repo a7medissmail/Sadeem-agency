@@ -7,10 +7,10 @@ import { BRIEF_STEPS, briefUi, tb, type BriefLocale, type BriefField } from "./b
 type BriefData = Record<string, string | string[]>;
 
 type BriefStepperProps = {
+  /** Internal id — only used to key the localStorage draft. */
   proposalId: string;
-  formId: string | null;
-  clientName: string;
-  clientEmail: string;
+  /** Raw magic-link token — the server action re-validates it by hash. */
+  token: string;
   successMessage?: string | null;
   locale?: string;
 };
@@ -92,9 +92,7 @@ function FieldControl({
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function BriefStepper({
   proposalId,
-  formId,
-  clientName,
-  clientEmail,
+  token,
   successMessage,
   locale: localeProp,
 }: BriefStepperProps) {
@@ -165,7 +163,7 @@ export default function BriefStepper({
     answers["_locale"] = locale;
 
     startTransition(async () => {
-      const result = await submitProposalAction(proposalId, formId, clientName, clientEmail, answers);
+      const result = await submitProposalAction(token, answers);
       if (result.ok) {
         try { localStorage.removeItem(storageKey); } catch { /* ok */ }
         setSubmitted(true);

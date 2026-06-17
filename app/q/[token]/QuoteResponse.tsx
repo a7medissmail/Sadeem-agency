@@ -5,14 +5,15 @@ import { clientRespondQuotationAction } from "@/app/admin/(authed)/proposals/quo
 import { quoteDict } from "./strings";
 
 type Props = {
-  quotationId: string;
+  /** Raw magic-link token — the server action re-validates it by hash. */
+  token: string;
   initialStatus: string;
   locale?: string;
 };
 
 const CONTACT_EMAIL = "hello@sadeem.agency";
 
-export default function QuoteResponse({ quotationId, initialStatus, locale }: Props) {
+export default function QuoteResponse({ token, initialStatus, locale }: Props) {
   const t = quoteDict(locale).resp;
   const [status, setStatus] = useState(initialStatus);
   const [showDeclineForm, setShowDeclineForm] = useState(false);
@@ -22,7 +23,7 @@ export default function QuoteResponse({ quotationId, initialStatus, locale }: Pr
 
   function handleAccept() {
     startTransition(async () => {
-      const result = await clientRespondQuotationAction(quotationId, "accepted");
+      const result = await clientRespondQuotationAction(token, "accepted");
       if (result.ok) setStatus("accepted");
       else setError(result.error ?? t.genericError);
     });
@@ -30,7 +31,7 @@ export default function QuoteResponse({ quotationId, initialStatus, locale }: Pr
 
   function handleDecline() {
     startTransition(async () => {
-      const result = await clientRespondQuotationAction(quotationId, "declined", declineReason);
+      const result = await clientRespondQuotationAction(token, "declined", declineReason);
       if (result.ok) { setStatus("declined"); setShowDeclineForm(false); }
       else setError(result.error ?? t.genericError);
     });

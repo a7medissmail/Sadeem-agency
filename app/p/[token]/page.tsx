@@ -2,7 +2,7 @@ import crypto from "crypto";
 import type { Metadata } from "next";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { SadeemMark } from "@/components/marks";
-import { recordProposalOpenAction } from "@/app/admin/(authed)/proposals/actions";
+import { recordProposalOpen } from "@/lib/portal/activity";
 import BriefStepper from "./BriefStepper";
 import { portalDict } from "./strings";
 
@@ -219,7 +219,7 @@ export default async function ProposalPortalPage({ params }: Props) {
   }
 
   // ── Record open (fire-and-forget) ──────────────────────────────────────────
-  void recordProposalOpenAction(proposal.id);
+  void recordProposalOpen(proposal.id);
 
   // ── Parse form ────────────────────────────────────────────────────────────
   const formData: PortalForm_ | null = Array.isArray(proposal.form)
@@ -265,9 +265,7 @@ export default async function ProposalPortalPage({ params }: Props) {
               (Stepper copy is translated in a later slice; it inherits RTL here.) */}
           <BriefStepper
             proposalId={proposal.id}
-            formId={formData?.id ?? null}
-            clientName={proposal.client_name}
-            clientEmail={proposal.client_email}
+            token={token}
             successMessage={formData?.success_message}
             locale={proposal.locale}
           />
