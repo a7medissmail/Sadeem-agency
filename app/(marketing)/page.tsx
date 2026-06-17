@@ -5,8 +5,10 @@ import ProblemSection from "@/components/ProblemSection";
 import ApproachSection from "@/components/ApproachSection";
 import ServicesSection from "@/components/ServicesSection";
 import WhySadeem from "@/components/WhySadeem";
+import WhoWeWorkWith from "@/components/WhoWeWorkWith";
 import CasesSection from "@/components/CasesSection";
 import ClientsSection from "@/components/ClientsSection";
+import FaqSection from "@/components/FaqSection";
 import FinalCTA from "@/components/FinalCTA";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
@@ -27,6 +29,8 @@ export default async function Home() {
         <ApproachSection />
         <ServicesSection />
         <WhySadeem />
+        <WhoWeWorkWith />
+        <FaqSection />
         <CasesSection />
         <ClientsSection section={section} anchor={anchor} grid={grid} />
         <FinalCTA />

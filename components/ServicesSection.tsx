@@ -1,6 +1,8 @@
+import type { ReactNode } from "react";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import RevealSection from "./RevealSection";
 import SectionLabel from "./SectionLabel";
+import ServicesGrid from "./ServicesGrid";
 import { Icon } from "./Icons";
 
 type CategoryRow = {
@@ -32,6 +34,15 @@ function iconFor(slug: string, label: string): IconFn {
   return Icon.Chart;
 }
 
+// First sentence of a category description, used as the homepage card blurb.
+function firstSentence(text: string | null | undefined): string | null {
+  if (!text) return null;
+  const trimmed = text.trim();
+  if (!trimmed) return null;
+  const match = trimmed.match(/^[\s\S]*?[.!?](?=\s|$)/);
+  return (match ? match[0] : trimmed).trim();
+}
+
 async function loadCategories(): Promise<CategoryRow[]> {
   try {
     const supabase = createSupabaseServerClient();
@@ -50,18 +61,43 @@ export default async function ServicesSection() {
   const categories = await loadCategories();
 
   // Fallback to the original static list if DB is empty (no migration run yet)
-  const items: { Glyph: IconFn; title: string; body: string; href: string }[] =
+  const items: { icon: ReactNode; title: string; tagline: string; body: string; href: string }[] =
     categories.length > 0
-      ? categories.map((cat) => ({
-          Glyph: iconFor(cat.slug, cat.label),
-          title: cat.label,
-          body: cat.tagline ?? cat.description ?? "Advisory built for measurable outcomes.",
-          href: `/services#${cat.slug}`,
-        }))
+      ? categories.map((cat) => {
+          const Glyph = iconFor(cat.slug, cat.label);
+          return {
+            icon: <Glyph s={26} />,
+            title: cat.label,
+            tagline: cat.tagline ?? "",
+            body:
+              firstSentence(cat.description) ??
+              cat.tagline ??
+              "Advisory built for measurable outcomes.",
+            href: `/services#${cat.slug}`,
+          };
+        })
       : [
-          { Glyph: Icon.Strategy, title: "Strategy",           body: "Clarity before action.",      href: "/services#strategy" },
-          { Glyph: Icon.Growth,   title: "Enablement",         body: "Capability that compounds.",  href: "/services#enablement" },
-          { Glyph: Icon.Ops,      title: "Execution Support",  body: "Discipline that delivers.",   href: "/services#execution" },
+          {
+            icon: <Icon.Strategy s={26} />,
+            title: "Strategy",
+            tagline: "Clarity before action",
+            body: "Find where growth is actually leaking, and the few moves that matter most.",
+            href: "/services#strategy",
+          },
+          {
+            icon: <Icon.Growth s={26} />,
+            title: "Enablement",
+            tagline: "Capability that compounds",
+            body: "Build the team, systems, and operating rhythm that make the plan executable.",
+            href: "/services#enablement",
+          },
+          {
+            icon: <Icon.Ops s={26} />,
+            title: "Execution Support",
+            tagline: "Discipline that delivers",
+            body: "Install the discipline that turns plans into shipped, measurable results.",
+            href: "/services#execution",
+          },
         ];
 
   return (
@@ -82,21 +118,7 @@ export default async function ServicesSection() {
             <Icon.Arrow />
           </a>
         </div>
-        <div className="services-grid">
-          {items.map((it, i) => (
-            <a className="s-card" key={it.href + i} href={it.href}>
-              <div className="s-card-index">0{i + 1}</div>
-              <div className="s-card-icon">
-                <it.Glyph s={26} />
-              </div>
-              <h3 className="s-card-title">{it.title}</h3>
-              <p className="s-card-body">{it.body}</p>
-              <div className="s-card-arrow">
-                <Icon.Arrow />
-              </div>
-            </a>
-          ))}
-        </div>
+        <ServicesGrid items={items} />
       </div>
     </RevealSection>
   );
