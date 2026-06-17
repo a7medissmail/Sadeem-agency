@@ -7,9 +7,9 @@ import SectionLabel from "./SectionLabel";
 import { Icon } from "./Icons";
 
 const stats = [
-  { Glyph: Icon.Trophy, value: 15, suffix: "+", label: ["Years of", "Experience"] },
-  { Glyph: Icon.Users, value: 200, suffix: "+", label: ["Engagements", "Delivered"] },
-  { Glyph: Icon.Globe, value: 30, suffix: "+", label: ["Industries", "Impacted"] },
+  { Glyph: Icon.Trophy, value: 10, suffix: "+", label: ["Years of", "Experience"] },
+  { Glyph: Icon.Users, value: 100, suffix: "+", label: ["Engagements", "Delivered"] },
+  { Glyph: Icon.Globe, value: 20, suffix: "+", label: ["Industries", "Impacted"] },
 ];
 
 function CountUp({ value, suffix = "", active }: { value: number; suffix?: string; active: boolean }) {

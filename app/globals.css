@@ -8648,6 +8648,15 @@ section.team-roster {
   margin-top: 36px;
 }
 
+.hero-forwhom {
+  margin: 14px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: -0.005em;
+  color: rgba(245, 243, 240, 0.6);
+  max-width: 46ch;
+}
+
 @media (max-width: 640px) {
   .services-page .services-hero { min-height: 70vh; padding-top: 88px; padding-bottom: 72px; }
   .services-list-page { padding: 72px 0 48px; }

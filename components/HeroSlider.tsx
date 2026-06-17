@@ -15,7 +15,8 @@ const slides = [
         <span className="accent">ADVISORY.</span>
       </>
     ),
-    sub: "Bridging the gap between ambition and execution.",
+    sub: "We turn ambition into a growth system that compounds — strategy, demand, and execution as one rhythm.",
+    forWhom: "For ambitious SMEs and scaling brands in Egypt & the Gulf.",
     src: "/hero/slide1.webp",
     alt: "Sunlit mountain peak above a sea of clouds at sunset",
     withFigure: false,
@@ -28,7 +29,8 @@ const slides = [
         <span className="accent">ENGINEERED.</span>
       </>
     ),
-    sub: "We build structured systems that turn strategy into measurable results.",
+    sub: "Not improvised. We build the system that makes growth measurable and repeatable.",
+    forWhom: "",
     src: "/hero/slide2.webp",
     alt: "Layered mountain ridges fading into mist at dawn",
     withFigure: false,
@@ -40,7 +42,8 @@ const slides = [
         FROM AMBITION<br />TO <span className="accent">EXECUTION.</span>
       </>
     ),
-    sub: "Aligning strategy, operations, and performance for scalable growth.",
+    sub: "Strategy that survives contact with execution — and a partner who stays until it ships.",
+    forWhom: "",
     src: "/hero/slide3.webp",
     alt: "Mountain summits rising through golden clouds at sunrise",
     withFigure: false,
@@ -84,8 +87,9 @@ export default function HeroSlider({ scrollY: scrollYProp }: { scrollY?: number 
             <div className="eyebrow">{s.eyebrow}</div>
             <h1 className="display">{s.title}</h1>
             <p className="lede">{s.sub}</p>
-            <a className="cta-link" href="#about">
-              <span>DISCOVER MORE</span>
+            {s.forWhom ? <p className="hero-forwhom">{s.forWhom}</p> : null}
+            <a className="cta-link" href="/consultation">
+              <span>LET&apos;S TALK</span>
               <Icon.Arrow />
             </a>
           </div>
