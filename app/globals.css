@@ -4793,7 +4793,7 @@ section.team-roster {
 }
 .footer-brand .brand-mark { margin-bottom: 20px; }
 .footer-logo-img { margin-bottom: 20px; height: 26px; max-width: 160px; }
-.footer-social { display: flex; gap: 8px; margin-top: 22px; }
+.footer-social { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
 .social-dot {
   width: 32px; height: 32px;
   border: 1px solid rgba(245,243,240,0.18);

@@ -1,13 +1,10 @@
 import "server-only";
-import type { Json } from "@/types/database";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { defaultSocialLinks, normalizeSocialLinks } from "./social";
+import type { SiteSocialLink } from "./social";
 
-export type SocialPlatform = "linkedin" | "x" | "instagram" | "facebook" | "youtube" | "tiktok";
-
-export type SiteSocialLink = {
-  platform: SocialPlatform;
-  url: string;
-};
+export type { SiteSocialLink, SocialPlatform } from "./social";
+export { defaultSocialLinks, defaultSocialUrls, normalizeSocialLinks, socialPlatformLabels, socialPlatforms } from "./social";
 
 export type PublicSiteSettings = {
   logoDarkUrl: string | null;
@@ -28,20 +25,8 @@ export const defaultSiteSettings: PublicSiteSettings = {
   footerEmail: "hello@sadeem.agency",
   footerPhone: null,
   footerLocation: null,
-  socialLinks: [],
+  socialLinks: defaultSocialLinks,
 };
-
-export const socialPlatforms: SocialPlatform[] = ["linkedin", "x", "instagram", "facebook", "youtube", "tiktok"];
-
-export function normalizeSocialLinks(value: Json | null | undefined): SiteSocialLink[] {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return [];
-  const links: SiteSocialLink[] = [];
-  for (const platform of socialPlatforms) {
-    const url = value[platform];
-    if (typeof url === "string" && /^https?:\/\//i.test(url)) links.push({ platform, url });
-  }
-  return links;
-}
 
 export async function getPublicSiteSettings(): Promise<PublicSiteSettings> {
   try {

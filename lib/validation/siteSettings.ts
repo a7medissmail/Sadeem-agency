@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { SocialPlatform } from "@/lib/site/settings";
+import { socialPlatformLabels } from "@/lib/site/social";
 
 const asString = (value: unknown) => (value == null ? "" : value);
 
@@ -16,15 +16,6 @@ const nullableUrl = (label: string) =>
     .transform((value) => value.trim())
     .pipe(z.string().url(`${label} must be a valid URL`).or(z.literal("")))
     .transform((value) => (value.length ? value : null));
-
-export const socialPlatformLabels: Record<SocialPlatform, string> = {
-  linkedin: "LinkedIn",
-  x: "X",
-  instagram: "Instagram",
-  facebook: "Facebook",
-  youtube: "YouTube",
-  tiktok: "TikTok",
-};
 
 export const siteSettingsSchema = z.object({
   logo_dark_url: nullableUrl("Dark logo URL"),
@@ -45,6 +36,7 @@ export const siteSettingsSchema = z.object({
     x: nullableUrl("X"),
     instagram: nullableUrl("Instagram"),
     facebook: nullableUrl("Facebook"),
+    snapchat: nullableUrl("Snapchat"),
     youtube: nullableUrl("YouTube"),
     tiktok: nullableUrl("TikTok"),
   }),

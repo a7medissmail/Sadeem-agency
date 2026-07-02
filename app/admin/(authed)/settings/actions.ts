@@ -61,6 +61,7 @@ function readForm(formData: FormData) {
       x: formData.get("social_x") ?? "",
       instagram: formData.get("social_instagram") ?? "",
       facebook: formData.get("social_facebook") ?? "",
+      snapchat: formData.get("social_snapchat") ?? "",
       youtube: formData.get("social_youtube") ?? "",
       tiktok: formData.get("social_tiktok") ?? "",
     },

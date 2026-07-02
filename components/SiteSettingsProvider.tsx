@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { PublicSiteSettings } from "@/lib/site/settings";
+import { defaultSocialLinks } from "@/lib/site/social";
 
 const fallback: PublicSiteSettings = {
   logoDarkUrl: null,
@@ -11,7 +12,7 @@ const fallback: PublicSiteSettings = {
   footerEmail: "hello@sadeem.agency",
   footerPhone: null,
   footerLocation: null,
-  socialLinks: [],
+  socialLinks: defaultSocialLinks,
 };
 
 const SiteSettingsContext = createContext<PublicSiteSettings>(fallback);

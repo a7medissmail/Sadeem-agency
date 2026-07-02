@@ -6,11 +6,12 @@ import {
   FaFacebookF,
   FaInstagram,
   FaLinkedinIn,
+  FaSnapchat,
   FaTiktok,
   FaXTwitter,
   FaYoutube,
 } from "react-icons/fa6";
-import type { SiteSocialLink, SocialPlatform } from "@/lib/site/settings";
+import { socialPlatformLabels, type SiteSocialLink, type SocialPlatform } from "@/lib/site/social";
 import { SadeemMark } from "./marks";
 import { useSiteSettings } from "./SiteSettingsProvider";
 
@@ -39,6 +40,7 @@ const socialIcons: Record<SocialPlatform, ComponentType<{ "aria-hidden"?: boolea
   x: FaXTwitter,
   instagram: FaInstagram,
   facebook: FaFacebookF,
+  snapchat: FaSnapchat,
   youtube: FaYoutube,
   tiktok: FaTiktok,
 };
@@ -46,7 +48,7 @@ const socialIcons: Record<SocialPlatform, ComponentType<{ "aria-hidden"?: boolea
 function SocialDot({ link }: { link: SiteSocialLink }) {
   const SocialIcon = socialIcons[link.platform];
   return (
-    <a className="social-dot" href={link.url} target="_blank" rel="noreferrer" aria-label={link.platform}>
+    <a className="social-dot" href={link.url} target="_blank" rel="noreferrer" aria-label={socialPlatformLabels[link.platform]}>
       <SocialIcon aria-hidden />
     </a>
   );

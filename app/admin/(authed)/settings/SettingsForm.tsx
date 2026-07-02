@@ -3,14 +3,12 @@
 import { useAutoSave } from "@/components/admin/hooks/useAutoSave";
 import { SaveStatus } from "@/components/admin/ui/SaveStatus";
 import { FieldRow, Input, Textarea } from "@/components/admin/ui/Field";
-import type { Database } from "@/types/database";
-import { socialPlatformLabels } from "@/lib/validation/siteSettings";
-import type { SocialPlatform } from "@/lib/site/settings";
+import { socialPlatformLabels, socialPlatforms, socialUrlForPlatform, type SocialPlatform } from "@/lib/site/social";
 import { updateSiteSettingsAction, type SiteSettingsState } from "./actions";
-import type { Json } from "@/types/database";
+import type { Database, Json } from "@/types/database";
 
 const initial: SiteSettingsState = {};
-const platforms = Object.keys(socialPlatformLabels) as SocialPlatform[];
+const platforms = socialPlatforms;
 
 type SettingsRow = Database["public"]["Tables"]["site_settings"]["Row"];
 
@@ -25,9 +23,13 @@ function PreviewLogo({ url, tone }: { url: string | null; tone: "dark" | "light"
 }
 
 function socialValue(socials: Json | null | undefined, platform: SocialPlatform) {
-  if (!socials || typeof socials !== "object" || Array.isArray(socials)) return "";
-  const value = (socials as Record<string, unknown>)[platform];
-  return typeof value === "string" ? value : "";
+  return socialUrlForPlatform(socials, platform);
+}
+
+function socialPlaceholder(platform: SocialPlatform) {
+  const defaultUrl = socialUrlForPlatform(null, platform);
+  if (defaultUrl) return defaultUrl;
+  return `https://${platform === "x" ? "x.com" : `${platform}.com`}/sadeem`;
 }
 
 export default function SettingsForm({ settings }: { settings: SettingsRow }) {
@@ -114,7 +116,7 @@ export default function SettingsForm({ settings }: { settings: SettingsRow }) {
                   name={`social_${platform}`}
                   type="url"
                   defaultValue={socialValue(settings.social_links, platform)}
-                  placeholder={`https://${platform === "x" ? "x.com" : `${platform}.com`}/sadeem`}
+                  placeholder={socialPlaceholder(platform)}
                 />
               </FieldRow>
             ))}
@@ -126,7 +128,7 @@ export default function SettingsForm({ settings }: { settings: SettingsRow }) {
         <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--admin-accent)]">Notes</p>
         <div className="mt-4 space-y-4 text-[13.5px] leading-relaxed text-[var(--admin-muted)]">
           <p>Use transparent SVG or PNG logos. Keep both variants visually identical, only color changes.</p>
-          <p>Social icons render through react-icons/fa6 so we can add more platforms without custom SVG work.</p>
+          <p>Social icons render through Font Awesome 6 brand icons in react-icons, matching the public footer.</p>
           <p>Favicon changes update on the client and will be picked up by browsers after cache refresh.</p>
         </div>
 

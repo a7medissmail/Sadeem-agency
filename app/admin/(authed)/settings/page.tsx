@@ -1,6 +1,7 @@
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { defaultSocialUrls } from "@/lib/site/social";
 import type { Database } from "@/types/database";
 import SettingsForm from "./SettingsForm";
 import { MaintenanceToggle } from "./MaintenanceToggle";
@@ -19,7 +20,7 @@ const fallback: SettingsRow = {
   footer_email: "hello@sadeem.agency",
   footer_phone: null,
   footer_location: null,
-  social_links: {},
+  social_links: defaultSocialUrls,
   updated_at: new Date().toISOString(),
   is_maintenance_mode: false,
   maintenance_message: null,
