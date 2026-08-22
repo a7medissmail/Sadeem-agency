@@ -23,7 +23,6 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AdminThemeToggle } from "@/components/admin/AdminThemeToggle";
 import type { AdminSignal } from "@/lib/admin/signals";
 import { buildPaletteCommands, type PaletteCommand } from "@/lib/admin/navigation";
 
@@ -263,7 +262,6 @@ export function AdminCommandCenter({
           )}
         </button>
         <span className="admin-role-pill">{role}</span>
-        <AdminThemeToggle />
       </div>
 
       {/* Activity popover */}

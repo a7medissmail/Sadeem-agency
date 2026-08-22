@@ -46,14 +46,15 @@ body {
 a { color: inherit; text-decoration: none; }
 
 /*
- * Admin dark-mode body override.
- * The marketing pages set html/body { background: #F5F3F0 }.
- * When the admin is in dark mode that warm-white bleeds through below the
- * admin shell, producing a visible strip. Override it at the root level.
+ * Admin body override.
+ * The marketing pages set html/body { background: #F5F3F0 }. That warm-white
+ * bleeds through below the admin shell, producing a visible strip. Override it
+ * at the root level. Keyed on .admin-root itself rather than a theme attribute,
+ * so it holds without any client-side JS.
  * :has() is supported in all modern browsers (Chrome 105+, Firefox 121+, Safari 15.4+).
  */
-html:has([data-admin-theme="dark"]),
-body:has([data-admin-theme="dark"]) {
+html:has(.admin-root),
+body:has(.admin-root) {
   background: #0d0d0f;
   color-scheme: dark;
 }
@@ -5093,51 +5094,227 @@ section.team-roster {
 .reveal-wrap { will-change: opacity, transform; }
 
 /* ========== ADMIN OPERATING SYSTEM ========== */
+
+/*
+ * Sadeem Admin Design System v1.0 — token layer.
+ *
+ * Three layers, read in this order and never skipped:
+ *   1. Primitives  --sdm-<ramp>-<step>   the only place a hex literal is written
+ *   2. Semantics   --sdm-<role>          the only thing a component may reference
+ *   3. Bridge      --admin-*             the names already in the codebase,
+ *                                        aliased onto the semantics so nothing
+ *                                        breaks mid-migration
+ *
+ * A component that names a primitive instead of a semantic is a bug. Retheming
+ * the admin means editing layer 2 and nothing else.
+ *
+ * Dark-only on purpose: elevation here is carried by surface tone first and
+ * shadow second, which is a dark-surface model. The light theme was removed
+ * because ~180 hard-coded Tailwind shades across the boards never flipped with
+ * it. The semantics live on .admin-root rather than :root, so re-adding a
+ * light theme stays a one-selector override rather than a refactor.
+ */
 .admin-root {
-  --admin-bg: #0d0d0f;
-  --admin-bg-2: #101114;
-  --admin-surface: #15161a;
-  --admin-surface-strong: #0a0b0d;
-  --admin-panel: rgba(245,243,240,0.026);
-  --admin-panel-hover: rgba(245,243,240,0.048);
-  --admin-border: rgba(245,243,240,0.12);
-  --admin-border-soft: rgba(245,243,240,0.07);
-  --admin-text: #f5f3f0;
-  --admin-muted: rgba(245,243,240,0.58);
-  --admin-subtle: rgba(245,243,240,0.38);
-  --admin-accent: #ff6a00;
-  --admin-accent-soft: rgba(255,106,0,0.13);
-  --admin-danger: #ff8a9a;
-  --admin-shadow: 0 24px 72px rgba(0,0,0,0.34);
+  /* ---------- 1. Primitives ---------- */
+
+  /* Neutral — slightly cool warm-grey. 950 and 900 are the shipped values. */
+  --sdm-neutral-0: #ffffff;
+  --sdm-neutral-50: #f5f3f0;
+  --sdm-neutral-100: #e5e2dd;
+  --sdm-neutral-200: #c8c6c2;
+  --sdm-neutral-300: #a3a2a0;
+  --sdm-neutral-400: #8e8d92;
+  --sdm-neutral-500: #5a5a60;
+  --sdm-neutral-600: #43444b;
+  --sdm-neutral-700: #2e2f36;
+  --sdm-neutral-800: #1d1e23;
+  --sdm-neutral-875: #17181d;
+  --sdm-neutral-900: #15161a;
+  --sdm-neutral-925: #121317;
+  --sdm-neutral-950: #0d0d0f;
+  --sdm-neutral-975: #0a0b0d;
+
+  /* Orange — 500 is the existing brand value, untouched.
+     300-400 are the text-safe steps on dark. */
+  --sdm-orange-50: #fff3eb;
+  --sdm-orange-100: #ffe0cc;
+  --sdm-orange-200: #ffc199;
+  --sdm-orange-300: #ffa166;
+  --sdm-orange-400: #ff8533;
+  --sdm-orange-500: #ff6a00;
+  --sdm-orange-600: #e85d00;
+  --sdm-orange-700: #c24c00;
+  --sdm-orange-800: #8a3600;
+  --sdm-orange-900: #4a1d00;
+
+  /* Success — desaturated to sit inside the neutral palette, not on top of it. */
+  --sdm-success-100: #d3efe2;
+  --sdm-success-300: #7fcda8;
+  --sdm-success-400: #57c795;
+  --sdm-success-500: #3dae7b;
+  --sdm-success-700: #1f6b49;
+  --sdm-success-900: #0e2e20;
+
+  /* Warning — amber owns "needs attention" so orange never has to. */
+  --sdm-warning-100: #f7e7c8;
+  --sdm-warning-300: #edc680;
+  --sdm-warning-400: #e8b45a;
+  --sdm-warning-500: #d99a2b;
+  --sdm-warning-700: #8f6316;
+  --sdm-warning-900: #3b290a;
+
+  /* Danger — distinct in hue from orange at every step. */
+  --sdm-danger-100: #f8d8d5;
+  --sdm-danger-300: #f0958e;
+  --sdm-danger-400: #f0776f;
+  --sdm-danger-500: #e0524a;
+  --sdm-danger-700: #8e2c26;
+  --sdm-danger-900: #3a130f;
+
+  /* Info — cool, low-chroma. Replaces Tailwind sky-*. */
+  --sdm-info-100: #d5e4f6;
+  --sdm-info-300: #8fb9e8;
+  --sdm-info-400: #6fa8e5;
+  --sdm-info-500: #4a8fd9;
+  --sdm-info-700: #2a5a8e;
+  --sdm-info-900: #11253a;
+
+  /* ---------- 2. Semantics ---------- */
+
+  /* Surface — elevation is tone first, shadow second. */
+  --sdm-surface-base: var(--sdm-neutral-950);
+  --sdm-surface-sunken: var(--sdm-neutral-975);
+  --sdm-surface-subtle: var(--sdm-neutral-925);
+  --sdm-surface-raised: var(--sdm-neutral-875);
+  --sdm-surface-overlay: var(--sdm-neutral-800);
+  --sdm-surface-hover: color-mix(in srgb, var(--sdm-neutral-50) 4%, transparent);
+  --sdm-surface-selected: color-mix(in srgb, var(--sdm-orange-500) 8%, transparent);
+  --sdm-surface-disabled: color-mix(in srgb, var(--sdm-neutral-50) 2%, transparent);
+
+  /* Text */
+  --sdm-text-primary: var(--sdm-neutral-50);
+  --sdm-text-secondary: var(--sdm-neutral-200);
+  --sdm-text-tertiary: var(--sdm-neutral-400);
+  --sdm-text-disabled: var(--sdm-neutral-500);
+  --sdm-text-inverse: var(--sdm-neutral-950);
+  --sdm-text-brand: var(--sdm-orange-400);
+  --sdm-text-success: var(--sdm-success-400);
+  --sdm-text-warning: var(--sdm-warning-400);
+  --sdm-text-danger: var(--sdm-danger-400);
+
+  /* Border — all 1 px, all built from the foreground at low alpha so they
+     survive any surface change. Focus is the only 2 px border in the system. */
+  --sdm-border-subtle: color-mix(in srgb, var(--sdm-neutral-50) 6%, transparent);
+  --sdm-border-default: color-mix(in srgb, var(--sdm-neutral-50) 10%, transparent);
+  --sdm-border-strong: color-mix(in srgb, var(--sdm-neutral-50) 18%, transparent);
+  --sdm-border-focus: var(--sdm-orange-400);
+  --sdm-border-selected: var(--sdm-orange-500);
+  --sdm-border-danger: var(--sdm-danger-500);
+
+  /* Action */
+  --sdm-action-primary: var(--sdm-orange-500);
+  --sdm-action-primary-hover: var(--sdm-orange-400);
+  --sdm-action-primary-active: var(--sdm-orange-600);
+  --sdm-action-secondary: var(--sdm-surface-overlay);
+  --sdm-action-ghost: transparent;
+  --sdm-action-danger: var(--sdm-danger-500);
+  --sdm-action-danger-hover: var(--sdm-danger-400);
+
+  /* Navigation & status */
+  --sdm-nav-default: var(--sdm-text-secondary);
+  --sdm-nav-hover: var(--sdm-surface-hover);
+  --sdm-nav-active-bg: var(--sdm-surface-overlay);
+  --sdm-nav-active-bar: var(--sdm-orange-500);
+  --sdm-status-success: var(--sdm-success-500);
+  --sdm-status-warning: var(--sdm-warning-500);
+  --sdm-status-error: var(--sdm-danger-500);
+  --sdm-status-info: var(--sdm-info-500);
+
+  /* Focus ring — the single 2 px border in the system, 2 px offset.
+     Applied as a box-shadow so it never shifts layout. */
+  --sdm-ring: 0 0 0 2px var(--sdm-surface-base), 0 0 0 4px var(--sdm-border-focus);
+  --sdm-ring-danger: 0 0 0 2px var(--sdm-surface-base), 0 0 0 4px var(--sdm-danger-400);
+
+  /* Elevation — shadow only detaches a floating layer from the page beneath. */
+  --sdm-elevation-low: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --sdm-elevation-medium: 0 4px 12px rgba(0, 0, 0, 0.45);
+  --sdm-elevation-high: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --sdm-elevation-overlay: 0 24px 64px rgba(0, 0, 0, 0.62);
+
+  /* Radius — restrained on purpose: controls stay nearly square, containers
+     get a soft 10 px, only pills are round. */
+  --sdm-radius-none: 0px;
+  --sdm-radius-sm: 4px;
+  --sdm-radius-md: 6px;
+  --sdm-radius-lg: 10px;
+  --sdm-radius-full: 999px;
+
+  /* Motion — confirms causality and nothing else. */
+  --sdm-ease: cubic-bezier(0.2, 0.8, 0.3, 1);
+  --sdm-motion-instant: 80ms;
+  --sdm-motion-fast: 120ms;
+  --sdm-motion-normal: 180ms;
+  --sdm-motion-slow: 260ms;
+
+  /* Control heights — component layer, kept deliberately small. */
+  --sdm-control-sm: 30px;
+  --sdm-control-md: 36px;
+  --sdm-control-lg: 44px;
+
+  /* ---------- 3. Bridge ---------- */
+
+  /*
+   * The existing --admin-* names alias into the semantic layer. Values were
+   * chosen to keep this step visually silent: --admin-muted resolved to about
+   * #939391 before, which is text.tertiary, not text.secondary. New work should
+   * reach for the brighter --sdm-text-secondary; these aliases exist so the
+   * ~3.7k lines of admin CSS below keep rendering exactly as they do today.
+   */
+  --admin-bg: var(--sdm-surface-base);
+  --admin-bg-2: var(--sdm-surface-subtle);
+  --admin-surface: var(--sdm-neutral-900);
+  --admin-surface-strong: var(--sdm-surface-sunken);
+  --admin-panel: color-mix(in srgb, var(--sdm-neutral-50) 2.6%, transparent);
+  --admin-panel-hover: color-mix(in srgb, var(--sdm-neutral-50) 4.8%, transparent);
+  --admin-border: color-mix(in srgb, var(--sdm-neutral-50) 12%, transparent);
+  --admin-border-soft: var(--sdm-border-subtle);
+  --admin-text: var(--sdm-text-primary);
+  --admin-muted: var(--sdm-text-tertiary);
+  --admin-subtle: var(--sdm-text-disabled);
+  --admin-accent: var(--sdm-action-primary);
+  --admin-accent-soft: var(--sdm-surface-selected);
+  --admin-danger: var(--sdm-text-danger);
+  --admin-shadow: var(--sdm-elevation-overlay);
+
   color: var(--admin-text);
   background:
-    radial-gradient(760px 480px at 12% -10%, rgba(255,106,0,0.07), transparent 64%),
+    radial-gradient(760px 480px at 12% -10%, rgba(255, 106, 0, 0.07), transparent 64%),
     linear-gradient(180deg, var(--admin-bg-2), var(--admin-bg));
   color-scheme: dark;
 }
 
-.admin-root[data-admin-theme="light"] {
-  --admin-bg: #f5f3f0;
-  --admin-bg-2: #fbfaf7;
-  --admin-surface: #ffffff;
-  --admin-surface-strong: #efebe5;
-  --admin-panel: rgba(13,13,15,0.028);
-  --admin-panel-hover: rgba(13,13,15,0.05);
-  --admin-border: rgba(13,13,15,0.13);
-  --admin-border-soft: rgba(13,13,15,0.075);
-  --admin-text: #0d0d0f;
-  --admin-muted: rgba(13,13,15,0.62);
-  --admin-subtle: rgba(13,13,15,0.42);
-  --admin-accent-soft: rgba(255,106,0,0.11);
-  --admin-danger: #b42332;
-  --admin-shadow: 0 22px 64px rgba(13,13,15,0.11);
-  color-scheme: light;
+/*
+ * Focus — audit finding A02.
+ * Only inputs declared a focus state before this, so keyboard users lost their
+ * position on every button, chip, nav link and pagination control. One ring
+ * token, applied as a box-shadow so nothing reflows. Components that already
+ * carry a box-shadow when focused (the active nav link) re-declare it below.
+ */
+.admin-nav-link:focus-visible,
+.admin-nav-toggle:focus-visible,
+.admin-signout:focus-visible,
+.admin-command-trigger:focus-visible,
+.admin-activity-button:focus-visible,
+.admin-palette-item:focus-visible,
+.admin-needs-action-cta:focus-visible {
+  outline: none;
+  box-shadow: var(--sdm-ring);
 }
 
 .admin-shell {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 284px minmax(0, 1fr);
+  grid-template-columns: 248px minmax(0, 1fr);
   align-content: stretch;       /* force grid tracks to fill the full min-height */
   color: var(--admin-text);
   background: var(--admin-bg);  /* covers any gap not occupied by sidebar/main */
@@ -5149,8 +5326,8 @@ section.team-roster {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 28px;
-  padding: 26px 20px;
+  gap: 18px;
+  padding: 20px 14px;
   border-right: 1px solid var(--admin-border);
   background:
     linear-gradient(180deg, rgba(255,106,0,0.035), transparent 26%),
@@ -5183,8 +5360,7 @@ section.team-roster {
 .admin-topbar-kicker,
 .admin-profile-role,
 .admin-signout,
-.admin-role-pill,
-.admin-theme-toggle {
+.admin-role-pill {
   font-family: var(--font-mono);
   text-transform: uppercase;
 }
@@ -5203,23 +5379,35 @@ section.team-roster {
   letter-spacing: 0.05em;
 }
 
+/*
+ * Audit finding A12 — 17 destinations at ~62 px needed 1054 px of height, so
+ * the System group (Users & Roles, Audit Log) sat permanently below the fold on
+ * a 13" laptop. Items drop to 34 px and the rail itself scrolls, which keeps
+ * the brand pinned at the top and the profile card and Sign out pinned at the
+ * bottom no matter how many modules get added later.
+ */
 .admin-nav {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
   display: flex;
   flex-direction: column;
-  gap: 23px;
+  gap: 14px;
 }
 
 .admin-nav-group-label {
-  margin: 0 8px 9px;
+  margin: 0 8px 6px;
   color: var(--admin-subtle);
   font-size: 9px;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.22em;
 }
 
 .admin-nav-group-links {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .admin-nav-link {
@@ -5227,54 +5415,62 @@ section.team-roster {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 38px;
-  padding: 0 10px 0 12px;
+  gap: 8px;
+  min-height: 34px;
+  padding: 0 10px;
   border: 1px solid transparent;
-  color: var(--admin-muted);
+  border-radius: var(--sdm-radius-md);
+  color: var(--sdm-nav-default);
   font-size: 13px;
-  transition: color 0.22s ease, background 0.22s ease, border-color 0.22s ease, transform 0.22s ease;
+  transition:
+    color var(--sdm-motion-fast) var(--sdm-ease),
+    background var(--sdm-motion-fast) var(--sdm-ease);
 }
 
 .admin-nav-link:hover {
-  color: var(--admin-text);
-  background: var(--admin-panel-hover);
+  color: var(--sdm-text-primary);
+  background: var(--sdm-nav-hover);
 }
 
+/*
+ * Audit finding A01 — the current page used a full orange-tinted fill, one of
+ * nine unrelated jobs the accent was doing. It is now a raised surface with a
+ * 2 px orange bar on the leading edge: still unmistakably current, without
+ * spending the accent on a background.
+ */
 .admin-nav-link.is-active {
-  color: var(--admin-text);
-  border-color: var(--admin-border);
-  background: var(--admin-accent-soft);
+  color: var(--sdm-text-primary);
+  background: var(--sdm-nav-active-bg);
+  box-shadow: inset 2px 0 0 var(--sdm-nav-active-bar);
 }
 
-.admin-nav-link-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 999px;
-  background: var(--admin-accent);
-  opacity: 0;
-  transform: scale(0.5);
-  transition: opacity 0.22s ease, transform 0.22s ease;
+.admin-nav-link.is-active:focus-visible {
+  box-shadow: inset 2px 0 0 var(--sdm-nav-active-bar), var(--sdm-ring);
 }
 
-.admin-nav-link.is-active .admin-nav-link-dot {
-  opacity: 1;
-  transform: scale(1);
-}
-
-/* Badge shown instead of the dot when items need attention */
+/*
+ * Audit finding A13 — the badge used to render *instead of* the active dot, so
+ * a page that was both current and had pending items could only show one fact.
+ * The active state is the inset bar now, which leaves the trailing slot free
+ * for the count at all times.
+ *
+ * A count is information, not an alarm (signal table, "Notification count"), so
+ * it is a neutral pill rather than a solid orange one.
+ */
 .admin-nav-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 17px;
   height: 17px;
-  padding: 0 4px;
-  border-radius: 999px;
-  background: var(--admin-accent);
-  color: #fff;
+  padding: 0 5px;
+  border: 1px solid var(--sdm-border-strong);
+  border-radius: var(--sdm-radius-full);
+  background: var(--sdm-neutral-700);
+  color: var(--sdm-text-primary);
   font-family: var(--font-mono);
   font-size: 9px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1;
   letter-spacing: 0;
 }
@@ -5837,8 +6033,7 @@ section.team-roster {
   font-size: 13px;
 }
 
-.admin-role-pill,
-.admin-theme-toggle {
+.admin-role-pill {
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -5849,40 +6044,6 @@ section.team-roster {
   padding: 0 12px;
   font-size: 10px;
   letter-spacing: 0.17em;
-}
-
-.admin-theme-toggle {
-  cursor: pointer;
-  transition: color 0.22s ease, border-color 0.22s ease, background 0.22s ease;
-}
-
-.admin-theme-toggle:hover {
-  color: var(--admin-text);
-  border-color: color-mix(in srgb, var(--admin-accent) 50%, var(--admin-border));
-}
-
-.admin-theme-toggle-track {
-  position: relative;
-  width: 28px;
-  height: 14px;
-  border: 1px solid var(--admin-border);
-  border-radius: 99px;
-  background: var(--admin-surface-strong);
-}
-
-.admin-theme-toggle-dot {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--admin-accent);
-  transition: transform 0.22s ease;
-}
-
-.admin-root[data-admin-theme="light"] .admin-theme-toggle-dot {
-  transform: translateX(14px);
 }
 
 .admin-content {
@@ -5938,6 +6099,10 @@ section.team-roster {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 18px;
     margin-top: 18px;
+    /* The rail's own scroller is a desktop affordance; on mobile the sheet
+       grows with the page instead. */
+    flex: none;
+    overflow: visible;
   }
   .admin-nav-checkbox:checked ~ .admin-sidebar .admin-sidebar-footer {
     display: block;

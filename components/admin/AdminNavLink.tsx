@@ -10,7 +10,11 @@ export function AdminNavLink({
 }: {
   href: string;
   label: string;
-  /** "Needs attention" count — shown as a badge instead of the active dot */
+  /**
+   * "Needs attention" count. Renders alongside the active state rather than
+   * replacing it (audit finding A13) — being the current page and having
+   * pending items are two different facts and both get shown.
+   */
   badge?: number;
 }) {
   const pathname = usePathname();
@@ -20,7 +24,11 @@ export function AdminNavLink({
       : pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <Link href={href} className={`admin-nav-link${isActive ? " is-active" : ""}`}>
+    <Link
+      href={href}
+      aria-current={isActive ? "page" : undefined}
+      className={`admin-nav-link${isActive ? " is-active" : ""}`}
+    >
       <span>{label}</span>
       {badge && badge > 0 ? (
         <span
@@ -29,9 +37,7 @@ export function AdminNavLink({
         >
           {badge > 99 ? "99+" : badge}
         </span>
-      ) : (
-        <span className="admin-nav-link-dot" aria-hidden="true" />
-      )}
+      ) : null}
     </Link>
   );
 }

@@ -36,7 +36,8 @@ export function FilterChip({
     <button
       type="button"
       onClick={onClick}
-      className={`border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] transition-colors ${
+      aria-pressed={active}
+      className={`border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] transition-colors outline-none focus-visible:shadow-[var(--sdm-ring)] ${
         active
           ? "border-[var(--admin-accent)] bg-[var(--admin-accent-soft)] text-[var(--admin-text)]"
           : "border-[var(--admin-border)] text-[var(--admin-muted)] hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]"

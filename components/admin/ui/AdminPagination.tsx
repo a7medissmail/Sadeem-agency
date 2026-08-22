@@ -24,7 +24,7 @@ export function AdminPagination({ page, totalPages, basePath, queryParams = {} }
   const nextUrl = page < totalPages ? buildUrl(basePath, page + 1, queryParams) : null;
 
   const linkCls =
-    "border border-[var(--admin-border)] px-4 py-2 text-[var(--admin-muted)] transition-colors hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]";
+    "border border-[var(--admin-border)] px-4 py-2 text-[var(--admin-muted)] transition-colors outline-none hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)] focus-visible:shadow-[var(--sdm-ring)]";
   const disabledCls =
     "cursor-not-allowed border border-[var(--admin-border)] px-4 py-2 text-[var(--admin-muted)] opacity-30";
 
