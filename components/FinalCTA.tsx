@@ -5,10 +5,10 @@ import RevealSection from "./RevealSection";
 import SectionLabel from "./SectionLabel";
 import { Icon } from "./Icons";
 
-export default function FinalCTA() {
+export default function FinalCTA({ n = "11" }: { n?: string }) {
   return (
-    <RevealSection className="final dark" data-section="09">
-      <SectionLabel n="09" text="GET IN TOUCH" onDark />
+    <RevealSection className="final dark" data-section={n}>
+      <SectionLabel n={n} text="GET IN TOUCH" onDark />
 
       <div className="final-scene" aria-hidden="true">
         <div className="final-bg">

@@ -9,7 +9,13 @@ import { bookingConfirmation, bookingNotification, proposalInviteClient, getEmai
 import { sendEmail } from "@/lib/email/resend";
 import { bookingTimeZone } from "@/lib/google/calendar";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { availabilityRuleSchema, bookingDetailsSchema, bookingStatuses } from "@/lib/validation/booking";
+import {
+  availabilityRuleSchema,
+  bookingBlackoutSchema,
+  bookingDetailsSchema,
+  bookingSettingsSchema,
+  bookingStatuses,
+} from "@/lib/validation/booking";
 import type { BookingStatus } from "@/types/database";
 
 function readRule(formData: FormData) {
@@ -293,4 +299,70 @@ export async function deleteAvailabilityRuleAction(formData: FormData): Promise<
 
   revalidatePath("/admin/bookings");
   revalidatePath("/api/consultation/slots");
+}
+
+// ─── Capacity guardrails ──────────────────────────────────────────────────────
+
+export async function saveBookingSettingsAction(formData: FormData): Promise<void> {
+  const profile = await requireRole(["admin", "editor"]);
+
+  const parsed = bookingSettingsSchema.safeParse({
+    max_per_week: formData.get("max_per_week"),
+    max_per_day: formData.get("max_per_day"),
+    min_notice_hours: formData.get("min_notice_hours"),
+    max_advance_days: formData.get("max_advance_days"),
+    week_starts_on: formData.get("week_starts_on"),
+  });
+  if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? "Invalid booking settings");
+
+  const admin = getSupabaseAdmin();
+  const { error } = await admin
+    .from("booking_settings")
+    .upsert({ id: true, ...parsed.data, updated_at: new Date().toISOString() });
+  if (error) throw new Error(error.message);
+
+  await logAudit({
+    tableName: "booking_settings",
+    recordId: "true",
+    action: "update",
+    actorId: profile.id,
+    actorName: profile.full_name ?? profile.email ?? null,
+  });
+
+  revalidatePath("/admin/bookings");
+  revalidatePath("/api/consultation/slots");
+  revalidatePath("/consultation");
+}
+
+export async function createBookingBlackoutAction(formData: FormData): Promise<void> {
+  await requireRole(["admin", "editor"]);
+
+  const parsed = bookingBlackoutSchema.safeParse({
+    starts_on: formData.get("starts_on"),
+    ends_on: formData.get("ends_on"),
+    reason: formData.get("reason"),
+  });
+  if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? "Invalid blackout dates");
+
+  const admin = getSupabaseAdmin();
+  const { error } = await admin.from("booking_blackouts").insert(parsed.data);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/bookings");
+  revalidatePath("/api/consultation/slots");
+  revalidatePath("/consultation");
+}
+
+export async function deleteBookingBlackoutAction(formData: FormData): Promise<void> {
+  await requireRole(["admin", "editor"]);
+  const id = formData.get("id") as string;
+  if (!id) throw new Error("Missing blackout id");
+
+  const admin = getSupabaseAdmin();
+  const { error } = await admin.from("booking_blackouts").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/bookings");
+  revalidatePath("/api/consultation/slots");
+  revalidatePath("/consultation");
 }

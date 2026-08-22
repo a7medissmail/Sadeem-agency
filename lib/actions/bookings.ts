@@ -73,7 +73,10 @@ export async function submitBookingAction(
     return { status: "error", message: formatted.error, fieldErrors: formatted.fieldErrors };
   }
 
-  const available = await getConsultationSlots(21);
+  // Re-generates against live availability, blackouts, and the weekly/daily
+  // caps — this is also what closes the race between two people picking the
+  // same slot, or the last slot in a capped week.
+  const available = await getConsultationSlots();
   const chosenSlot = available.slots.find((slot) => slot.start === parsed.data.slot_start);
   if (!chosenSlot) {
     return {

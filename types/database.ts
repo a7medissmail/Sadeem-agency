@@ -183,6 +183,48 @@ export type Database = {
         Relationships: [];
         Update: Partial<Database["public"]["Tables"]["availability_rules"]["Insert"]>;
       };
+      home_sections: {
+        Row: {
+          key: string;
+          enabled: boolean;
+          sort_order: number;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["home_sections"]["Row"], "updated_at"> & {
+          updated_at?: string;
+        };
+        Relationships: [];
+        Update: Partial<Database["public"]["Tables"]["home_sections"]["Insert"]>;
+      };
+      booking_settings: {
+        Row: {
+          id: boolean;
+          max_per_week: number; // 0 = unlimited
+          max_per_day: number; // 0 = unlimited
+          min_notice_hours: number;
+          max_advance_days: number;
+          week_starts_on: number; // 0..6 (Sun..Sat)
+          updated_at: string;
+        };
+        Insert: Partial<Database["public"]["Tables"]["booking_settings"]["Row"]> & { id?: boolean };
+        Relationships: [];
+        Update: Partial<Database["public"]["Tables"]["booking_settings"]["Insert"]>;
+      };
+      booking_blackouts: {
+        Row: {
+          id: string;
+          starts_on: string; // "YYYY-MM-DD"
+          ends_on: string; // "YYYY-MM-DD", inclusive
+          reason: string | null;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["booking_blackouts"]["Row"], "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+        Update: Partial<Database["public"]["Tables"]["booking_blackouts"]["Insert"]>;
+      };
       team_members: {
         Row: {
           id: string;

@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Icon } from "./Icons";
 import { SadeemMark } from "./marks";
 import { useSiteSettings } from "./SiteSettingsProvider";
+import { useHiddenAnchors } from "./NavAnchorsProvider";
 
-const links = [
+const allLinks = [
   { label: "Home", href: "/" },
   { label: "About", href: "/#about" },
   { label: "Services", href: "/services" },
@@ -21,9 +22,16 @@ const links = [
 export default function MainNavbar({ overDark }: { overDark: boolean }) {
   const pathname = usePathname();
   const settings = useSiteSettings();
+  const hiddenAnchors = useHiddenAnchors();
   const [activeHash, setActiveHash] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const logoUrl = overDark ? settings.logoLightUrl : settings.logoDarkUrl;
+
+  // Drop anchors whose homepage section has been switched off in the admin.
+  const links = useMemo(
+    () => allLinks.filter((link) => !(link.href.startsWith("/#") && hiddenAnchors.includes(link.href.slice(2)))),
+    [hiddenAnchors],
+  );
 
   useEffect(() => {
     const updateHash = () => setActiveHash(window.location.hash || "");

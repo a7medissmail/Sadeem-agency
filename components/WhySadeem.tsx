@@ -35,10 +35,10 @@ const principle = {
   show: { opacity: 1, y: 0 },
 };
 
-export default function WhySadeem() {
+export default function WhySadeem({ n = "06" }: { n?: string }) {
   return (
-    <RevealSection className="why light" data-section="06">
-      <SectionLabel n="06" text="WHY SADEEM" />
+    <RevealSection className="why light" data-section={n}>
+      <SectionLabel n={n} text="WHY SADEEM" />
       <div className="why-atmosphere" aria-hidden="true" />
       <div className="section-inner">
         <div className="section-eyebrow">WHY SADEEM</div>

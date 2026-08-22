@@ -8,8 +8,11 @@ import { bookingStatuses } from "@/lib/validation/booking";
 import type { BookingStatus } from "@/types/database";
 import {
   createAvailabilityRuleAction,
+  createBookingBlackoutAction,
   createBriefFromBookingAction,
   deleteAvailabilityRuleAction,
+  deleteBookingBlackoutAction,
+  saveBookingSettingsAction,
   sendBookingDetailsAction,
   updateAvailabilityRuleAction,
   updateBookingDetailsAction,
@@ -39,6 +42,21 @@ export type AvailabilityRuleRow = {
   slot_minutes: number;
   buffer_minutes: number;
   active: boolean;
+};
+
+export type BookingSettingsRow = {
+  max_per_week: number;
+  max_per_day: number;
+  min_notice_hours: number;
+  max_advance_days: number;
+  week_starts_on: number;
+};
+
+export type BookingBlackoutRow = {
+  id: string;
+  starts_on: string;
+  ends_on: string;
+  reason: string | null;
 };
 
 const statusLabels: Record<BookingStatus, string> = {
@@ -366,7 +384,219 @@ function AvailabilityRules({ rules }: { rules: AvailabilityRuleRow[] }) {
   );
 }
 
-export function BookingsBoard({ bookings, rules, forms }: { bookings: BookingBoardRow[]; rules: AvailabilityRuleRow[]; forms: BriefFormLite[] }) {
+// Mirrors weekKey() in lib/booking/settings.ts — that module is server-only, so
+// the readout below recomputes it client-side. Keep the two in sync.
+function weekKeyOf(dayKey: string, weekStartsOn: number) {
+  const [year, month, day] = dayKey.split("-").map(Number);
+  const noon = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+  const back = (noon.getUTCDay() - weekStartsOn + 7) % 7;
+  noon.setUTCDate(noon.getUTCDate() - back);
+  return noon.toISOString().slice(0, 10);
+}
+
+function dayKeyInZone(iso: string, timeZone: string) {
+  // en-CA gives YYYY-MM-DD directly.
+  return new Intl.DateTimeFormat("en-CA", { timeZone }).format(new Date(iso));
+}
+
+function CapacityGuardrails({
+  settings,
+  blackouts,
+  bookings,
+  timeZone,
+}: {
+  settings: BookingSettingsRow;
+  blackouts: BookingBlackoutRow[];
+  bookings: BookingBoardRow[];
+  timeZone: string;
+}) {
+  // How full the next few weeks already are — the number the caps act on.
+  const weekUsage = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const booking of bookings) {
+      if (booking.status !== "scheduled") continue;
+      const dayKey = dayKeyInZone(booking.slot_start, timeZone);
+      const week = weekKeyOf(dayKey, settings.week_starts_on);
+      counts.set(week, (counts.get(week) ?? 0) + 1);
+    }
+
+    const thisWeek = weekKeyOf(dayKeyInZone(new Date().toISOString(), timeZone), settings.week_starts_on);
+    return [0, 1, 2].map((offset) => {
+      const [year, month, day] = thisWeek.split("-").map(Number);
+      const start = new Date(Date.UTC(year, month - 1, day + offset * 7, 12, 0, 0));
+      const key = start.toISOString().slice(0, 10);
+      return { key, label: dayFmt.format(start), count: counts.get(key) ?? 0 };
+    });
+  }, [bookings, settings.week_starts_on, timeZone]);
+
+  const capLabel = settings.max_per_week > 0 ? `${settings.max_per_week}/week` : "No limit";
+
+  return (
+    <section className="flex flex-col gap-4">
+      <div className="grid gap-4 xl:grid-cols-[0.8fr_1fr]">
+        <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
+          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">Capacity</p>
+          <h2 className="mt-2 max-w-[12ch] text-[32px] font-semibold leading-[1.04] tracking-tight text-[var(--admin-text)]">
+            How much of the week you sell.
+          </h2>
+          <p className="mt-4 text-[14px] leading-relaxed text-[var(--admin-muted)]">
+            Availability rules say <em>when</em> you can meet. These caps say <em>how often</em>. Once a week or day hits
+            its ceiling, every remaining slot in it disappears from the public calendar.
+          </p>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          <MetricCard label="Weekly cap" value={capLabel} hint="Applies to scheduled bookings" />
+          {weekUsage.slice(0, 2).map((week, index) => (
+            <MetricCard
+              key={week.key}
+              label={index === 0 ? "This week" : "Next week"}
+              value={settings.max_per_week > 0 ? `${week.count}/${settings.max_per_week}` : week.count}
+              hint={`Week of ${week.label}`}
+            />
+          ))}
+        </div>
+      </div>
+
+      <form
+        action={saveBookingSettingsAction}
+        className="grid gap-3 border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4 xl:grid-cols-[repeat(5,1fr)_auto] xl:items-end"
+      >
+        <label className="flex flex-col gap-1.5">
+          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--admin-muted)]">
+            Max / week
+          </span>
+          <Input name="max_per_week" type="number" min={0} max={100} defaultValue={settings.max_per_week} required />
+        </label>
+        <label className="flex flex-col gap-1.5">
+          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--admin-muted)]">Max / day</span>
+          <Input name="max_per_day" type="number" min={0} max={50} defaultValue={settings.max_per_day} required />
+        </label>
+        <label className="flex flex-col gap-1.5">
+          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--admin-muted)]">
+            Min notice (h)
+          </span>
+          <Input
+            name="min_notice_hours"
+            type="number"
+            min={0}
+            max={720}
+            defaultValue={settings.min_notice_hours}
+            required
+          />
+        </label>
+        <label className="flex flex-col gap-1.5">
+          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--admin-muted)]">
+            Horizon (days)
+          </span>
+          <Input
+            name="max_advance_days"
+            type="number"
+            min={1}
+            max={180}
+            defaultValue={settings.max_advance_days}
+            required
+          />
+        </label>
+        <label className="flex flex-col gap-1.5">
+          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--admin-muted)]">
+            Week starts
+          </span>
+          <Select name="week_starts_on" defaultValue={String(settings.week_starts_on)}>
+            {weekdays.map((weekday, index) => (
+              <option key={weekday} value={index}>
+                {weekday}
+              </option>
+            ))}
+          </Select>
+        </label>
+        <Button type="submit" variant="outline" className="justify-center">
+          Save caps
+        </Button>
+        <p className="col-span-full text-[12.5px] text-[var(--admin-muted)]">
+          Use <strong className="text-[var(--admin-text)]">0</strong> for no limit. Caps count bookings that are still{" "}
+          <em>scheduled</em> — cancelled and no-show bookings free their slot back up.
+        </p>
+      </form>
+
+      <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
+        <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Blackout dates</p>
+        <p className="mt-2 text-[13px] text-[var(--admin-muted)]">
+          Holidays, travel, or a heads-down week. Nothing is bookable inside these ranges (end date included).
+        </p>
+
+        <form action={createBookingBlackoutAction} className="mt-4 grid gap-3 xl:grid-cols-[0.8fr_0.8fr_1.4fr_auto] xl:items-end">
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--admin-muted)]">From</span>
+            <Input name="starts_on" type="date" required />
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--admin-muted)]">To</span>
+            <Input name="ends_on" type="date" required />
+          </label>
+          <label className="flex flex-col gap-1.5">
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--admin-muted)]">Reason</span>
+            <Input name="reason" type="text" maxLength={160} placeholder="Eid holiday, offsite, …" />
+          </label>
+          <Button type="submit" variant="outline" className="justify-center">
+            Block
+          </Button>
+        </form>
+
+        {blackouts.length === 0 ? (
+          <p className="mt-4 border border-dashed border-[var(--admin-border)] px-4 py-6 text-center text-[13px] text-[var(--admin-subtle)]">
+            No blackout dates — every day inside the horizon is open.
+          </p>
+        ) : (
+          <ul className="mt-4 flex flex-col gap-2">
+            {blackouts.map((blackout) => (
+              <li
+                key={blackout.id}
+                className="flex flex-wrap items-center justify-between gap-3 border border-[var(--admin-border)] px-4 py-3"
+              >
+                <div>
+                  <p className="text-[13.5px] text-[var(--admin-text)]">
+                    {blackout.starts_on}
+                    {blackout.ends_on !== blackout.starts_on ? ` → ${blackout.ends_on}` : ""}
+                  </p>
+                  {blackout.reason ? (
+                    <p className="mt-0.5 text-[12.5px] text-[var(--admin-muted)]">{blackout.reason}</p>
+                  ) : null}
+                </div>
+                <form
+                  action={deleteBookingBlackoutAction}
+                  onSubmit={(e) => {
+                    if (!window.confirm("Remove this blackout range?")) e.preventDefault();
+                  }}
+                >
+                  <input type="hidden" name="id" value={blackout.id} />
+                  <Button type="submit" variant="ghost">
+                    Remove
+                  </Button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </section>
+  );
+}
+
+export function BookingsBoard({
+  bookings,
+  rules,
+  forms,
+  settings,
+  blackouts,
+  timeZone,
+}: {
+  bookings: BookingBoardRow[];
+  rules: AvailabilityRuleRow[];
+  forms: BriefFormLite[];
+  settings: BookingSettingsRow;
+  blackouts: BookingBlackoutRow[];
+  timeZone: string;
+}) {
   // Text search is now server-side (URL ?q= param). Only the status chip filter
   // remains client-side — it's fast within the current page of 50 records.
   const [status, setStatus] = useState<BookingStatus | "all">("all");
@@ -435,6 +665,7 @@ export function BookingsBoard({ bookings, rules, forms }: { bookings: BookingBoa
       </section>
 
       <AvailabilityRules rules={rules} />
+      <CapacityGuardrails settings={settings} blackouts={blackouts} bookings={bookings} timeZone={timeZone} />
     </div>
   );
 }

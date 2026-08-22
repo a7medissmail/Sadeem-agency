@@ -5,13 +5,13 @@ import SectionLabel from "./SectionLabel";
 import LeadForm from "./LeadForm";
 import { useSiteSettings } from "./SiteSettingsProvider";
 
-export default function ContactSection() {
+export default function ContactSection({ n = "12" }: { n?: string }) {
   const settings = useSiteSettings();
   const email = settings.footerEmail || "hello@sadeem.agency";
 
   return (
-    <RevealSection className="contact light" data-section="10" id="contact">
-      <SectionLabel n="10" text="GET IN TOUCH" />
+    <RevealSection className="contact light" data-section={n} id="contact">
+      <SectionLabel n={n} text="GET IN TOUCH" />
       <div className="section-inner contact-grid">
         <div className="contact-copy">
           <div className="section-eyebrow">START A CONVERSATION</div>

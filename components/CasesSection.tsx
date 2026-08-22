@@ -91,7 +91,7 @@ function CaseTile({ story, kind, n }: { story: HomeStory; kind: string; n: strin
   );
 }
 
-export default function CasesSection() {
+export default function CasesSection({ n = "09" }: { n?: string }) {
   const [stories, setStories] = useState<HomeStory[]>(fallbackStories);
 
   useEffect(() => {
@@ -113,8 +113,8 @@ export default function CasesSection() {
   }, []);
 
   return (
-    <RevealSection className="cases dark" data-section="07" id="cases">
-      <SectionLabel n="07" text="SUCCESS STORIES" onDark />
+    <RevealSection className="cases dark" data-section={n} id="cases">
+      <SectionLabel n={n} text="SUCCESS STORIES" onDark />
       <div className="section-inner">
         <div className="cases-head">
           <div>

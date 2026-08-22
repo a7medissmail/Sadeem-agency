@@ -27,10 +27,10 @@ const listItem = {
   show: { opacity: 1, y: 0 },
 };
 
-export default function WhoWeWorkWith() {
+export default function WhoWeWorkWith({ n = "07" }: { n?: string }) {
   return (
-    <RevealSection className="fit dark" data-section="07" id="fit">
-      <SectionLabel n="07" text="FIT" onDark />
+    <RevealSection className="fit dark" data-section={n} id="fit">
+      <SectionLabel n={n} text="FIT" onDark />
       <div className="section-inner">
         <motion.div
           className="section-eyebrow on-dark"

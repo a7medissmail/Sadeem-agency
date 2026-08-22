@@ -138,3 +138,32 @@ export const availabilityRuleSchema = z
   });
 
 export type AvailabilityRuleInput = z.infer<typeof availabilityRuleSchema>;
+
+export const bookingSettingsSchema = z.object({
+  max_per_week: z.preprocess(numberFromForm, z.number().int().min(0, "Use 0 for no limit").max(100)),
+  max_per_day: z.preprocess(numberFromForm, z.number().int().min(0, "Use 0 for no limit").max(50)),
+  min_notice_hours: z.preprocess(numberFromForm, z.number().int().min(0).max(720)),
+  max_advance_days: z.preprocess(numberFromForm, z.number().int().min(1, "Horizon must be at least 1 day").max(180)),
+  week_starts_on: z.preprocess(numberFromForm, z.number().int().min(0).max(6)),
+});
+
+export type BookingSettingsInput = z.infer<typeof bookingSettingsSchema>;
+
+const isoDate = (label: string) =>
+  z
+    .preprocess(asString, z.string())
+    .transform((value) => value.trim())
+    .pipe(z.string().regex(/^\d{4}-\d{2}-\d{2}$/, `${label} must be a date`));
+
+export const bookingBlackoutSchema = z
+  .object({
+    starts_on: isoDate("Start date"),
+    ends_on: isoDate("End date"),
+    reason: nullableText("Reason", 160),
+  })
+  .refine((value) => value.ends_on >= value.starts_on, {
+    path: ["ends_on"],
+    message: "End date must be on or after the start date",
+  });
+
+export type BookingBlackoutInput = z.infer<typeof bookingBlackoutSchema>;

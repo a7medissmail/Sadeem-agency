@@ -57,7 +57,7 @@ async function loadCategories(): Promise<CategoryRow[]> {
   }
 }
 
-export default async function ServicesSection() {
+export default async function ServicesSection({ n = "05" }: { n?: string }) {
   const categories = await loadCategories();
 
   // Fallback to the original static list if DB is empty (no migration run yet)
@@ -101,8 +101,8 @@ export default async function ServicesSection() {
         ];
 
   return (
-    <RevealSection className="services dark" data-section="05" id="services">
-      <SectionLabel n="05" text="OUR SERVICES" onDark />
+    <RevealSection className="services dark" data-section={n} id="services">
+      <SectionLabel n={n} text="OUR SERVICES" onDark />
       <div className="dark-texture" aria-hidden="true" />
       <div className="section-inner">
         <div className="services-head">

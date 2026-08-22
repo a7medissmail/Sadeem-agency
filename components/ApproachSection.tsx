@@ -12,10 +12,10 @@ const steps = [
   { Glyph: Icon.Trend, n: "04", title: "Scale", body: "Sustained momentum" },
 ];
 
-export default function ApproachSection() {
+export default function ApproachSection({ n = "04" }: { n?: string }) {
   return (
-    <RevealSection className="framework light" data-section="04" id="approach">
-      <SectionLabel n="04" text="OUR APPROACH" />
+    <RevealSection className="framework light" data-section={n} id="approach">
+      <SectionLabel n={n} text="OUR APPROACH" />
       <div className="framework-orbit" aria-hidden="true" />
       <div className="framework-mountains" aria-hidden="true" />
       <div className="section-inner framework-grid">

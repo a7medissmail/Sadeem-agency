@@ -3,8 +3,10 @@ import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { defaultSocialUrls } from "@/lib/site/social";
 import type { Database } from "@/types/database";
+import { getHomeSectionLayout } from "@/lib/site/homeSections";
 import SettingsForm from "./SettingsForm";
 import { MaintenanceToggle } from "./MaintenanceToggle";
+import { HomeSectionsEditor } from "./HomeSectionsEditor";
 import { saveMaintenanceMessageAction } from "./actions";
 
 export const metadata = { title: "Website Settings - SADEEM Admin" };
@@ -39,7 +41,7 @@ async function loadSettings() {
 
 export default async function SettingsPage() {
   await requireRole(["admin", "editor"]);
-  const { settings, error } = await loadSettings();
+  const [{ settings, error }, homeSections] = await Promise.all([loadSettings(), getHomeSectionLayout()]);
 
   return (
     <div className="flex flex-col gap-8">
@@ -132,6 +134,8 @@ export default async function SettingsPage() {
           <code>supabase/migrations/0011_site_settings.sql</code> in Supabase SQL Editor.
         </div>
       ) : null}
+
+      <HomeSectionsEditor sections={homeSections} />
 
       <SettingsForm settings={settings} />
     </div>

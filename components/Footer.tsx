@@ -59,7 +59,7 @@ export default function Footer() {
   const contactItems = [settings.footerEmail, settings.footerPhone, settings.footerLocation].filter(Boolean) as string[];
 
   return (
-    <footer className="footer dark" data-section="10">
+    <footer className="footer dark">
       <div className="section-inner">
         <div className="footer-grid">
           <div className="footer-brand">

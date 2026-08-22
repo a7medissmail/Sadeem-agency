@@ -1,6 +1,14 @@
 import "server-only";
+import { unstable_noStore as noStore } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { bookingTimeZone, getGoogleBusyIntervals } from "@/lib/google/calendar";
+import {
+  getBookingBlackouts,
+  getBookingSettings,
+  isBlackedOut,
+  weekKey,
+  type BookingSettings,
+} from "./settings";
 
 export type ConsultationSlot = {
   start: string;
@@ -150,25 +158,86 @@ async function loadLocalBusy(timeMin: Date, timeMax: Date): Promise<BusyInterval
   return (data ?? []).map((booking) => ({ start: booking.slot_start, end: booking.slot_end }));
 }
 
-export async function getConsultationSlots(days = 21): Promise<{ timeZone: string; slots: ConsultationSlot[] }> {
+/**
+ * Scheduled bookings counted per calendar day and per week, used for the
+ * capacity caps. The range is widened backwards to the start of the current
+ * week so bookings earlier this week still count against the weekly cap.
+ */
+async function loadCapacityUsage(
+  rangeStart: Date,
+  rangeEnd: Date,
+  timeZone: string,
+  weekStartsOn: number,
+) {
+  const perDay = new Map<string, number>();
+  const perWeek = new Map<string, number>();
+
+  const admin = getSupabaseAdmin();
+  const { data, error } = await admin
+    .from("bookings")
+    .select("slot_start")
+    .eq("status", "scheduled")
+    .gte("slot_start", rangeStart.toISOString())
+    .lt("slot_start", rangeEnd.toISOString());
+
+  if (error) return { perDay, perWeek };
+
+  for (const booking of data ?? []) {
+    const dayKey = dateKeyInZone(new Date(booking.slot_start), timeZone);
+    perDay.set(dayKey, (perDay.get(dayKey) ?? 0) + 1);
+    const week = weekKey(dayKey, weekStartsOn);
+    perWeek.set(week, (perWeek.get(week) ?? 0) + 1);
+  }
+
+  return { perDay, perWeek };
+}
+
+function atCapacity(
+  dayKey: string,
+  settings: BookingSettings,
+  usage: { perDay: Map<string, number>; perWeek: Map<string, number> },
+) {
+  if (settings.maxPerDay > 0 && (usage.perDay.get(dayKey) ?? 0) >= settings.maxPerDay) return true;
+  if (settings.maxPerWeek > 0) {
+    const week = weekKey(dayKey, settings.weekStartsOn);
+    if ((usage.perWeek.get(week) ?? 0) >= settings.maxPerWeek) return true;
+  }
+  return false;
+}
+
+export async function getConsultationSlots(daysOverride?: number): Promise<{ timeZone: string; slots: ConsultationSlot[] }> {
+  // Availability must never be served from Next's fetch cache: bookings, caps,
+  // blackouts, and Google's busy list all change outside any revalidate path we
+  // control, and a stale slot list means double-booking.
+  noStore();
+
   const timeZone = bookingTimeZone();
+  const [settings, blackouts] = await Promise.all([getBookingSettings(), getBookingBlackouts()]);
+  const days = daysOverride ?? settings.maxAdvanceDays;
+
   const now = new Date();
-  const minimumStart = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+  const minimumStart = new Date(now.getTime() + settings.minNoticeHours * 60 * 60 * 1000);
   const today = dateKeyInZone(now, timeZone);
   const lastDay = addDays(today, days);
   const windowStart = zonedTimeToUtc(today, "00:00", timeZone);
   const windowEnd = zonedTimeToUtc(lastDay, "23:59", timeZone);
+  // Bookings earlier in the current week still consume the weekly allowance.
+  const usageStart = zonedTimeToUtc(weekKey(today, settings.weekStartsOn), "00:00", timeZone);
 
-  const [rules, localBusy, googleBusy] = await Promise.all([
+  const [rules, localBusy, googleBusy, usage] = await Promise.all([
     loadRules(),
     loadLocalBusy(windowStart, windowEnd),
     getGoogleBusyIntervals(windowStart.toISOString(), windowEnd.toISOString()),
+    loadCapacityUsage(usageStart, windowEnd, timeZone, settings.weekStartsOn),
   ]);
   const busy = [...localBusy, ...googleBusy];
   const slots: ConsultationSlot[] = [];
 
   for (let dayOffset = 0; dayOffset < days; dayOffset += 1) {
     const dayKey = addDays(today, dayOffset);
+    if (isBlackedOut(dayKey, blackouts)) continue;
+    if (atCapacity(dayKey, settings, usage)) continue;
+
     const dayWeekday = weekday(dayKey, timeZone);
     const dayRules = rules.filter((rule) => rule.active && rule.weekday === dayWeekday);
 

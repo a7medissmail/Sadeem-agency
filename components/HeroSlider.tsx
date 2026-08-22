@@ -50,7 +50,7 @@ const slides = [
   },
 ];
 
-export default function HeroSlider({ scrollY: scrollYProp }: { scrollY?: number } = {}) {
+export default function HeroSlider({ scrollY: scrollYProp, n = "01" }: { scrollY?: number; n?: string } = {}) {
   const internalScrollY = useScrollY();
   const scrollY = scrollYProp ?? internalScrollY;
   const [i, setI] = useState(0);
@@ -66,7 +66,7 @@ export default function HeroSlider({ scrollY: scrollYProp }: { scrollY?: number 
   return (
     <section
       className="hero"
-      data-section="01"
+      data-section={n}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
@@ -96,7 +96,7 @@ export default function HeroSlider({ scrollY: scrollYProp }: { scrollY?: number 
         </div>
       ))}
 
-      <SectionLabel n="01" text="INTRODUCTION" onDark />
+      <SectionLabel n={n} text="INTRODUCTION" onDark />
 
       <div className="hero-controls">
         <div className="hero-progress">

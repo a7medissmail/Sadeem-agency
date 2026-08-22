@@ -40,13 +40,13 @@ function CountUp({ value, suffix = "", active }: { value: number; suffix?: strin
   );
 }
 
-export default function AboutSection() {
+export default function AboutSection({ n = "02" }: { n?: string }) {
   const statsRef = useRef(null);
   const statsInView = useInView(statsRef, { once: true, amount: 0.45 });
 
   return (
-    <RevealSection className="about light" data-section="02" id="about">
-      <SectionLabel n="02" text="ABOUT SADEEM" />
+    <RevealSection className="about light" data-section={n} id="about">
+      <SectionLabel n={n} text="ABOUT SADEEM" />
       <div className="about-atmosphere" aria-hidden="true" />
       <div className="about-mountains" aria-hidden="true" />
       <div className="section-inner about-grid">

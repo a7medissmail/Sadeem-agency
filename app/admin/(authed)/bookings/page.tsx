@@ -6,7 +6,15 @@ import { PageHeader } from "@/components/admin/ui/PageHeader";
 import { SearchBar } from "@/components/admin/ui/SearchBar";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { BookingsBoard, type AvailabilityRuleRow, type BookingBoardRow } from "./BookingsBoard";
+import { bookingTimeZone } from "@/lib/google/calendar";
+import { defaultBookingSettings } from "@/lib/booking/settings";
+import {
+  BookingsBoard,
+  type AvailabilityRuleRow,
+  type BookingBlackoutRow,
+  type BookingBoardRow,
+  type BookingSettingsRow,
+} from "./BookingsBoard";
 import type { BriefFormLite } from "@/components/admin/ui/QuickBrief";
 
 export const metadata = { title: "Bookings - SADEEM Admin" };
@@ -16,6 +24,15 @@ const PAGE_SIZE = 50;
 function sp(val: string | string[] | undefined): string {
   return Array.isArray(val) ? (val[0] ?? "") : (val ?? "");
 }
+
+// Same defaults as migration 0035 — used when the row (or the table) is missing.
+const fallbackSettings: BookingSettingsRow = {
+  max_per_week: defaultBookingSettings.maxPerWeek,
+  max_per_day: defaultBookingSettings.maxPerDay,
+  min_notice_hours: defaultBookingSettings.minNoticeHours,
+  max_advance_days: defaultBookingSettings.maxAdvanceDays,
+  week_starts_on: defaultBookingSettings.weekStartsOn,
+};
 
 async function loadData(q: string, page: number) {
   try {
@@ -38,7 +55,7 @@ async function loadData(q: string, page: number) {
       );
     }
 
-    const [bookingsResult, rulesResult, formsResult] = await Promise.all([
+    const [bookingsResult, rulesResult, formsResult, settingsResult, blackoutsResult] = await Promise.all([
       bookingsQuery,
       admin
         .from("availability_rules")
@@ -50,6 +67,15 @@ async function loadData(q: string, page: number) {
         .select("id, name")
         .eq("purpose", "proposal")
         .order("name", { ascending: true }),
+      admin
+        .from("booking_settings")
+        .select("max_per_week, max_per_day, min_notice_hours, max_advance_days, week_starts_on")
+        .eq("id", true)
+        .maybeSingle(),
+      admin
+        .from("booking_blackouts")
+        .select("id, starts_on, ends_on, reason")
+        .order("starts_on", { ascending: true }),
     ]);
 
     if (bookingsResult.error) throw bookingsResult.error;
@@ -62,6 +88,10 @@ async function loadData(q: string, page: number) {
       bookings: (bookingsResult.data ?? []) as BookingBoardRow[],
       rules: (rulesResult.data ?? []) as AvailabilityRuleRow[],
       forms: (formsResult.data ?? []) as BriefFormLite[],
+      // Capacity config is optional — an un-pushed migration 0035 must not take
+      // the whole bookings page down.
+      settings: (settingsResult.data as BookingSettingsRow | null) ?? fallbackSettings,
+      blackouts: (blackoutsResult.data ?? []) as BookingBlackoutRow[],
       totalCount,
       totalPages,
       error: null as string | null,
@@ -71,6 +101,8 @@ async function loadData(q: string, page: number) {
       bookings: [] as BookingBoardRow[],
       rules: [] as AvailabilityRuleRow[],
       forms: [] as BriefFormLite[],
+      settings: fallbackSettings,
+      blackouts: [] as BookingBlackoutRow[],
       totalCount: 0,
       totalPages: 1,
       error: err instanceof Error ? err.message : "Unknown error",
@@ -87,7 +119,7 @@ export default async function BookingsAdminPage({
   const q = sp(searchParams.q).trim();
   const page = Math.max(1, parseInt(sp(searchParams.page) || "1", 10));
 
-  const { bookings, rules, forms, totalCount, totalPages, error } = await loadData(q, page);
+  const { bookings, rules, forms, settings, blackouts, totalCount, totalPages, error } = await loadData(q, page);
 
   return (
     <div className="flex flex-col gap-8">
@@ -129,7 +161,14 @@ export default async function BookingsAdminPage({
         </p>
       ) : null}
 
-      <BookingsBoard bookings={bookings} rules={rules} forms={forms} />
+      <BookingsBoard
+        bookings={bookings}
+        rules={rules}
+        forms={forms}
+        settings={settings}
+        blackouts={blackouts}
+        timeZone={bookingTimeZone()}
+      />
 
       <AdminPagination
         page={page}

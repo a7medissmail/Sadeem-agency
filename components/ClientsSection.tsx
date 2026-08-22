@@ -25,10 +25,12 @@ export default function ClientsSection({
   section = defaultClientSection,
   anchor,
   grid,
+  n = "10",
 }: {
   section?: PublicClientSection;
   anchor?: PublicClientPartner | null;
   grid?: PublicClientPartner[];
+  n?: string;
 }) {
   const resolvedAnchor = anchor ?? fallbackAnchor;
   // Fall back to the shipped 7-logo set when the DB has no grid partners
@@ -39,8 +41,8 @@ export default function ClientsSection({
   const rowB = gridLogos.slice(4, 7);
 
   return (
-    <RevealSection className="clients light" data-section="08">
-      <SectionLabel n="08" text="CLIENTS" />
+    <RevealSection className="clients light" data-section={n}>
+      <SectionLabel n={n} text="CLIENTS" />
       <div className="section-inner">
         <div className="clients-head">
           <div className="section-eyebrow">{section.eyebrow}</div>

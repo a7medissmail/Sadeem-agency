@@ -12,10 +12,10 @@ const items = [
   { Glyph: Icon.Pressure, title: "Market pressure", body: "Intense competition and rapid change create persistent uncertainty." },
 ];
 
-export default function ProblemSection() {
+export default function ProblemSection({ n = "03" }: { n?: string }) {
   return (
-    <RevealSection className="problem dark" data-section="03" id="problem">
-      <SectionLabel n="03" text="THE PROBLEM" onDark />
+    <RevealSection className="problem dark" data-section={n} id="problem">
+      <SectionLabel n={n} text="THE PROBLEM" onDark />
       <div className="problem-atmosphere" aria-hidden="true" />
       <div className="section-inner problem-grid">
         <div className="problem-intro">

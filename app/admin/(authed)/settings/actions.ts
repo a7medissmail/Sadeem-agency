@@ -9,6 +9,7 @@ import {
   siteSettingsSchema,
   type SiteSettingsErrors,
 } from "@/lib/validation/siteSettings";
+import { HOME_SECTION_REGISTRY } from "@/lib/site/homeSections";
 
 export type SiteSettingsState = {
   ok?: boolean;
@@ -104,6 +105,41 @@ export async function updateSiteSettingsAction(
 
   // Logo / footer / favicon live in the root layout — layout-scoped revalidation
   // busts the cached shell across every route that uses it.
+  revalidatePath("/", "layout");
+  revalidatePath("/admin/settings");
+  return { ok: true };
+}
+
+// ─── Homepage composition ─────────────────────────────────────────────────────
+
+/**
+ * Persists the homepage layout. Only keys that exist in the registry are
+ * written, and locked sections are always forced back on — a stale client
+ * payload can never take the hero down or introduce an unknown key.
+ */
+export async function saveHomeSectionsAction(
+  layout: { key: string; enabled: boolean }[],
+): Promise<{ ok?: boolean; error?: string }> {
+  await requireRole(["admin", "editor"]);
+
+  const known = new Map(HOME_SECTION_REGISTRY.map((meta) => [meta.key as string, meta]));
+  const rows = layout
+    .filter((entry) => known.has(entry.key))
+    .map((entry, index) => ({
+      key: entry.key,
+      enabled: known.get(entry.key)?.locked ? true : entry.enabled,
+      sort_order: (index + 1) * 10,
+      updated_at: new Date().toISOString(),
+    }));
+
+  if (rows.length === 0) return { error: "Nothing to save" };
+
+  const admin = getSupabaseAdmin();
+  const { error } = await admin.from("home_sections").upsert(rows, { onConflict: "key" });
+  if (error) return { error: error.message };
+
+  // The homepage is ISR'd (revalidate = 300) and the navbar anchor list lives in
+  // the marketing layout — bust both so the change is visible immediately.
   revalidatePath("/", "layout");
   revalidatePath("/admin/settings");
   return { ok: true };

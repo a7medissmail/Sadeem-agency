@@ -40,10 +40,10 @@ const item = {
   show: { opacity: 1, y: 0 },
 };
 
-export default function FaqSection() {
+export default function FaqSection({ n = "08" }: { n?: string }) {
   return (
-    <RevealSection className="faq light" data-section="09" id="faq">
-      <SectionLabel n="09" text="FAQ" />
+    <RevealSection className="faq light" data-section={n} id="faq">
+      <SectionLabel n={n} text="FAQ" />
       <div className="section-inner">
         <motion.div
           className="section-eyebrow"
