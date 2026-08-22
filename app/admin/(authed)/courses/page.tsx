@@ -6,6 +6,7 @@ import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { deleteCourseAction, toggleCourseActiveAction } from "./actions";
 import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
+import { MetricCard } from "@/components/admin/ui/Stats";
 
 export const metadata = { title: "Courses - SADEEM Admin" };
 
@@ -22,16 +23,6 @@ async function loadCourses() {
   } catch (err) {
     return { courses: [], error: err instanceof Error ? err.message : "Unknown error" };
   }
-}
-
-function MetricCard({ label, value, hint }: { label: string; value: number | string; hint: string }) {
-  return (
-    <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
-      <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">{label}</p>
-      <div className="mt-3 text-[30px] font-semibold leading-none text-[var(--admin-text)]">{value}</div>
-      <p className="mt-3 text-[12.5px] text-[var(--admin-muted)]">{hint}</p>
-    </div>
-  );
 }
 
 export default async function CoursesAdminPage() {
@@ -62,21 +53,10 @@ export default async function CoursesAdminPage() {
         </div>
       ) : null}
 
-      <section className="grid gap-4 xl:grid-cols-[1fr_0.85fr]">
-        <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">Content OS</p>
-          <h2 className="mt-2 max-w-[13ch] text-[34px] font-semibold leading-[1.02] tracking-tight text-[var(--admin-text)]">
-            Cohorts that can go live in one decision.
-          </h2>
-          <p className="mt-4 max-w-[68ch] text-[14.5px] leading-relaxed text-[var(--admin-muted)]">
-            Each workshop card keeps the public state, date, location, capacity, price, and cover signal close to the action.
-          </p>
-        </div>
-        <div className="grid grid-cols-3 gap-3">
-          <MetricCard label="Total" value={courses.length} hint="All workshops" />
-          <MetricCard label="Live" value={activeCount} hint="Visible publicly" />
-          <MetricCard label="Dated" value={datedCount} hint="Has start date" />
-        </div>
+      <section className="grid grid-cols-2 gap-3 xl:grid-cols-3">
+        <MetricCard label="Total" value={courses.length} hint="All workshops" />
+        <MetricCard label="Live" value={activeCount} hint="Visible publicly" />
+        <MetricCard label="Dated" value={datedCount} hint="Has start date" />
       </section>
 
       {courses.length === 0 ? (

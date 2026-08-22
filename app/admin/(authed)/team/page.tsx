@@ -6,6 +6,7 @@ import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { deleteTeamMemberAction, toggleTeamMemberActiveAction } from "./actions";
 import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
+import { MetricCard } from "@/components/admin/ui/Stats";
 
 export const metadata = { title: "Team - SADEEM Admin" };
 
@@ -22,16 +23,6 @@ async function loadTeamMembers() {
   } catch (err) {
     return { members: [], error: err instanceof Error ? err.message : "Unknown error" };
   }
-}
-
-function MetricCard({ label, value, hint }: { label: string; value: number | string; hint: string }) {
-  return (
-    <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
-      <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">{label}</p>
-      <div className="mt-3 text-[30px] font-semibold leading-none text-[var(--admin-text)]">{value}</div>
-      <p className="mt-3 text-[12.5px] text-[var(--admin-muted)]">{hint}</p>
-    </div>
-  );
 }
 
 export default async function TeamAdminPage() {
@@ -59,21 +50,10 @@ export default async function TeamAdminPage() {
         </div>
       ) : null}
 
-      <section className="grid gap-4 xl:grid-cols-[1fr_0.85fr]">
-        <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">Roster OS</p>
-          <h2 className="mt-2 max-w-[13ch] text-[34px] font-semibold leading-[1.02] tracking-tight text-[var(--admin-text)]">
-            Small enough to stay close.
-          </h2>
-          <p className="mt-4 max-w-[68ch] text-[14.5px] leading-relaxed text-[var(--admin-muted)]">
-            Each profile controls public visibility, sort order, biography, and the portrait used across the cinematic team page.
-          </p>
-        </div>
-        <div className="grid grid-cols-3 gap-3">
-          <MetricCard label="Profiles" value={members.length} hint="All team records" />
-          <MetricCard label="Live" value={activeCount} hint="Visible publicly" />
-          <MetricCard label="Photos" value={photographedCount} hint="With portraits" />
-        </div>
+      <section className="grid grid-cols-2 gap-3 xl:grid-cols-3">
+        <MetricCard label="Profiles" value={members.length} hint="All team records" />
+        <MetricCard label="Live" value={activeCount} hint="Visible publicly" />
+        <MetricCard label="Photos" value={photographedCount} hint="With portraits" />
       </section>
 
       {members.length === 0 ? (

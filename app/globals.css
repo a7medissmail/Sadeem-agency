@@ -5158,7 +5158,24 @@ section.team-roster {
 }
 
 .admin-sidebar-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   padding: 6px 8px 12px;
+}
+
+/* Nav disclosure — checkbox lives outside the grid flow; toggle is mobile-only. */
+.admin-nav-checkbox {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.admin-nav-toggle {
+  display: none;
 }
 
 .admin-kicker,
@@ -5878,21 +5895,58 @@ section.team-roster {
     grid-template-columns: 1fr;
   }
   .admin-sidebar {
-    position: relative;
+    position: sticky;
+    top: 0;
+    z-index: 40;
     height: auto;
+    gap: 0;
+    padding: 14px 16px;
   }
-  .admin-nav {
+  .admin-sidebar-brand {
+    padding: 0;
+  }
+
+  /* Collapsed by default — the page starts right below the brand row. */
+  .admin-nav,
+  .admin-sidebar-footer {
+    display: none;
+  }
+
+  .admin-nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px 14px;
+    border: 1px solid var(--admin-border);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--admin-muted);
+  }
+  .admin-nav-checkbox:checked ~ .admin-sidebar .admin-nav-toggle {
+    border-color: var(--admin-accent);
+    color: var(--admin-accent);
+  }
+
+  .admin-nav-checkbox:checked ~ .admin-sidebar {
+    gap: 18px;
+    padding-bottom: 22px;
+  }
+  .admin-nav-checkbox:checked ~ .admin-sidebar .admin-nav {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 18px;
+    margin-top: 18px;
   }
-  .admin-sidebar-footer {
+  .admin-nav-checkbox:checked ~ .admin-sidebar .admin-sidebar-footer {
+    display: block;
     margin-top: 0;
   }
 }
 
 @media (max-width: 680px) {
-  .admin-nav {
+  .admin-nav-checkbox:checked ~ .admin-sidebar .admin-nav {
     grid-template-columns: 1fr;
   }
   .admin-topbar {

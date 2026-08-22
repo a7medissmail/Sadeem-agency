@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { Badge } from "@/components/admin/ui/Badge";
 import { Button } from "@/components/admin/ui/Button";
 import { Select } from "@/components/admin/ui/Field";
+import { FilterChip, MetricCard } from "@/components/admin/ui/Stats";
 import type { Database, LeadSource, LeadStatus } from "@/types/database";
 import {
   addLeadNoteAction,
@@ -90,60 +91,6 @@ const shortDateFmt = new Intl.DateTimeFormat("en", { month: "short", day: "numer
 function ownerName(lead: LeadBoardRow, staff: StaffRow[]) {
   if (!lead.owner_id) return "Unassigned";
   return staff.find((member) => member.id === lead.owner_id)?.full_name || "Unnamed owner";
-}
-
-function leadSignal(lead: LeadBoardRow) {
-  let score = 38;
-  if (lead.phone) score += 12;
-  if (lead.company) score += 10;
-  if (lead.message && lead.message.length > 80) score += 16;
-  if (lead.source === "consultation") score += 18;
-  if (lead.status === "qualified") score += 14;
-  if (lead.status === "won") score += 24;
-  if (lead.status === "lost") score -= 18;
-  return Math.max(10, Math.min(98, score));
-}
-
-function nextMove(status: LeadStatus) {
-  if (status === "new") return "Assign owner and reply";
-  if (status === "contacted") return "Capture need and budget";
-  if (status === "qualified") return "Prepare next conversation";
-  if (status === "won") return "Move into delivery handoff";
-  return "No active follow-up";
-}
-
-function FilterChip({
-  active,
-  children,
-  onClick,
-}: {
-  active: boolean;
-  children: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] transition-colors ${
-        active
-          ? "border-[var(--admin-accent)] bg-[var(--admin-accent-soft)] text-[var(--admin-text)]"
-          : "border-[var(--admin-border)] text-[var(--admin-muted)] hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]"
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
-
-function MetricCard({ label, value, hint }: { label: string; value: number | string; hint: string }) {
-  return (
-    <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
-      <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">{label}</p>
-      <div className="mt-3 text-[30px] font-semibold leading-none text-[var(--admin-text)]">{value}</div>
-      <p className="mt-3 text-[12.5px] text-[var(--admin-muted)]">{hint}</p>
-    </div>
-  );
 }
 
 function SourceDot({ source }: { source: LeadSource }) {
@@ -226,7 +173,6 @@ function LeadCard({
   staff: StaffRow[];
   onOpen: () => void;
 }) {
-  const signal = leadSignal(lead);
   return (
     <button
       type="button"
@@ -237,15 +183,9 @@ function LeadCard({
           : "border-[var(--admin-border)] hover:border-[var(--admin-accent)]"
       }`}
     >
-      {/* Row 1: name + signal */}
-      <div className="flex items-baseline justify-between gap-2">
-        <p className="truncate text-[13.5px] font-semibold leading-snug text-[var(--admin-text)]">
-          {lead.name}
-        </p>
-        <span className="shrink-0 font-mono text-[9px] tabular-nums text-[var(--admin-accent)]">
-          {String(signal).padStart(2, "0")}
-        </span>
-      </div>
+      <p className="truncate text-[13.5px] font-semibold leading-snug text-[var(--admin-text)]">
+        {lead.name}
+      </p>
 
       {/* Row 2: source dot + label · date · optional note badge */}
       <div className="mt-1.5 flex items-center gap-1.5 font-mono text-[9.5px] uppercase tracking-[0.14em] text-[var(--admin-subtle)]">
@@ -285,14 +225,6 @@ function LeadDrawer({
 }) {
   if (!lead) return null;
 
-  const signal = leadSignal(lead);
-  const timeline = [
-    { label: "Captured", detail: dateFmt.format(new Date(lead.created_at)), done: true },
-    { label: "Source", detail: sourceLabels[lead.source], done: true },
-    { label: "Owner", detail: ownerName(lead, staff), done: Boolean(lead.owner_id) },
-    { label: "Next move", detail: nextMove(lead.status), done: lead.status !== "lost" },
-  ];
-
   return (
     <div className="fixed inset-0 z-[70] bg-black/55 backdrop-blur-sm" role="presentation" onMouseDown={onClose}>
       <aside
@@ -320,9 +252,9 @@ function LeadDrawer({
             </button>
           </div>
           <div className="grid grid-cols-3 gap-3">
-            <MetricCard label="Signal" value={`${signal}%`} hint="Intent quality" />
             <MetricCard label="Stage" value={statusLabels[lead.status]} hint={statusNotes[lead.status]} />
-            <MetricCard label="Received" value={shortDateFmt.format(new Date(lead.created_at))} hint="Inbound date" />
+            <MetricCard label="Owner" value={ownerName(lead, staff)} />
+            <MetricCard label="Received" value={shortDateFmt.format(new Date(lead.created_at))} hint={sourceLabels[lead.source]} />
           </div>
         </header>
 
@@ -368,20 +300,6 @@ function LeadDrawer({
                 </div>
               </div>
 
-              <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-                <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Process timeline</h3>
-                <div className="mt-4 space-y-3">
-                  {timeline.map((item) => (
-                    <div key={item.label} className="grid grid-cols-[18px_1fr] gap-3">
-                      <span className={`mt-1 h-2 w-2 rounded-full ${item.done ? "bg-[var(--admin-accent)]" : "bg-[var(--admin-border)]"}`} />
-                      <div>
-                        <p className="text-[13.5px] font-semibold text-[var(--admin-text)]">{item.label}</p>
-                        <p className="mt-1 text-[12.5px] text-[var(--admin-muted)]">{item.detail}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </section>
 
             <aside className="space-y-5">
@@ -555,22 +473,11 @@ export function LeadsBoard({ leads, staff, forms }: { leads: LeadBoardRow[]; sta
 
   return (
     <div className="flex flex-col gap-8">
-      <section className="grid gap-4 xl:grid-cols-[1fr_0.8fr]">
-        <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">CRM OS</p>
-          <h2 className="mt-2 max-w-[13ch] text-[34px] font-semibold leading-[1.02] tracking-tight text-[var(--admin-text)]">
-            Turn inbound demand into clear next moves.
-          </h2>
-          <p className="mt-4 max-w-[68ch] text-[14.5px] leading-relaxed text-[var(--admin-muted)]">
-            Every message becomes an operator card: source, intent signal, owner, timeline, and the next action without hunting through a table.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <MetricCard label="Total" value={leads.length} hint="All captured leads" />
-          <MetricCard label="New" value={newCount} hint="Need first action" />
-          <MetricCard label="Qualified+" value={qualifiedCount} hint="High intent demand" />
-          <MetricCard label="Assigned" value={assignedCount} hint="Owned follow-ups" />
-        </div>
+      <section className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <MetricCard label="Total" value={leads.length} />
+        <MetricCard label="New" value={newCount} hint="Need first action" />
+        <MetricCard label="Qualified+" value={qualifiedCount} />
+        <MetricCard label="Assigned" value={assignedCount} />
       </section>
 
       <section className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
@@ -594,7 +501,6 @@ export function LeadsBoard({ leads, staff, forms }: { leads: LeadBoardRow[]; sta
           </div>
         </div>
       </section>
-
 
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="overflow-x-auto pb-3">

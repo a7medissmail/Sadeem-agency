@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { Badge } from "@/components/admin/ui/Badge";
 import { Button } from "@/components/admin/ui/Button";
 import { FieldRow, Input, Select, Textarea } from "@/components/admin/ui/Field";
+import { FilterChip, MetricCard } from "@/components/admin/ui/Stats";
 import { applicationStatuses } from "@/lib/validation/careers";
 import type { ApplicationStatus, Json } from "@/types/database";
 import {
@@ -112,19 +113,6 @@ function roleName(application: ApplicationBoardRow) {
   return application.job?.title ?? "Deleted role";
 }
 
-function candidateSignal(application: ApplicationBoardRow) {
-  if (application.score != null) return application.score;
-  let score = 44;
-  if (application.resumeDownloadUrl) score += 18;
-  if (application.cover_note && application.cover_note.length > 120) score += 18;
-  if (application.phone) score += 8;
-  if (application.portfolio_url || application.linkedin_url) score += 8;
-  if (application.status === "interview") score += 12;
-  if (application.status === "offer") score += 20;
-  if (application.status === "rejected") score -= 22;
-  return Math.max(12, Math.min(98, score));
-}
-
 function nextStep(status: ApplicationStatus) {
   if (status === "new") return "Run first review";
   if (status === "review") return "Decide intro call";
@@ -161,30 +149,6 @@ function StageRail({ status }: { status: ApplicationStatus }) {
         />
       ))}
     </div>
-  );
-}
-
-function FilterChip({
-  active,
-  children,
-  onClick,
-}: {
-  active: boolean;
-  children: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] transition-colors ${
-        active
-          ? "border-[var(--admin-accent)] bg-[var(--admin-accent-soft)] text-[var(--admin-text)]"
-          : "border-[var(--admin-border)] text-[var(--admin-muted)] hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]"
-      }`}
-    >
-      {children}
-    </button>
   );
 }
 
@@ -262,7 +226,6 @@ function CandidateCard({
   selected: boolean;
   onOpen: () => void;
 }) {
-  const signal = candidateSignal(application);
   return (
     <button
       type="button"
@@ -273,14 +236,16 @@ function CandidateCard({
           : "border-[var(--admin-border)] hover:border-[var(--admin-accent)]"
       }`}
     >
-      {/* Row 1: name + score */}
+      {/* Row 1: name + score (only when a reviewer has actually rated) */}
       <div className="flex items-baseline justify-between gap-2">
         <p className="truncate text-[13.5px] font-semibold leading-snug text-[var(--admin-text)]">
           {application.name}
         </p>
-        <span className="shrink-0 font-mono text-[9px] tabular-nums text-[var(--admin-accent)]">
-          {String(signal).padStart(2, "0")}
-        </span>
+        {application.score != null ? (
+          <span className="shrink-0 font-mono text-[9px] tabular-nums text-[var(--admin-accent)]">
+            {String(application.score).padStart(2, "0")}
+          </span>
+        ) : null}
       </div>
 
       {/* Row 2: role title */}
@@ -306,16 +271,6 @@ function CandidateCard({
         )}
       </div>
     </button>
-  );
-}
-
-function MetricCard({ label, value, hint }: { label: string; value: number | string; hint: string }) {
-  return (
-    <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
-      <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">{label}</p>
-      <div className="mt-3 text-[30px] font-semibold leading-none text-[var(--admin-text)]">{value}</div>
-      <p className="mt-3 text-[12.5px] text-[var(--admin-muted)]">{hint}</p>
-    </div>
   );
 }
 
@@ -351,7 +306,6 @@ function CandidateDrawer({
 }) {
   if (!application) return null;
 
-  const signal = candidateSignal(application);
   const answers = jsonEntries(application.custom_answers);
 
   return (
@@ -381,7 +335,7 @@ function CandidateDrawer({
             </button>
           </div>
           <div className="grid grid-cols-3 gap-3">
-            <MetricCard label="Score" value={`${signal}%`} hint={application.score == null ? "Auto signal" : "Manual rating"} />
+            <MetricCard label="Score" value={application.score == null ? "Not rated" : `${application.score}%`} hint="Reviewer rating" />
             <MetricCard label="Stage" value={statusLabels[application.status]} hint={statusNotes[application.status]} />
             <MetricCard label="Received" value={shortDateFmt.format(new Date(application.created_at))} hint="Application date" />
           </div>
@@ -635,15 +589,14 @@ export function ApplicationsBoard({ applications, staff }: { applications: Appli
   const assignedCount = mergedApplications.filter(
     (application) => application.owner_id,
   ).length;
+  const ratedApplications = mergedApplications.filter((application) => application.score != null);
   const averageScore =
-    mergedApplications.length > 0
+    ratedApplications.length > 0
       ? Math.round(
-          mergedApplications.reduce(
-            (total, application) => total + candidateSignal(application),
-            0,
-          ) / mergedApplications.length,
+          ratedApplications.reduce((total, application) => total + (application.score ?? 0), 0) /
+            ratedApplications.length,
         )
-      : 0;
+      : null;
 
   // ─── DnD sensors: 8px distance so click still opens drawer ───────────────
   const sensors = useSensors(
@@ -686,22 +639,15 @@ export function ApplicationsBoard({ applications, staff }: { applications: Appli
 
   return (
     <div className="flex flex-col gap-8">
-      <section className="grid gap-4 xl:grid-cols-[1fr_0.8fr]">
-        <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">Hiring OS</p>
-          <h2 className="mt-2 max-w-[13ch] text-[34px] font-semibold leading-[1.02] tracking-tight text-[var(--admin-text)]">
-            Build the bench without losing the thread.
-          </h2>
-          <p className="mt-4 max-w-[68ch] text-[14.5px] leading-relaxed text-[var(--admin-muted)]">
-            Every applicant becomes a dossier: role context, score, owner, private resume, internal notes, and stage history in one place.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <MetricCard label="Total" value={applications.length} hint="All applications" />
-          <MetricCard label="Active" value={activeCount} hint="Still in process" />
-          <MetricCard label="Assigned" value={assignedCount} hint="Owned dossiers" />
-          <MetricCard label="Avg Score" value={`${averageScore}%`} hint={`${interviewCount} interview+`} />
-        </div>
+      <section className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <MetricCard label="Total" value={applications.length} />
+        <MetricCard label="Active" value={activeCount} hint={`${interviewCount} interview+`} />
+        <MetricCard label="Assigned" value={assignedCount} />
+        <MetricCard
+          label="Avg score"
+          value={averageScore == null ? "—" : `${averageScore}%`}
+          hint={averageScore == null ? "None rated yet" : `${ratedApplications.length} rated`}
+        />
       </section>
 
       <section className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">

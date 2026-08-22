@@ -3,6 +3,7 @@ import { Badge } from "@/components/admin/ui/Badge";
 import { Button } from "@/components/admin/ui/Button";
 import { FieldRow, Input, Select, Textarea } from "@/components/admin/ui/Field";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
+import { MetricCard } from "@/components/admin/ui/Stats";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import {
@@ -31,16 +32,6 @@ const statusTones: Record<CampaignStatus, "neutral" | "blue" | "green" | "red" |
   sent: "green",
   failed: "red",
 };
-
-function MetricCard({ label, value, hint }: { label: string; value: number | string; hint: string }) {
-  return (
-    <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
-      <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">{label}</p>
-      <div className="mt-3 text-[30px] font-semibold leading-none text-[var(--admin-text)]">{value}</div>
-      <p className="mt-3 text-[12.5px] text-[var(--admin-muted)]">{hint}</p>
-    </div>
-  );
-}
 
 function audienceFromJson(value: unknown): CampaignAudience {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
@@ -110,21 +101,10 @@ export default async function CampaignsAdminPage() {
         </div>
       ) : null}
 
-      <section className="grid gap-4 xl:grid-cols-[1fr_0.85fr]">
-        <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">Mailing OS</p>
-          <h2 className="mt-2 max-w-[13ch] text-[34px] font-semibold leading-[1.02] tracking-tight text-[var(--admin-text)]">
-            One studio for careful dispatch.
-          </h2>
-          <p className="mt-4 max-w-[68ch] text-[14.5px] leading-relaxed text-[var(--admin-muted)]">
-            Campaigns use the shared SADEEM email shell, audience filters, unsubscribe suppression, and delivery tracking.
-          </p>
-        </div>
-        <div className="grid grid-cols-3 gap-3">
-          <MetricCard label="Eligible" value={eligibleCount} hint="Can receive mail" />
-          <MetricCard label="Opted out" value={unsubscribedCount} hint="Suppressed leads" />
-          <MetricCard label="Drafts" value={campaigns.filter((campaign) => campaign.status === "draft").length} hint="Not sent yet" />
-        </div>
+      <section className="grid grid-cols-2 gap-3 xl:grid-cols-3">
+        <MetricCard label="Eligible" value={eligibleCount} hint="Can receive mail" />
+        <MetricCard label="Opted out" value={unsubscribedCount} hint="Suppressed leads" />
+        <MetricCard label="Drafts" value={campaigns.filter((campaign) => campaign.status === "draft").length} hint="Not sent yet" />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">

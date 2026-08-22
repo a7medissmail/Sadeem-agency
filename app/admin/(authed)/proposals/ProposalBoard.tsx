@@ -5,6 +5,7 @@ import { useFormState } from "react-dom";
 import { Badge } from "@/components/admin/ui/Badge";
 import { Button } from "@/components/admin/ui/Button";
 import { FieldRow, Input, Select, Textarea } from "@/components/admin/ui/Field";
+import { FilterChip, MetricCard } from "@/components/admin/ui/Stats";
 import type { ProposalStatus } from "@/types/database";
 import {
   createProposalAction,
@@ -107,32 +108,6 @@ function isExpired(p: ProposalRow) {
 }
 
 // ─── Subcomponents ────────────────────────────────────────────────────────────
-
-function MetricCard({ label, value, hint }: { label: string; value: number | string; hint: string }) {
-  return (
-    <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
-      <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">{label}</p>
-      <div className="mt-3 text-[30px] font-semibold leading-none text-[var(--admin-text)]">{value}</div>
-      <p className="mt-3 text-[12.5px] text-[var(--admin-muted)]">{hint}</p>
-    </div>
-  );
-}
-
-function FilterChip({ active, children, onClick }: { active: boolean; children: string; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] transition-colors ${
-        active
-          ? "border-[var(--admin-accent)] bg-[var(--admin-accent-soft)] text-[var(--admin-text)]"
-          : "border-[var(--admin-border)] text-[var(--admin-muted)] hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]"
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
 
 function CopyButton({ text, label }: { text: string; label: string }) {
   const [copied, setCopied] = useState(false);
@@ -626,23 +601,11 @@ export function ProposalBoard({
   return (
     <div className="flex flex-col gap-8">
       {/* Hero + metrics */}
-      <section className="grid gap-4 xl:grid-cols-[1fr_0.8fr]">
-        <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">Proposal OS</p>
-          <h2 className="mt-2 max-w-[15ch] text-[34px] font-semibold leading-[1.02] tracking-tight text-[var(--admin-text)]">
-            Send briefs. Capture context. Close faster.
-          </h2>
-          <p className="mt-4 max-w-[68ch] text-[14.5px] leading-relaxed text-[var(--admin-muted)]">
-            Generate a private magic link for each client. They fill the brief on a clean branded portal.
-            You see the answers the moment they submit.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <MetricCard label="Draft" value={draftCount} hint="Not yet sent" />
-          <MetricCard label="Active" value={activeCount} hint="In client hands" />
-          <MetricCard label="Submitted" value={submittedCount} hint="Need review" />
-          <MetricCard label="Converted" value={convertedCount} hint="Moved to delivery" />
-        </div>
+      <section className="grid grid-cols-2 gap-3 xl:grid-cols-2">
+        <MetricCard label="Draft" value={draftCount} hint="Not yet sent" />
+        <MetricCard label="Active" value={activeCount} hint="In client hands" />
+        <MetricCard label="Submitted" value={submittedCount} hint="Need review" />
+        <MetricCard label="Converted" value={convertedCount} hint="Moved to delivery" />
       </section>
 
       {/* New token banner */}

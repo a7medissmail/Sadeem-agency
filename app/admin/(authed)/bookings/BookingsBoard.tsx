@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Badge } from "@/components/admin/ui/Badge";
 import { Button } from "@/components/admin/ui/Button";
 import { Input, Select } from "@/components/admin/ui/Field";
+import { FilterChip, MetricCard } from "@/components/admin/ui/Stats";
 import { bookingStatuses } from "@/lib/validation/booking";
 import type { BookingStatus } from "@/types/database";
 import {
@@ -100,51 +101,6 @@ function meetingState(booking: BookingBoardRow) {
   return "Needs link";
 }
 
-function bookingSignal(booking: BookingBoardRow) {
-  let score = 42;
-  if (booking.phone) score += 8;
-  if (booking.topic && booking.topic.length > 80) score += 16;
-  if (booking.google_event_id) score += 14;
-  if (booking.meet_link) score += 14;
-  if (booking.status === "completed") score += 12;
-  if (booking.status === "cancelled" || booking.status === "no_show") score -= 18;
-  return Math.max(10, Math.min(98, score));
-}
-
-function MetricCard({ label, value, hint }: { label: string; value: number | string; hint: string }) {
-  return (
-    <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
-      <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">{label}</p>
-      <div className="mt-3 text-[30px] font-semibold leading-none text-[var(--admin-text)]">{value}</div>
-      <p className="mt-3 text-[12.5px] text-[var(--admin-muted)]">{hint}</p>
-    </div>
-  );
-}
-
-function FilterChip({
-  active,
-  children,
-  onClick,
-}: {
-  active: boolean;
-  children: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] transition-colors ${
-        active
-          ? "border-[var(--admin-accent)] bg-[var(--admin-accent-soft)] text-[var(--admin-text)]"
-          : "border-[var(--admin-border)] text-[var(--admin-muted)] hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]"
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
-
 function BookingCard({
   booking,
   selected,
@@ -195,7 +151,6 @@ function BookingDossier({ booking, forms }: { booking: BookingBoardRow | null; f
     );
   }
 
-  const signal = bookingSignal(booking);
   const timeline = [
     { label: "Reserved", detail: dateFmt.format(new Date(booking.created_at)), done: true },
     { label: "Slot", detail: `${dateFmt.format(new Date(booking.slot_start))} - ${timeFmt.format(new Date(booking.slot_end))}`, done: true },
@@ -211,8 +166,8 @@ function BookingDossier({ booking, forms }: { booking: BookingBoardRow | null; f
           <h2 className="mt-2 text-[30px] font-semibold leading-none tracking-tight text-[var(--admin-text)]">{booking.name}</h2>
           <p className="mt-2 text-[13.5px] text-[var(--admin-muted)]">{dateFmt.format(new Date(booking.slot_start))}</p>
           <div className="mt-5 grid grid-cols-2 gap-3">
-            <MetricCard label="Signal" value={`${signal}%`} hint="Session readiness" />
             <MetricCard label="State" value={statusLabels[booking.status]} hint={statusNotes[booking.status]} />
+            <MetricCard label="Duration" value={`${minutesBetween(booking.slot_start, booking.slot_end)} min`} />
           </div>
         </header>
 
@@ -332,22 +287,9 @@ function AvailabilityRules({ rules }: { rules: AvailabilityRuleRow[] }) {
   const activeRules = rules.filter((rule) => rule.active).length;
   return (
     <section className="flex flex-col gap-4">
-      <div className="grid gap-4 xl:grid-cols-[0.8fr_1fr]">
-        <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">Availability</p>
-          <h2 className="mt-2 max-w-[12ch] text-[32px] font-semibold leading-[1.04] tracking-tight text-[var(--admin-text)]">
-            Public slots with guardrails.
-          </h2>
-          <p className="mt-4 text-[14px] leading-relaxed text-[var(--admin-muted)]">
-            These rules define the bookable windows shown on the consultation page. Keep them lean and predictable.
-          </p>
-        </div>
-        <div className="grid grid-cols-3 gap-3">
-          <MetricCard label="Rules" value={rules.length} hint="Configured windows" />
-          <MetricCard label="Active" value={activeRules} hint="Shown publicly" />
-          <MetricCard label="Default" value="45m" hint="Recommended slot length" />
-        </div>
-      </div>
+      <h2 className="font-mono text-[11px] uppercase tracking-[0.24em] text-[var(--admin-subtle)]">
+        Availability windows — {activeRules} of {rules.length} active
+      </h2>
 
       <form action={createAvailabilityRuleAction} className="grid gap-3 border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4 xl:grid-cols-[1fr_0.7fr_0.7fr_0.7fr_0.7fr_0.55fr_auto] xl:items-end">
         <RuleFields />
@@ -433,28 +375,25 @@ function CapacityGuardrails({
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="grid gap-4 xl:grid-cols-[0.8fr_1fr]">
-        <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">Capacity</p>
-          <h2 className="mt-2 max-w-[12ch] text-[32px] font-semibold leading-[1.04] tracking-tight text-[var(--admin-text)]">
-            How much of the week you sell.
-          </h2>
-          <p className="mt-4 text-[14px] leading-relaxed text-[var(--admin-muted)]">
-            Availability rules say <em>when</em> you can meet. These caps say <em>how often</em>. Once a week or day hits
-            its ceiling, every remaining slot in it disappears from the public calendar.
-          </p>
-        </div>
-        <div className="grid grid-cols-3 gap-3">
-          <MetricCard label="Weekly cap" value={capLabel} hint="Applies to scheduled bookings" />
-          {weekUsage.slice(0, 2).map((week, index) => (
-            <MetricCard
-              key={week.key}
-              label={index === 0 ? "This week" : "Next week"}
-              value={settings.max_per_week > 0 ? `${week.count}/${settings.max_per_week}` : week.count}
-              hint={`Week of ${week.label}`}
-            />
-          ))}
-        </div>
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <h2 className="font-mono text-[11px] uppercase tracking-[0.24em] text-[var(--admin-subtle)]">
+          Capacity — {capLabel}
+        </h2>
+        <p className="text-[12.5px] text-[var(--admin-muted)]">
+          When a week or day hits its cap, every remaining slot in it disappears from the public calendar.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-3">
+        <MetricCard label="Weekly cap" value={capLabel} hint="Counts scheduled bookings" />
+        {weekUsage.slice(0, 2).map((week, index) => (
+          <MetricCard
+            key={week.key}
+            label={index === 0 ? "This week" : "Next week"}
+            value={settings.max_per_week > 0 ? `${week.count}/${settings.max_per_week}` : week.count}
+            hint={`Week of ${week.label}`}
+          />
+        ))}
       </div>
 
       <form
@@ -620,22 +559,11 @@ export function BookingsBoard({
 
   return (
     <div className="flex flex-col gap-8">
-      <section className="grid gap-4 xl:grid-cols-[1fr_0.8fr]">
-        <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">Scheduling OS</p>
-          <h2 className="mt-2 max-w-[14ch] text-[34px] font-semibold leading-[1.02] tracking-tight text-[var(--admin-text)]">
-            Keep every conversation ready before it starts.
-          </h2>
-          <p className="mt-4 max-w-[68ch] text-[14.5px] leading-relaxed text-[var(--admin-muted)]">
-            Bookings now show the time, state, meeting readiness, visitor context, and manual follow-up controls in one command view.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <MetricCard label="Upcoming" value={upcomingCount} hint="Scheduled ahead" />
-          <MetricCard label="Needs link" value={needsLinkCount} hint="Manual link pending" />
-          <MetricCard label="Google" value={googleCount} hint="Calendar synced" />
-          <MetricCard label="Completed" value={completedCount} hint="Finished sessions" />
-        </div>
+      <section className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+        <MetricCard label="Upcoming" value={upcomingCount} hint="Scheduled ahead" />
+        <MetricCard label="Needs link" value={needsLinkCount} hint="Manual link pending" />
+        <MetricCard label="Google" value={googleCount} />
+        <MetricCard label="Completed" value={completedCount} />
       </section>
 
       <section className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">

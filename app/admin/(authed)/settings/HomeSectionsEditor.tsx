@@ -171,35 +171,14 @@ export function HomeSectionsEditor({ sections }: { sections: ResolvedHomeSection
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="grid gap-4 xl:grid-cols-[1fr_0.85fr]">
-        <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">Homepage</p>
-          <h2 className="mt-2 max-w-[14ch] text-[32px] font-semibold leading-[1.04] tracking-tight text-[var(--admin-text)]">
-            Compose the page, not the code.
-          </h2>
-          <p className="mt-4 max-w-[68ch] text-[14px] leading-relaxed text-[var(--admin-muted)]">
-            Drag to reorder, uncheck to hide. The editorial number on the left rail (01, 02, 03 …) is derived from
-            position among visible sections, so it re-numbers itself — it can never go out of sync again.
-          </p>
-          <p className="mt-3 max-w-[68ch] text-[13px] leading-relaxed text-[var(--admin-muted)]">
-            The dot shows each section&apos;s background. The page reads best when dark and light alternate — avoid
-            stacking three of the same tone in a row.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 gap-3 self-start">
-          <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Visible</p>
-            <div className="mt-3 text-[30px] font-semibold leading-none text-[var(--admin-text)]">{visibleCount}</div>
-            <p className="mt-3 text-[12.5px] text-[var(--admin-muted)]">Sections on the live page</p>
-          </div>
-          <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Hidden</p>
-            <div className="mt-3 text-[30px] font-semibold leading-none text-[var(--admin-text)]">
-              {entries.length - visibleCount}
-            </div>
-            <p className="mt-3 text-[12.5px] text-[var(--admin-muted)]">Kept, but not rendered</p>
-          </div>
-        </div>
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <h2 className="font-mono text-[11px] uppercase tracking-[0.24em] text-[var(--admin-subtle)]">
+          Homepage sections — {visibleCount} visible, {entries.length - visibleCount} hidden
+        </h2>
+        <p className="text-[12.5px] text-[var(--admin-muted)]">
+          Drag to reorder, uncheck to hide. Numbers re-flow automatically. ⚫⚪ = section background — keep dark and
+          light alternating.
+        </p>
       </div>
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>

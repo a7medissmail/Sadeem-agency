@@ -6,6 +6,7 @@ import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { deleteJobAction, toggleJobOpenAction } from "./actions";
 import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
+import { MetricCard } from "@/components/admin/ui/Stats";
 
 export const metadata = { title: "Careers - SADEEM Admin" };
 
@@ -39,16 +40,6 @@ async function loadJobs() {
   }
 }
 
-function MetricCard({ label, value, hint }: { label: string; value: number | string; hint: string }) {
-  return (
-    <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
-      <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">{label}</p>
-      <div className="mt-3 text-[30px] font-semibold leading-none text-[var(--admin-text)]">{value}</div>
-      <p className="mt-3 text-[12.5px] text-[var(--admin-muted)]">{hint}</p>
-    </div>
-  );
-}
-
 export default async function JobsAdminPage() {
   await requireRole(["admin", "editor", "viewer"]);
   const { jobs, formsById, error } = await loadJobs();
@@ -74,21 +65,10 @@ export default async function JobsAdminPage() {
         </div>
       ) : null}
 
-      <section className="grid gap-4 xl:grid-cols-[1fr_0.85fr]">
-        <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">Hiring OS</p>
-          <h2 className="mt-2 max-w-[13ch] text-[34px] font-semibold leading-[1.02] tracking-tight text-[var(--admin-text)]">
-            Define the seat before the pipeline fills.
-          </h2>
-          <p className="mt-4 max-w-[68ch] text-[14.5px] leading-relaxed text-[var(--admin-muted)]">
-            Roles are the source of truth for public careers pages and the candidate pipeline.
-          </p>
-        </div>
-        <div className="grid grid-cols-3 gap-3">
-          <MetricCard label="Total" value={jobs.length} hint="All roles" />
-          <MetricCard label="Open" value={openCount} hint="Accepting applications" />
-          <MetricCard label="Internships" value={internshipCount} hint="Early talent tracks" />
-        </div>
+      <section className="grid grid-cols-2 gap-3 xl:grid-cols-3">
+        <MetricCard label="Total" value={jobs.length} hint="All roles" />
+        <MetricCard label="Open" value={openCount} hint="Accepting applications" />
+        <MetricCard label="Internships" value={internshipCount} hint="Early talent tracks" />
       </section>
 
       {jobs.length === 0 ? (

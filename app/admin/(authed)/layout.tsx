@@ -27,10 +27,21 @@ export default async function AuthedAdminLayout({ children }: { children: ReactN
 
   return (
     <div className="admin-shell">
+      {/*
+        CSS-only nav disclosure. Below 1080px the sidebar used to render as a
+        full block above the content, so reaching the page meant scrolling past
+        all 17 links. Now it collapses to a brand row + Menu button.
+      */}
+      <input type="checkbox" id="admin-nav-toggle" className="admin-nav-checkbox" />
       <aside className="admin-sidebar">
         <div className="admin-sidebar-brand">
-          <p className="admin-kicker">SADEEM</p>
-          <p className="admin-brand-title">Operating System</p>
+          <div>
+            <p className="admin-kicker">SADEEM</p>
+            <p className="admin-brand-title">Admin</p>
+          </div>
+          <label htmlFor="admin-nav-toggle" className="admin-nav-toggle">
+            Menu
+          </label>
         </div>
 
         <nav className="admin-nav" aria-label="Admin navigation">
@@ -71,10 +82,6 @@ export default async function AuthedAdminLayout({ children }: { children: ReactN
 
       <main className="admin-main">
         <header className="admin-topbar">
-          <div>
-            <p className="admin-topbar-kicker">Admin command center</p>
-            <p className="admin-topbar-title">Operations</p>
-          </div>
           <AdminCommandCenter
             role={profile?.role ?? "viewer"}
             profileLabel={profileLabel}

@@ -3,6 +3,7 @@
 import { useTransition, useState } from "react";
 import { Badge } from "@/components/admin/ui/Badge";
 import { Button } from "@/components/admin/ui/Button";
+import { FilterChip } from "@/components/admin/ui/Stats";
 import type { FormSubmissionStatus } from "@/types/database";
 import { updateSubmissionStatusAction } from "../../actions";
 
@@ -297,33 +298,6 @@ function SubmissionDrawer({
 }
 
 // ─── Filter Chip ──────────────────────────────────────────────────────────────
-
-function FilterChip({
-  active,
-  count,
-  children,
-  onClick,
-}: {
-  active: boolean;
-  count?: number;
-  children: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] transition-colors ${
-        active
-          ? "border-[var(--admin-accent)] bg-[var(--admin-accent-soft)] text-[var(--admin-text)]"
-          : "border-[var(--admin-border)] text-[var(--admin-muted)] hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]"
-      }`}
-    >
-      {children}
-      {count !== undefined ? ` (${count})` : ""}
-    </button>
-  );
-}
 
 // ─── Main Board ───────────────────────────────────────────────────────────────
 
