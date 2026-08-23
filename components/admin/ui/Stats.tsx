@@ -42,7 +42,7 @@ export function FilterChip({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`sdm-eyebrow rounded-[var(--sdm-radius-md)] border px-3 py-2 transition-colors outline-none focus-visible:shadow-[var(--sdm-ring)] ${
+      className={`sdm-eyebrow rounded-[var(--sdm-radius-md)] border px-3 py-2 transition-colors outline-none focus-visible:shadow-[shadow:var(--sdm-ring)] ${
         active
           ? "border-[var(--sdm-border-selected)] bg-[var(--sdm-surface-selected)] text-[var(--admin-text)]"
           : "border-[var(--sdm-border-default)] text-[var(--admin-muted)] hover:border-[var(--sdm-border-strong)] hover:text-[var(--admin-text)]"

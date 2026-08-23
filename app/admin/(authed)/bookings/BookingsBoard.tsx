@@ -23,6 +23,8 @@ import { QuickBriefPanel, type BriefFormLite } from "@/components/admin/ui/Quick
 import { UserValue } from "@/components/admin/ui/UserValue";
 import { statusLadders } from "@/lib/admin/status";
 import { EmptyState } from "@/components/admin/ui/EmptyState";
+import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
+import { ConfirmSubmitButton } from "@/components/admin/ui/ConfirmSubmitButton";
 
 export type BookingBoardRow = {
   id: string;
@@ -158,7 +160,7 @@ function BookingDossier({ booking, forms }: { booking: BookingBoardRow | null; f
 
   return (
     <aside className="xl:sticky xl:top-24">
-      <div className="border border-[var(--admin-border)] bg-[var(--admin-surface-strong)] shadow-[var(--admin-shadow)]">
+      <div className="border border-[var(--admin-border)] bg-[var(--admin-surface-strong)] shadow-[shadow:var(--admin-shadow)]">
         <header className="border-b border-[var(--admin-border)] p-5">
           <p className="sdm-eyebrow text-[var(--admin-accent)]">Meeting dossier</p>
           <h2 className="mt-2 text-[30px] font-semibold leading-none tracking-tight text-[var(--admin-text)]"><UserValue>{booking.name}</UserValue></h2>
@@ -306,17 +308,14 @@ function AvailabilityRules({ rules }: { rules: AvailabilityRuleRow[] }) {
                 Save
               </Button>
             </form>
-            <form
+            <DeleteConfirmButton
               action={deleteAvailabilityRuleAction}
-              onSubmit={(e) => {
-                if (!window.confirm("Delete this availability rule? This cannot be undone.")) e.preventDefault();
-              }}
-            >
-              <input type="hidden" name="id" value={rule.id} />
-              <Button type="submit" variant="danger" className="w-full justify-center 2xl:w-auto">
-                Delete
-              </Button>
-            </form>
+              id={rule.id}
+              size="md"
+              objectName="this availability rule"
+              blastRadius="Slots this rule opened stop being offered. Consultations already booked into them are kept."
+              className="w-full justify-center 2xl:w-auto"
+            />
           </div>
         ))}
       </div>
@@ -499,17 +498,16 @@ function CapacityGuardrails({
                     <p className="mt-0.5 text-[12.5px] text-[var(--admin-muted)]">{blackout.reason}</p>
                   ) : null}
                 </div>
-                <form
+                <ConfirmSubmitButton
                   action={deleteBookingBlackoutAction}
-                  onSubmit={(e) => {
-                    if (!window.confirm("Remove this blackout range?")) e.preventDefault();
-                  }}
-                >
-                  <input type="hidden" name="id" value={blackout.id} />
-                  <Button type="submit" variant="ghost">
-                    Remove
-                  </Button>
-                </form>
+                  hidden={{ id: blackout.id }}
+                  label="Remove"
+                  size="md"
+                  variant="danger"
+                  title="Remove this blackout range?"
+                  body="The dates open back up for booking immediately."
+                  confirmLabel="Remove blackout"
+                />
               </li>
             ))}
           </ul>

@@ -20,6 +20,7 @@ import { FilterChip, MetricCard } from "@/components/admin/ui/Stats";
 import { applicationStatuses } from "@/lib/validation/careers";
 import type { ApplicationStatus, Json } from "@/types/database";
 import { statusLadders } from "@/lib/admin/status";
+import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
 import {
   addApplicationNoteAction,
   deleteApplicationAction,
@@ -306,7 +307,7 @@ function CandidateDrawer({
   return (
     <div className="fixed inset-0 z-[70] bg-black/55 backdrop-blur-sm" role="presentation" onMouseDown={onClose}>
       <aside
-        className="ms-auto flex h-full w-full max-w-[820px] flex-col border-s border-[var(--admin-border)] bg-[var(--admin-surface-strong)] shadow-[var(--admin-shadow)]"
+        className="ms-auto flex h-full w-full max-w-[820px] flex-col border-s border-[var(--admin-border)] bg-[var(--admin-surface-strong)] shadow-[shadow:var(--admin-shadow)]"
         role="dialog"
         aria-modal="true"
         aria-label={`Review ${application.name}`}
@@ -463,18 +464,15 @@ function CandidateDrawer({
                     Save stage
                   </Button>
                 </form>
-                <form
+                <DeleteConfirmButton
                   action={deleteApplicationAction}
-                  className="mt-3"
-                  onSubmit={(e) => {
-                    if (!window.confirm(`Delete ${application.name}'s application? This cannot be undone.`)) e.preventDefault();
-                  }}
-                >
-                  <input type="hidden" name="id" value={application.id} />
-                  <Button type="submit" variant="danger" size="sm" className="w-full justify-center">
-                    Delete application
-                  </Button>
-                </form>
+                  id={application.id}
+                  label="Delete application"
+                  objectName={`${application.name}'s application`}
+                  blastRadius="The candidate record, their answers and their uploaded files are removed. This cannot be undone."
+                  formClassName="mt-3"
+                  className="w-full justify-center"
+                />
               </div>
 
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">

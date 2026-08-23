@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useFormState } from "react-dom";
 import { Button } from "@/components/admin/ui/Button";
 import { Badge } from "@/components/admin/ui/Badge";
+import { ConfirmDialog } from "@/components/admin/ui/ConfirmDialog";
 import type { QuotationStatus } from "@/types/database";
 import {
   saveQuotationAction,
@@ -231,9 +232,35 @@ export function QuotationBuilder({
   const [isDeleting, startDelete] = useTransition();
   const [isRegen, startRegen] = useTransition();
 
+  /**
+   * These three actions live inside handlers rather than plain forms, so they
+   * take the dialog directly. One dialog, driven by whichever action is pending
+   * — window.confirm could not lay out what "the previously shared link will
+   * stop working" actually means to the client sitting on the other end.
+   */
+  const [pending, setPending] = useState<null | {
+    title: string;
+    body: string;
+    confirmLabel: string;
+    cancelLabel?: string;
+    variant?: "danger" | "primary";
+    run: () => void;
+  }>(null);
+
   function handleRegenerate() {
     if (!quotationId) return;
-    if (!window.confirm("Regenerate the link?\n\nThe previously shared link will STOP working. Use this only to revoke access — normal “Send” keeps the same link.")) return;
+    setPending({
+      title: "Regenerate the client's link?",
+      body: "The link already shared with the client stops working immediately and they will need the new one. Use this to revoke access — a normal Send reuses the same link and never breaks it.",
+      confirmLabel: "Regenerate link",
+      cancelLabel: "Keep current link",
+      variant: "danger",
+      run: () => runRegenerate(),
+    });
+  }
+
+  function runRegenerate() {
+    if (!quotationId) return;
     startRegen(async () => {
       const fd = new FormData();
       fd.set("id", quotationId);
@@ -300,12 +327,19 @@ export function QuotationBuilder({
           <button
             type="button"
             disabled={isDeleting}
-            onClick={() => {
-              if (!confirm("Delete this quotation? This cannot be undone.")) return;
-              const fd = new FormData();
-              fd.set("id", q.id);
-              startDelete(() => deleteQuotationAction(fd));
-            }}
+            onClick={() =>
+              setPending({
+                title: "Delete this quotation?",
+                body: "The line items, totals and terms are removed from the proposal. The proposal itself is kept.",
+                confirmLabel: "Delete quotation",
+                variant: "danger",
+                run: () => {
+                  const fd = new FormData();
+                  fd.set("id", q.id);
+                  startDelete(() => deleteQuotationAction(fd));
+                },
+              })
+            }
             className="sdm-eyebrow text-[var(--sdm-text-danger)] hover:text-[var(--sdm-text-danger)] transition-colors"
           >
             Delete
@@ -497,21 +531,27 @@ export function QuotationBuilder({
 
       {/* Send form */}
       {canSend && (
-        <form
-          action={(fd) => {
-            const merged = new FormData();
-            merged.set("id", quotationId!);
-            sendAction(merged);
-          }}
-          onSubmit={(e) => {
-            if (!window.confirm("Send this quotation to the client?\n\nThis emails the portal link. The link stays the same — re-sending a reminder won’t break it.")) {
-              e.preventDefault();
-            }
-          }}
-          className="qb-send-section"
-        >
+        <div className="qb-send-section">
           {sendState.error && <p className="qb-error">{sendState.error}</p>}
-          <Button type="submit" variant="outline" size="sm">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              setPending({
+                title: "Send this quotation to the client?",
+                body: "This emails the private portal link. The link stays the same, so re-sending a reminder later will not break it.",
+                confirmLabel: "Send quote",
+                cancelLabel: "Not yet",
+                variant: "primary",
+                run: () => {
+                  const merged = new FormData();
+                  merged.set("id", quotationId!);
+                  sendAction(merged);
+                },
+              })
+            }
+          >
             Send quote to client →
           </Button>
           <p className="qb-hint mt-1">Emails the client a private portal link. The same link is reused on re-send, so it never breaks.</p>
@@ -523,8 +563,23 @@ export function QuotationBuilder({
           >
             {isRegen ? "Regenerating…" : "Regenerate link (revoke old)"}
           </button>
-        </form>
+        </div>
       )}
+
+      <ConfirmDialog
+        open={pending !== null}
+        title={pending?.title ?? ""}
+        body={pending?.body ?? ""}
+        confirmLabel={pending?.confirmLabel ?? "Confirm"}
+        cancelLabel={pending?.cancelLabel}
+        confirmVariant={pending?.variant ?? "danger"}
+        onCancel={() => setPending(null)}
+        onConfirm={() => {
+          const run = pending?.run;
+          setPending(null);
+          run?.();
+        }}
+      />
     </div>
   );
 }

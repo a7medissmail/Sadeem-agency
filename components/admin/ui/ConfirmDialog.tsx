@@ -32,6 +32,8 @@ export function ConfirmDialog({
   cancelLabel = "Cancel",
   /** Require the exact object name to be typed. Only when other records are touched. */
   confirmText,
+  /** Irreversible is not always destructive — sending a campaign is primary, not red. */
+  confirmVariant = "danger",
   onConfirm,
   onCancel,
 }: {
@@ -41,6 +43,7 @@ export function ConfirmDialog({
   confirmLabel: string;
   cancelLabel?: string;
   confirmText?: string;
+  confirmVariant?: "danger" | "primary";
   onConfirm: () => void;
   onCancel: () => void;
 }) {
@@ -78,7 +81,7 @@ export function ConfirmDialog({
         // Click on the backdrop itself, not on the panel.
         if (e.target === ref.current) onCancel();
       }}
-      className="w-[min(460px,calc(100vw-32px))] rounded-[var(--sdm-radius-lg)] border border-[var(--sdm-border-strong)] bg-[var(--sdm-surface-overlay)] p-0 text-[var(--admin-text)] shadow-[var(--sdm-elevation-high)] backdrop:bg-[rgba(0,0,0,0.6)]"
+      className="w-[min(460px,calc(100vw-32px))] rounded-[var(--sdm-radius-lg)] border border-[var(--sdm-border-strong)] bg-[var(--sdm-surface-overlay)] p-0 text-[var(--admin-text)] shadow-[shadow:var(--sdm-elevation-high)] backdrop:bg-[rgba(0,0,0,0.6)]"
     >
       <div className="p-5">
         <h2 id={titleId} className="sdm-section-title">
@@ -106,7 +109,7 @@ export function ConfirmDialog({
           <Button ref={cancelRef} variant="secondary" onClick={onCancel}>
             {cancelLabel}
           </Button>
-          <Button variant="danger" disabled={!armed} onClick={onConfirm}>
+          <Button variant={confirmVariant} disabled={!armed} onClick={onConfirm}>
             {confirmLabel}
           </Button>
         </div>

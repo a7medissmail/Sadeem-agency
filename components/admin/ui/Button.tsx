@@ -26,7 +26,7 @@ const base = [
   "rounded-[var(--sdm-radius-md)] border",
   "font-semibold text-[13px] leading-4 tracking-[-0.005em]",
   "transition-[background-color,border-color,color,box-shadow] duration-[var(--sdm-motion-fast)] ease-[var(--sdm-ease)]",
-  "outline-none focus-visible:shadow-[var(--sdm-ring)]",
+  "outline-none focus-visible:shadow-[shadow:var(--sdm-ring)]",
   "disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none",
 ].join(" ");
 
@@ -66,7 +66,7 @@ const variants: Record<Variant, string> = {
     "bg-[color-mix(in_srgb,var(--sdm-action-danger)_10%,transparent)]",
     "text-[var(--sdm-text-danger)]",
     "hover:border-[var(--sdm-action-danger)] hover:bg-[var(--sdm-action-danger)] hover:text-[var(--sdm-text-primary)]",
-    "focus-visible:shadow-[var(--sdm-ring-danger)]",
+    "focus-visible:shadow-[shadow:var(--sdm-ring-danger)]",
   ].join(" "),
   link: [
     "border-transparent bg-transparent px-1 text-[var(--sdm-text-brand)]",

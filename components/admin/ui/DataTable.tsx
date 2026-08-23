@@ -156,7 +156,7 @@ export function DataTable<T>({
                   Columns
                 </Button>
                 {columnsOpen ? (
-                  <div className="absolute end-0 z-30 mt-1 min-w-[200px] rounded-[var(--sdm-radius-lg)] border border-[var(--sdm-border-strong)] bg-[var(--sdm-surface-overlay)] p-2 shadow-[var(--sdm-elevation-medium)]">
+                  <div className="absolute end-0 z-30 mt-1 min-w-[200px] rounded-[var(--sdm-radius-lg)] border border-[var(--sdm-border-strong)] bg-[var(--sdm-surface-overlay)] p-2 shadow-[shadow:var(--sdm-elevation-medium)]">
                     {columns.map((c, i) => (
                       <label
                         key={c.key}
@@ -227,7 +227,7 @@ export function DataTable<T>({
                           <button
                             type="button"
                             onClick={() => toggleSort(c)}
-                            className="inline-flex items-center gap-1 rounded-[var(--sdm-radius-sm)] outline-none transition-colors hover:text-[var(--admin-text)] focus-visible:shadow-[var(--sdm-ring)]"
+                            className="inline-flex items-center gap-1 rounded-[var(--sdm-radius-sm)] outline-none transition-colors hover:text-[var(--admin-text)] focus-visible:shadow-[shadow:var(--sdm-ring)]"
                           >
                             {c.label}
                             <span aria-hidden="true" className={active ? "" : "opacity-0"}>

@@ -1,29 +1,36 @@
 "use client";
 
+import { ConfirmSubmitButton } from "@/components/admin/ui/ConfirmSubmitButton";
 import { toggleMaintenanceModeAction } from "./actions";
 
+/**
+ * The one control in the tool that changes what every visitor sees. Turning it
+ * on is destructive to the public site's availability, so it confirms in red;
+ * turning it back off is a recovery and confirms in primary.
+ */
 export function MaintenanceToggle({ isOn }: { isOn: boolean }) {
-  return (
-    <form
+  return isOn ? (
+    <ConfirmSubmitButton
       action={toggleMaintenanceModeAction}
-      onSubmit={(e) => {
-        const msg = isOn
-          ? "Bring the site back online?"
-          : "Enable maintenance mode?\n\nAll public pages will immediately redirect to the maintenance page until you disable it.";
-        if (!window.confirm(msg)) e.preventDefault();
-      }}
-    >
-      <input type="hidden" name="enable" value={isOn ? "false" : "true"} />
-      <button
-        type="submit"
-        className={`px-5 py-2 sdm-eyebrow transition-colors ${
-          isOn
-            ? "bg-[var(--sdm-status-success)] text-white hover:bg-[var(--sdm-status-success)]"
-            : "bg-[var(--sdm-status-danger)] text-white hover:bg-[var(--sdm-status-danger)]"
-        }`}
-      >
-        {isOn ? "Bring site online" : "Enable maintenance mode"}
-      </button>
-    </form>
+      hidden={{ enable: "false" }}
+      label="Bring site online"
+      variant="primary"
+      size="md"
+      title="Bring the site back online?"
+      body="Public pages start serving again immediately."
+      confirmLabel="Bring online"
+    />
+  ) : (
+    <ConfirmSubmitButton
+      action={toggleMaintenanceModeAction}
+      hidden={{ enable: "true" }}
+      label="Enable maintenance mode"
+      variant="danger"
+      size="md"
+      title="Put the whole public site into maintenance?"
+      body="Every public page starts redirecting to the maintenance page immediately — the homepage, every service, every course, and the booking form. The admin stays reachable."
+      confirmLabel="Enable maintenance"
+      cancelLabel="Leave site up"
+    />
   );
 }

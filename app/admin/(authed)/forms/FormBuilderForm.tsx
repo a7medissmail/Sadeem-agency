@@ -28,6 +28,7 @@ import {
   slugifyForm,
 } from "@/lib/validation/formBuilder";
 import type { Database, FormFieldType, FormPurpose, Json } from "@/types/database";
+import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
 import {
   addFieldAction,
   createFormAction,
@@ -185,19 +186,15 @@ function FieldEditor({ field }: { field: FieldRowType }) {
             <SaveButton>Save field</SaveButton>
           </div>
         </form>
-        <form
+        <DeleteConfirmButton
           action={deleteFieldAction}
-          className="mt-3"
-          onSubmit={(e) => {
-            if (!window.confirm(`Delete field "${field.label}"? This cannot be undone.`)) e.preventDefault();
-          }}
-        >
-          <input type="hidden" name="id" value={field.id} />
-          <input type="hidden" name="form_id" value={field.form_id} />
-          <Button type="submit" variant="danger" size="sm">
-            Delete field
-          </Button>
-        </form>
+          id={field.id}
+          hidden={{ form_id: field.form_id }}
+          label="Delete field"
+          objectName={field.label}
+          blastRadius="Answers already submitted for this field stay in past responses, but the field stops being asked and stops appearing in exports."
+          formClassName="mt-3"
+        />
       </div>
     </details>
   );

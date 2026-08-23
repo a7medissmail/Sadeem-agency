@@ -47,7 +47,7 @@ function pageWindow(page: number, totalPages: number): (number | "gap")[] {
 }
 
 const slot =
-  "inline-flex h-[var(--sdm-control-sm)] min-w-[var(--sdm-control-sm)] items-center justify-center rounded-[var(--sdm-radius-md)] border px-2 sdm-metadata transition-colors outline-none focus-visible:shadow-[var(--sdm-ring)]";
+  "inline-flex h-[var(--sdm-control-sm)] min-w-[var(--sdm-control-sm)] items-center justify-center rounded-[var(--sdm-radius-md)] border px-2 sdm-metadata transition-colors outline-none focus-visible:shadow-[shadow:var(--sdm-ring)]";
 const idle =
   "border-[var(--sdm-border-default)] text-[var(--admin-muted)] hover:border-[var(--sdm-border-strong)] hover:text-[var(--admin-text)]";
 const current =

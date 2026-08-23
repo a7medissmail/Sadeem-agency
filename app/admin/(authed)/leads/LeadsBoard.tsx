@@ -32,6 +32,7 @@ import { UserValue } from "@/components/admin/ui/UserValue";
 import { statusLadders } from "@/lib/admin/status";
 import { DataTable, type Column } from "@/components/admin/ui/DataTable";
 import { EmptyState } from "@/components/admin/ui/EmptyState";
+import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
 
 type LeadNote = {
   id: string;
@@ -226,7 +227,7 @@ function LeadDrawer({
   return (
     <div className="fixed inset-0 z-[70] bg-black/55 backdrop-blur-sm" role="presentation" onMouseDown={onClose}>
       <aside
-        className="ms-auto flex h-full w-full max-w-[820px] flex-col border-s border-[var(--admin-border)] bg-[var(--admin-surface-strong)] shadow-[var(--admin-shadow)]"
+        className="ms-auto flex h-full w-full max-w-[820px] flex-col border-s border-[var(--admin-border)] bg-[var(--admin-surface-strong)] shadow-[shadow:var(--admin-shadow)]"
         role="dialog"
         aria-modal="true"
         aria-label={`Lead dossier for ${lead.name}`}
@@ -362,18 +363,15 @@ function LeadDrawer({
                     createBriefFromLeadAction(lead.id, formId, days, emailNow, locale)
                   }
                 />
-                <form
+                <DeleteConfirmButton
                   action={deleteLeadAction}
-                  className="mt-3"
-                  onSubmit={(e) => {
-                    if (!window.confirm(`Delete ${lead.name}? This cannot be undone.`)) e.preventDefault();
-                  }}
-                >
-                  <input type="hidden" name="id" value={lead.id} />
-                  <Button type="submit" variant="danger" size="sm" className="w-full justify-center">
-                    Delete lead
-                  </Button>
-                </form>
+                  id={lead.id}
+                  label="Delete lead"
+                  objectName={lead.name}
+                  blastRadius="The lead and every note logged against it are removed. Marking the lead lost keeps the record and the reason instead."
+                  formClassName="mt-3"
+                  className="w-full justify-center"
+                />
               </div>
             </aside>
           </div>
@@ -416,7 +414,7 @@ function leadColumns(staff: StaffRow[], open: (id: string) => void): Column<Lead
         <button
           type="button"
           onClick={() => open(l.id)}
-          className="truncate rounded-[var(--sdm-radius-sm)] text-start outline-none hover:text-[var(--sdm-text-brand)] focus-visible:shadow-[var(--sdm-ring)]"
+          className="truncate rounded-[var(--sdm-radius-sm)] text-start outline-none hover:text-[var(--sdm-text-brand)] focus-visible:shadow-[shadow:var(--sdm-ring)]"
         >
           <UserValue>{l.name}</UserValue>
         </button>

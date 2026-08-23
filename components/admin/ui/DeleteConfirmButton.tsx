@@ -1,18 +1,14 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { Button } from "./Button";
-import { ConfirmDialog } from "./ConfirmDialog";
+import { ConfirmSubmitButton } from "./ConfirmSubmitButton";
 
 /**
- * Guards a server-action delete behind a real confirmation.
+ * The delete preset over ConfirmSubmitButton.
  *
- * The form still posts without JS, so the progressive-enhancement behaviour is
- * unchanged; what changed is what JS users see. window.confirm could not name
- * the object in its own voice, could not state the blast radius, could not
- * label its button with the verb, and always focused OK — so Enter destroyed
- * the record. All four are audit findings, and all four are why deleting a
- * client was a two-pixel miss away.
+ * Names the object in the title, states the blast radius in the body, labels
+ * the confirm with the verb, and leaves Cancel holding focus — all four of
+ * which window.confirm could not do, which is why deleting a client record was
+ * a two-pixel miss away (audit finding A03).
  */
 export function DeleteConfirmButton({
   action,
@@ -26,60 +22,41 @@ export function DeleteConfirmButton({
   message,
   /** Require the name to be typed. Reserve it for deletes that touch other records. */
   typeToConfirm = false,
+  /** Extra fields the action needs beyond the id. */
+  hidden,
   size = "sm",
   className,
+  formClassName,
 }: {
-  action: (formData: FormData) => Promise<void>;
+  // Server actions return a promise; useFormState dispatchers return void.
+  action: (formData: FormData) => void | Promise<void>;
   id: string;
   label?: string;
   objectName?: string;
   blastRadius?: string;
   message?: string;
   typeToConfirm?: boolean;
+  hidden?: Record<string, string>;
   size?: "sm" | "md" | "lg";
   className?: string;
+  formClassName?: string;
 }) {
-  const [open, setOpen] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
-
-  const title = objectName ? `Delete ${objectName}?` : "Delete this record?";
-  const body =
-    blastRadius ??
-    message ??
-    "This record will be permanently removed. This cannot be undone.";
-
   return (
-    <>
-      <form ref={formRef} action={action}>
-        <input type="hidden" name="id" value={id} />
-        <Button
-          type="submit"
-          variant="danger"
-          size={size}
-          className={className}
-          onClick={(e) => {
-            // Without JS this never runs and the form submits as before.
-            e.preventDefault();
-            setOpen(true);
-          }}
-        >
-          {label}
-        </Button>
-      </form>
-
-      <ConfirmDialog
-        open={open}
-        title={title}
-        body={body}
-        confirmLabel={objectName ? `Delete ${objectName}` : label}
-        cancelLabel={objectName ? `Keep ${objectName}` : "Cancel"}
-        confirmText={typeToConfirm ? objectName : undefined}
-        onCancel={() => setOpen(false)}
-        onConfirm={() => {
-          setOpen(false);
-          formRef.current?.requestSubmit();
-        }}
-      />
-    </>
+    <ConfirmSubmitButton
+      action={action}
+      hidden={{ id, ...hidden }}
+      label={label}
+      title={objectName ? `Delete ${objectName}?` : "Delete this record?"}
+      body={
+        blastRadius ?? message ?? "This record will be permanently removed. This cannot be undone."
+      }
+      confirmLabel={objectName ? `Delete ${objectName}` : label}
+      cancelLabel={objectName ? `Keep ${objectName}` : "Cancel"}
+      confirmText={typeToConfirm ? objectName : undefined}
+      variant="danger"
+      size={size}
+      className={className}
+      formClassName={formClassName}
+    />
   );
 }

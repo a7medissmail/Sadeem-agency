@@ -29,7 +29,7 @@ export function SearchBar({ placeholder = "Search..." }: { placeholder?: string 
 
   return (
     <label
-      className={`flex min-h-[var(--sdm-control-lg)] items-center gap-3 rounded-[var(--sdm-radius-md)] border border-[var(--sdm-border-default)] bg-[var(--sdm-surface-base)] px-3 transition-opacity focus-within:border-[var(--sdm-border-focus)] focus-within:shadow-[var(--sdm-ring-field)] ${
+      className={`flex min-h-[var(--sdm-control-lg)] items-center gap-3 rounded-[var(--sdm-radius-md)] border border-[var(--sdm-border-default)] bg-[var(--sdm-surface-base)] px-3 transition-opacity focus-within:border-[var(--sdm-border-focus)] focus-within:shadow-[shadow:var(--sdm-ring-field)] ${
         isPending ? "opacity-60" : ""
       }`}
     >

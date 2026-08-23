@@ -125,7 +125,7 @@ export default function SettingsForm({ settings }: { settings: SettingsRow }) {
         </section>
       </div>
 
-      <aside className="h-fit border border-[var(--admin-border)] bg-[var(--admin-surface-strong)] p-5 shadow-[var(--admin-shadow)]">
+      <aside className="h-fit border border-[var(--admin-border)] bg-[var(--admin-surface-strong)] p-5 shadow-[shadow:var(--admin-shadow)]">
         <p className="sdm-eyebrow text-[var(--admin-accent)]">Notes</p>
         <div className="mt-4 space-y-4 text-[13.5px] leading-relaxed text-[var(--admin-muted)]">
           <p>Use transparent SVG or PNG logos. Keep both variants visually identical, only color changes.</p>

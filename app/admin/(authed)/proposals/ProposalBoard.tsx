@@ -22,6 +22,8 @@ import {
 import { QuotationBuilder, type QuotationRow } from "./QuotationBuilder";
 import { UserValue } from "@/components/admin/ui/UserValue";
 import { statusLadders } from "@/lib/admin/status";
+import { ConfirmSubmitButton } from "@/components/admin/ui/ConfirmSubmitButton";
+import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -212,7 +214,7 @@ function ProposalDrawer({
   return (
     <div className="fixed inset-0 z-[70] bg-black/55 backdrop-blur-sm" role="presentation" onMouseDown={onClose}>
       <aside
-        className="ms-auto flex h-full w-full max-w-[960px] flex-col border-s border-[var(--admin-border)] bg-[var(--admin-surface-strong)] shadow-[var(--admin-shadow)]"
+        className="ms-auto flex h-full w-full max-w-[960px] flex-col border-s border-[var(--admin-border)] bg-[var(--admin-surface-strong)] shadow-[shadow:var(--admin-shadow)]"
         role="dialog"
         aria-modal="true"
         aria-label={`Proposal: ${proposal.title}`}
@@ -397,16 +399,19 @@ function ProposalDrawer({
                   </Button>
                 </form>
                 {(proposal.status === "draft" || proposal.status === "sent") && (
-                  <form action={emailAction} className="mt-2" onSubmit={(e) => {
-                    if (!window.confirm(`Email the portal link to ${proposal.client_email}?\n\nThis regenerates the token and emails the client. Any previously shared link will stop working.`)) {
-                      e.preventDefault();
-                    }
-                  }}>
-                    <input type="hidden" name="id" value={proposal.id} />
-                    <Button type="submit" className="w-full justify-center">
-                      ✉ Email link to client
-                    </Button>
-                  </form>
+                  <ConfirmSubmitButton
+                    action={emailAction}
+                    hidden={{ id: proposal.id }}
+                    label="✉ Email link to client"
+                    variant="primary"
+                    size="md"
+                    title="Email the portal link to the client?"
+                    body={`This sends to ${proposal.client_email} and regenerates the access token. Any link shared earlier stops working immediately.`}
+                    confirmLabel="Send link"
+                    cancelLabel="Don't send"
+                    formClassName="mt-2"
+                    className="w-full justify-center"
+                  />
                 )}
                 {emailState.error ? (
                   <p className="mt-2 text-[12px] text-[var(--sdm-text-danger)]">{emailState.error}</p>
@@ -464,18 +469,16 @@ function ProposalDrawer({
               {/* Delete */}
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
                 <p className="sdm-eyebrow text-[var(--admin-subtle)]">Danger zone</p>
-                <form
+                <DeleteConfirmButton
                   action={deleteProposalAction}
-                  className="mt-4"
-                  onSubmit={(e) => {
-                    if (!window.confirm(`Delete proposal "${proposal.title}"? This cannot be undone.`)) e.preventDefault();
-                  }}
-                >
-                  <input type="hidden" name="id" value={proposal.id} />
-                  <Button type="submit" variant="danger" size="sm" className="w-full justify-center">
-                    Delete proposal
-                  </Button>
-                </form>
+                  id={proposal.id}
+                  label="Delete proposal"
+                  objectName={proposal.title}
+                  blastRadius="The proposal, its quotation and the client's portal link all go away. Any answers the client already submitted go with it."
+                  typeToConfirm
+                  formClassName="mt-4"
+                  className="w-full justify-center"
+                />
               </div>
 
             </aside>

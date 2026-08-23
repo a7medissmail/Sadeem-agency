@@ -27,9 +27,9 @@ const fieldBase = [
   "sdm-body-small outline-none",
   "transition-[border-color,box-shadow] duration-[var(--sdm-motion-fast)] ease-[var(--sdm-ease)]",
   "hover:border-[var(--sdm-border-strong)]",
-  "focus:border-[var(--sdm-border-focus)] focus:shadow-[var(--sdm-ring-field)]",
+  "focus:border-[var(--sdm-border-focus)] focus:shadow-[shadow:var(--sdm-ring-field)]",
   "aria-[invalid=true]:border-[var(--sdm-border-danger)]",
-  "aria-[invalid=true]:focus:shadow-[var(--sdm-ring-field-danger)]",
+  "aria-[invalid=true]:focus:shadow-[shadow:var(--sdm-ring-field-danger)]",
   "disabled:opacity-50 disabled:cursor-not-allowed",
 ].join(" ");
 
