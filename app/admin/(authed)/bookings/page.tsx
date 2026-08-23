@@ -154,11 +154,11 @@ export default async function BookingsAdminPage({
         <SearchBar placeholder="Name, email, topic…" />
       </Suspense>
 
-      {totalCount > 0 ? (
-        <p className="text-[12px] text-[var(--admin-muted)]">
-          {totalCount} booking{totalCount !== 1 ? "s" : ""}
-          {q ? ` matching "${q}"` : ""}{" "}
-          {totalPages > 1 ? `— page ${page} of ${totalPages}` : ""}
+      {/* The count and the page position moved into the pagination itself, which
+          is where someone looks for them — this line said the same thing twice. */}
+      {totalCount > 0 && q ? (
+        <p className="sdm-metadata text-[var(--admin-muted)]">
+          Matching &ldquo;{q}&rdquo;
         </p>
       ) : null}
 
@@ -175,6 +175,9 @@ export default async function BookingsAdminPage({
         page={page}
         totalPages={totalPages}
         basePath="/admin/bookings"
+        total={totalCount}
+        pageSize={PAGE_SIZE}
+        unit="consultations"
         queryParams={q ? { q } : {}}
       />
     </div>

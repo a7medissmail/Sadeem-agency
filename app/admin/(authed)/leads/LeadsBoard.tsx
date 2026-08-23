@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -30,6 +30,8 @@ import { Textarea } from "@/components/admin/ui/Field";
 import { QuickBriefPanel, type BriefFormLite } from "@/components/admin/ui/QuickBrief";
 import { UserValue } from "@/components/admin/ui/UserValue";
 import { statusLadders } from "@/lib/admin/status";
+import { DataTable, type Column } from "@/components/admin/ui/DataTable";
+import { EmptyState } from "@/components/admin/ui/EmptyState";
 
 type LeadNote = {
   id: string;
@@ -381,9 +383,125 @@ function LeadDrawer({
   );
 }
 
+/**
+ * Board or table.
+ *
+ * The design system's flagship screen renders Leads as a table, and it is right
+ * about what the board cannot do: sort, bulk-assign, show a total, or answer
+ * "who has been untouched for a week". But dragging a lead between stages is
+ * genuinely faster than any table, so the board stays.
+ *
+ * Table is the default because triage is the daily job and stage-moving is the
+ * occasional one. The choice is a personal working preference rather than
+ * something worth sharing in a URL, so it lives in localStorage — unlike the
+ * search query, which is deliberately in the URL so it can be sent to someone.
+ */
+/**
+ * The column rules, made concrete:
+ *   · column one is the human identifier and opens the detail view
+ *   · stage sits in the first three, because it is what people scan for
+ *   · dates are mono with tabular figures so they align down the column
+ *   · owner is optional — six visible columns is the ceiling
+ *   · nothing sorts on a value the list does not actually hold
+ */
+function leadColumns(staff: StaffRow[], open: (id: string) => void): Column<LeadBoardRow>[] {
+  return [
+    {
+      key: "name",
+      label: "Lead",
+      width: "2fr",
+      priority: 1,
+      sortValue: (l) => l.name,
+      cell: (l) => (
+        <button
+          type="button"
+          onClick={() => open(l.id)}
+          className="truncate rounded-[var(--sdm-radius-sm)] text-start outline-none hover:text-[var(--sdm-text-brand)] focus-visible:shadow-[var(--sdm-ring)]"
+        >
+          <UserValue>{l.name}</UserValue>
+        </button>
+      ),
+    },
+    {
+      key: "stage",
+      label: "Stage",
+      width: "140px",
+      priority: 1,
+      sortValue: (l) => statuses.indexOf(l.status),
+      cell: (l) => <Badge tone={statusTones[l.status]}>{statusLabels[l.status]}</Badge>,
+    },
+    {
+      key: "email",
+      label: "Email",
+      width: "2fr",
+      priority: 2,
+      sortValue: (l) => l.email,
+      cell: (l) => <span className="truncate text-[var(--admin-muted)]">{l.email}</span>,
+    },
+    {
+      key: "company",
+      label: "Company",
+      width: "1.5fr",
+      priority: 3,
+      optional: true,
+      sortValue: (l) => l.company,
+      cell: (l) => <UserValue>{l.company || "—"}</UserValue>,
+    },
+    {
+      key: "source",
+      label: "Source",
+      width: "140px",
+      priority: 2,
+      sortValue: (l) => l.source,
+      cell: (l) => <span className="text-[var(--admin-muted)]">{sourceLabels[l.source]}</span>,
+    },
+    {
+      key: "owner",
+      label: "Owner",
+      width: "160px",
+      priority: 3,
+      sortValue: (l) => ownerName(l, staff),
+      cell: (l) => <UserValue>{ownerName(l, staff)}</UserValue>,
+    },
+    {
+      key: "created",
+      label: "Created",
+      width: "150px",
+      priority: 1,
+      mono: true,
+      align: "end",
+      sortValue: (l) => l.created_at,
+      cell: (l) => (
+        <time dateTime={l.created_at} className="text-[var(--admin-muted)]">
+          {shortDateFmt.format(new Date(l.created_at))}
+        </time>
+      ),
+    },
+  ];
+}
+
+type LeadsView = "table" | "board";
+const VIEW_KEY = "sadeem-admin-leads-view";
+
+function useLeadsView(): [LeadsView, (v: LeadsView) => void] {
+  const [view, setView] = useState<LeadsView>("table");
+  useEffect(() => {
+    const stored = window.localStorage.getItem(VIEW_KEY);
+    if (stored === "board" || stored === "table") setView(stored);
+  }, []);
+  return [
+    view,
+    (v) => {
+      setView(v);
+      window.localStorage.setItem(VIEW_KEY, v);
+    },
+  ];
+}
+
 export function LeadsBoard({ leads, staff, forms }: { leads: LeadBoardRow[]; staff: StaffRow[]; forms: BriefFormLite[] }) {
   const router = useRouter();
   const [, startTransition] = useTransition();
+  const [view, setView] = useLeadsView();
 
   // Optimistic overrides: id → new status, applied while server action is in flight
   const [optimistic, setOptimistic] = useState<Record<string, LeadStatus>>({});
@@ -476,8 +594,17 @@ export function LeadsBoard({ leads, staff, forms }: { leads: LeadBoardRow[]; sta
         <MetricCard label="Assigned" value={assignedCount} />
       </section>
 
-      <section className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
+      <section className="rounded-[var(--sdm-radius-lg)] border border-[var(--sdm-border-default)] bg-[var(--admin-panel)] p-4">
         <div className="flex flex-wrap items-center justify-end gap-3">
+          <div className="me-auto flex items-center gap-1">
+            <FilterChip active={view === "table"} onClick={() => setView("table")}>
+              Table
+            </FilterChip>
+            <FilterChip active={view === "board"} onClick={() => setView("board")}>
+              Board
+            </FilterChip>
+          </div>
+
           <Select value={source} onChange={(event) => setSource(event.target.value as LeadSource | "all")} aria-label="Filter by source">
             <option value="all">All sources</option>
             {sources.map((sourceOption) => (
@@ -498,6 +625,76 @@ export function LeadsBoard({ leads, staff, forms }: { leads: LeadBoardRow[]; sta
         </div>
       </section>
 
+      {view === "table" ? (
+        <DataTable
+          rows={filtered}
+          getRowId={(lead) => lead.id}
+          caption="Leads"
+          columns={leadColumns(staff, setSelectedId)}
+          rowActions={(lead) => (
+            <Button variant="ghost" size="sm" onClick={() => setSelectedId(lead.id)}>
+              Open
+            </Button>
+          )}
+          bulkActions={(ids, clear) => (
+            <Select
+              aria-label="Move selected leads to a stage"
+              value=""
+              onChange={(event) => {
+                const stage = event.target.value as LeadStatus;
+                if (!stage) return;
+                setOptimistic((prev) => {
+                  const next = { ...prev };
+                  for (const id of ids) next[id] = stage;
+                  return next;
+                });
+                clear();
+                startTransition(async () => {
+                  // moveLeadAction is the positional form the board already
+                  // uses for drag-and-drop; the FormData variant is for the
+                  // no-JS form in the drawer.
+                  await Promise.all(ids.map((id) => moveLeadAction(id, stage)));
+                  router.refresh();
+                });
+              }}
+            >
+              <option value="">Change stage…</option>
+              {statuses.map((stage) => (
+                <option key={stage} value={stage}>
+                  {statusLabels[stage]}
+                </option>
+              ))}
+            </Select>
+          )}
+          empty={
+            status === "all" && source === "all" ? (
+              <EmptyState
+                title="No leads yet"
+                hint="Leads arrive from the homepage form, the consultation booking and workshop signups."
+              />
+            ) : (
+              <EmptyState
+                kind="filtered"
+                title="No leads match these filters"
+                hint={`${mergedLeads.length} leads exist. Stage is ${
+                  status === "all" ? "any" : statusLabels[status]
+                } and source is ${source === "all" ? "any" : sourceLabels[source]}.`}
+                action={
+                  <Button
+                    variant="tertiary"
+                    onClick={() => {
+                      setStatus("all");
+                      setSource("all");
+                    }}
+                  >
+                    Clear filters
+                  </Button>
+                }
+              />
+            )
+          }
+        />
+      ) : (
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="overflow-x-auto pb-3">
           <div className="grid min-w-[1320px] grid-cols-[repeat(5,minmax(250px,1fr))] gap-4">
@@ -542,6 +739,7 @@ export function LeadsBoard({ leads, staff, forms }: { leads: LeadBoardRow[]; sta
           ) : null}
         </DragOverlay>
       </DndContext>
+      )}
 
       <LeadDrawer lead={selected} staff={staff} forms={forms} onClose={() => setSelectedId(null)} />
     </div>
