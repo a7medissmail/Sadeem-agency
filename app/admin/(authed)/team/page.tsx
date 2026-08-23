@@ -75,7 +75,7 @@ export default async function TeamAdminPage() {
                     </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/78 via-black/12 to-transparent" />
-                  <div className="absolute left-4 top-4 flex items-center gap-2">
+                  <div className="absolute start-4 top-4 flex items-center gap-2">
                     <Badge tone={member.is_active ? "green" : "neutral"}>{member.is_active ? "Live" : "Off"}</Badge>
                     <span className="sdm-eyebrow text-white/60">#{member.sort_order}</span>
                   </div>

@@ -20,6 +20,7 @@ import {
   updateBookingStatusAction,
 } from "./actions";
 import { QuickBriefPanel, type BriefFormLite } from "@/components/admin/ui/QuickBrief";
+import { UserValue } from "@/components/admin/ui/UserValue";
 
 export type BookingBoardRow = {
   id: string;
@@ -115,7 +116,7 @@ function BookingCard({
     <button
       type="button"
       onClick={onOpen}
-      className={`grid w-full gap-4 border bg-[var(--admin-panel)] p-4 text-left transition-colors md:grid-cols-[116px_1fr_auto] md:items-center ${
+      className={`grid w-full gap-4 border bg-[var(--admin-panel)] p-4 text-start transition-colors md:grid-cols-[116px_1fr_auto] md:items-center ${
         selected ? "border-[var(--admin-accent)]" : "border-[var(--admin-border)] hover:border-[var(--admin-accent)] hover:bg-[var(--admin-panel-hover)]"
       }`}
     >
@@ -127,7 +128,7 @@ function BookingCard({
 
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="truncate text-[16px] font-semibold text-[var(--admin-text)]">{booking.name}</p>
+          <p className="truncate text-[16px] font-semibold text-[var(--admin-text)]"><UserValue>{booking.name}</UserValue></p>
           <Badge tone={statusTones[booking.status]}>{statusLabels[booking.status]}</Badge>
         </div>
         <p className="mt-1 truncate font-mono text-[11px] text-[var(--admin-subtle)]">{booking.email}</p>
@@ -163,7 +164,7 @@ function BookingDossier({ booking, forms }: { booking: BookingBoardRow | null; f
       <div className="border border-[var(--admin-border)] bg-[var(--admin-surface-strong)] shadow-[var(--admin-shadow)]">
         <header className="border-b border-[var(--admin-border)] p-5">
           <p className="sdm-eyebrow text-[var(--admin-accent)]">Meeting dossier</p>
-          <h2 className="mt-2 text-[30px] font-semibold leading-none tracking-tight text-[var(--admin-text)]">{booking.name}</h2>
+          <h2 className="mt-2 text-[30px] font-semibold leading-none tracking-tight text-[var(--admin-text)]"><UserValue>{booking.name}</UserValue></h2>
           <p className="mt-2 text-[13.5px] text-[var(--admin-muted)]">{dateFmt.format(new Date(booking.slot_start))}</p>
           <div className="mt-5 grid grid-cols-2 gap-3">
             <MetricCard label="State" value={statusLabels[booking.status]} hint={statusNotes[booking.status]} />

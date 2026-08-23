@@ -7,6 +7,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { deleteSuccessStoryAction, toggleSuccessStoryPublishedAction } from "./actions";
 import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
 import { MetricCard } from "@/components/admin/ui/Stats";
+import { UserValue } from "@/components/admin/ui/UserValue";
 
 export const metadata = { title: "Success Stories - SADEEM Admin" };
 
@@ -71,7 +72,12 @@ export default async function SuccessStoriesAdminPage() {
                   </Link>
                   <p className="mt-2 sdm-eyebrow text-[var(--admin-subtle)]">
                     /{story.slug}
-                    {story.client_name ? ` / ${story.client_name}` : ""}
+                    {story.client_name ? (
+                      <>
+                        {" / "}
+                        <UserValue>{story.client_name}</UserValue>
+                      </>
+                    ) : null}
                   </p>
                 </div>
                 <Badge tone={story.is_published ? "green" : "neutral"}>{story.is_published ? "Live" : "Off"}</Badge>
@@ -81,7 +87,7 @@ export default async function SuccessStoriesAdminPage() {
                 <p className="sdm-eyebrow text-[var(--admin-accent)]">Headline metric</p>
                 <p className="mt-2 text-[30px] font-semibold leading-none text-[var(--admin-text)]">
                   {story.metric_value || "-"}
-                  {story.metric_label ? <span className="ml-2 text-[14px] font-normal text-[var(--admin-muted)]">{story.metric_label}</span> : null}
+                  {story.metric_label ? <span className="ms-2 text-[14px] font-normal text-[var(--admin-muted)]">{story.metric_label}</span> : null}
                 </p>
               </div>
 

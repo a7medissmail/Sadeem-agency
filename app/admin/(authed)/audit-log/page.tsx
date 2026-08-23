@@ -49,12 +49,12 @@ export default async function AuditLogPage() {
           <table className="w-full text-[13px]">
             <thead>
               <tr className="border-b border-[var(--admin-border)] bg-[var(--admin-panel-hover)]">
-                <th className="px-4 py-3 text-left sdm-eyebrow text-[var(--admin-subtle)]">When</th>
-                <th className="px-4 py-3 text-left sdm-eyebrow text-[var(--admin-subtle)]">Actor</th>
-                <th className="px-4 py-3 text-left sdm-eyebrow text-[var(--admin-subtle)]">Action</th>
-                <th className="px-4 py-3 text-left sdm-eyebrow text-[var(--admin-subtle)]">Table</th>
-                <th className="px-4 py-3 text-left sdm-eyebrow text-[var(--admin-subtle)]">Record</th>
-                <th className="px-4 py-3 text-left sdm-eyebrow text-[var(--admin-subtle)]">Detail</th>
+                <th className="px-4 py-3 text-start sdm-eyebrow text-[var(--admin-subtle)]">When</th>
+                <th className="px-4 py-3 text-start sdm-eyebrow text-[var(--admin-subtle)]">Actor</th>
+                <th className="px-4 py-3 text-start sdm-eyebrow text-[var(--admin-subtle)]">Action</th>
+                <th className="px-4 py-3 text-start sdm-eyebrow text-[var(--admin-subtle)]">Table</th>
+                <th className="px-4 py-3 text-start sdm-eyebrow text-[var(--admin-subtle)]">Record</th>
+                <th className="px-4 py-3 text-start sdm-eyebrow text-[var(--admin-subtle)]">Detail</th>
               </tr>
             </thead>
             <tbody>

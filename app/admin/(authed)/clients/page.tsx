@@ -137,7 +137,7 @@ export default async function ClientsAdminPage({
           </div>
         ) : (
           <div className="overflow-hidden border border-[var(--admin-border)] bg-[var(--admin-panel)]">
-            <table className="w-full text-left text-[13.5px]">
+            <table className="w-full text-start text-[13.5px]">
               <thead className="border-b border-[var(--admin-border)] bg-[var(--admin-surface-strong)]">
                 <tr className="sdm-eyebrow text-[var(--admin-subtle)]">
                   <th className="px-4 py-3">Logo</th>
@@ -145,7 +145,7 @@ export default async function ClientsAdminPage({
                   <th className="px-4 py-3">Role</th>
                   <th className="px-4 py-3">Order</th>
                   <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
+                  <th className="px-4 py-3 text-end">Actions</th>
                 </tr>
               </thead>
               <tbody>

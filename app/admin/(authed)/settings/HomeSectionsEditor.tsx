@@ -78,14 +78,14 @@ function SortableSection({
             <p className={`text-[14px] ${entry.enabled ? "text-[var(--admin-text)]" : "text-[var(--admin-subtle)]"}`}>
               {entry.label}
               {entry.locked ? (
-                <span className="ml-2 sdm-eyebrow text-[var(--admin-subtle)]">
+                <span className="ms-2 sdm-eyebrow text-[var(--admin-subtle)]">
                   Locked
                 </span>
               ) : null}
             </p>
             <p className="mt-0.5 text-[12px] text-[var(--admin-muted)]">
               {entry.hint}
-              {entry.anchor ? <span className="ml-2 font-mono text-[11px]">/#{entry.anchor}</span> : null}
+              {entry.anchor ? <span className="ms-2 font-mono text-[11px]">/#{entry.anchor}</span> : null}
             </p>
           </div>
         </div>

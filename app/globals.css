@@ -5266,6 +5266,16 @@ section.team-roster {
   --sdm-control-md: 36px;
   --sdm-control-lg: 44px;
 
+  /*
+   * Font stacks — audit finding A06.
+   * Geist has no Arabic coverage, so Plex Arabic sits directly behind it and
+   * the browser falls through per glyph. A mixed string renders Latin in Geist
+   * and Arabic in Plex without anyone switching a class. Plex is already in the
+   * root layout's font link, so this costs nothing to adopt.
+   */
+  --sdm-font-sans: "Geist", "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --sdm-font-mono: "Geist Mono", ui-monospace, "IBM Plex Sans Arabic", monospace;
+
   /* ---------- 3. Bridge ---------- */
 
   /*
@@ -5291,6 +5301,7 @@ section.team-roster {
   --admin-danger: var(--sdm-text-danger);
   --admin-shadow: var(--sdm-elevation-overlay);
 
+  font-family: var(--sdm-font-sans);
   color: var(--admin-text);
   background:
     radial-gradient(760px 480px at 12% -10%, rgba(255, 106, 0, 0.07), transparent 64%),
@@ -5328,14 +5339,14 @@ section.team-roster {
 .sdm-nav-item,
 .sdm-button-label,
 .sdm-table-cell {
-  font-family: var(--font-sans);
+  font-family: var(--sdm-font-sans);
   text-transform: none;
 }
 
 .sdm-metadata,
 .sdm-table-header,
 .sdm-eyebrow {
-  font-family: var(--font-mono);
+  font-family: var(--sdm-font-mono);
 }
 
 .sdm-display {
@@ -5446,16 +5457,63 @@ section.team-roster {
  * joins that make the script readable, so the tracked styles collapse to plain
  * Plex Arabic. This is the whole reason the label style had to change: there
  * was no non-tracked label token to switch to.
+ *
+ * The same reset covers the admin chrome's own tracked classes, which carry
+ * their font declarations locally rather than through the scale.
  */
-:lang(ar) .sdm-eyebrow,
-:lang(ar) .sdm-table-header,
-:lang(ar) .sdm-metadata,
-.sdm-eyebrow:lang(ar),
-.sdm-table-header:lang(ar),
-.sdm-metadata:lang(ar) {
-  font-family: "IBM Plex Sans Arabic", var(--font-sans);
+/* Both forms are needed: Arabic on an ancestor (the shell switched over) and
+   Arabic on the element itself (one Arabic value inside English chrome). */
+:lang(ar) :is(
+    .sdm-eyebrow,
+    .sdm-table-header,
+    .sdm-metadata,
+    .admin-kicker,
+    .admin-nav-group-label,
+    .admin-profile-role,
+    .admin-signout,
+    .admin-topbar-kicker,
+    .admin-section-kicker,
+    .admin-role-pill,
+    .admin-palette-group,
+    .admin-nav-toggle
+  ),
+:is(
+    .sdm-eyebrow,
+    .sdm-table-header,
+    .sdm-metadata,
+    .admin-kicker,
+    .admin-nav-group-label,
+    .admin-profile-role,
+    .admin-signout,
+    .admin-topbar-kicker,
+    .admin-section-kicker,
+    .admin-role-pill,
+    .admin-palette-group,
+    .admin-nav-toggle
+  ):lang(ar) {
+  font-family: "IBM Plex Sans Arabic", var(--sdm-font-sans);
   letter-spacing: 0;
   text-transform: none;
+}
+
+/*
+ * Bidi isolation — every value a user typed.
+ * An Arabic client name dropped into an English row reorders the whole row
+ * without this: the trailing punctuation and any Latin fragment migrate to the
+ * wrong end. <bdi> is the element form; this class is for the cases where an
+ * extra element is not welcome. Both are cheap and neither depends on the
+ * admin ever being switched to Arabic — the names are already Arabic today.
+ */
+.sdm-user-value {
+  unicode-bidi: isolate;
+}
+
+/*
+ * Directional icons mirror; everything else does not. Clocks, logos, media
+ * controls and spinners keep their orientation in both directions.
+ */
+[dir="rtl"] .sdm-mirror {
+  transform: scaleX(-1);
 }
 
 /*
@@ -5493,7 +5551,7 @@ section.team-roster {
   flex-direction: column;
   gap: 18px;
   padding: 20px 14px;
-  border-right: 1px solid var(--admin-border);
+  border-inline-end: 1px solid var(--admin-border);
   background:
     linear-gradient(180deg, rgba(255,106,0,0.035), transparent 26%),
     var(--admin-surface-strong);
@@ -5526,7 +5584,7 @@ section.team-roster {
 .admin-profile-role,
 .admin-signout,
 .admin-role-pill {
-  font-family: var(--font-mono);
+  font-family: var(--sdm-font-mono);
   text-transform: uppercase;
 }
 
@@ -5609,8 +5667,18 @@ section.team-roster {
   box-shadow: inset 2px 0 0 var(--sdm-nav-active-bar);
 }
 
+/* box-shadow has no logical form. An inset border would shift the label by a
+   pixel, so the offset is mirrored explicitly instead. */
+[dir="rtl"] .admin-nav-link.is-active {
+  box-shadow: inset -2px 0 0 var(--sdm-nav-active-bar);
+}
+
 .admin-nav-link.is-active:focus-visible {
   box-shadow: inset 2px 0 0 var(--sdm-nav-active-bar), var(--sdm-ring);
+}
+
+[dir="rtl"] .admin-nav-link.is-active:focus-visible {
+  box-shadow: inset -2px 0 0 var(--sdm-nav-active-bar), var(--sdm-ring);
 }
 
 /*
@@ -5766,7 +5834,7 @@ section.team-roster {
   background: var(--admin-panel);
   color: var(--admin-muted);
   cursor: text;
-  text-align: left;
+  text-align: start;
   transition: border-color 0.22s ease, background 0.22s ease, color 0.22s ease;
 }
 
@@ -5973,7 +6041,7 @@ section.team-roster {
   font-size: 16px;
   background: var(--admin-panel);
   border: 1px solid var(--admin-border);
-  border-right: none;
+  border-inline-end: none;
   transition: color 0.1s, background 0.1s;
   touch-action: none;
   user-select: none;
@@ -5989,7 +6057,7 @@ section.team-roster {
 .admin-activity-popover {
   position: absolute;
   top: calc(100% + 12px);
-  right: 0;
+  inset-inline-end: 0;
   z-index: 45;
   width: min(380px, calc(100vw - 32px));
   max-height: min(620px, calc(100vh - 104px));
@@ -6169,7 +6237,7 @@ section.team-roster {
   color: var(--admin-text);
   padding: 12px 10px;
   cursor: pointer;
-  text-align: left;
+  text-align: start;
 }
 
 .admin-palette-item.is-active,

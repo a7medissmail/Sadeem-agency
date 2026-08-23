@@ -78,7 +78,7 @@ export default async function CoursesAdminPage() {
                     </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/78 via-black/18 to-transparent" />
-                  <div className="absolute left-4 top-4">
+                  <div className="absolute start-4 top-4">
                     <Badge tone={course.is_active ? "green" : "neutral"}>{course.is_active ? "Live" : "Off"}</Badge>
                   </div>
                 </div>

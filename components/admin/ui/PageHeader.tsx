@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { UserValue } from "@/components/admin/ui/UserValue";
 
 export function PageHeader({
   eyebrow,
@@ -20,7 +21,10 @@ export function PageHeader({
           action, so it is neutral now.
         */}
         {eyebrow ? <p className="sdm-eyebrow text-[var(--sdm-text-tertiary)]">{eyebrow}</p> : null}
-        <h1 className="sdm-page-title mt-2">{title}</h1>
+        {/* On every detail page this H1 is a record name the user typed. */}
+        <h1 className="sdm-page-title mt-2">
+          <UserValue>{title}</UserValue>
+        </h1>
         {description ? (
           <p className="sdm-body mt-2 text-[var(--admin-muted)] max-w-[60ch]">{description}</p>
         ) : null}

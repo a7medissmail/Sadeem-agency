@@ -20,6 +20,7 @@ import {
   type RegenerateTokenState,
 } from "./actions";
 import { QuotationBuilder, type QuotationRow } from "./QuotationBuilder";
+import { UserValue } from "@/components/admin/ui/UserValue";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -151,7 +152,7 @@ function ProposalCard({
       <div className="mb-3 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-[15px] font-semibold text-[var(--admin-text)]">{proposal.title}</p>
-          <p className="mt-1 truncate text-[12.5px] text-[var(--admin-muted)]">{proposal.client_name}</p>
+          <p className="mt-1 truncate text-[12.5px] text-[var(--admin-muted)]"><UserValue>{proposal.client_name}</UserValue></p>
         </div>
         <Badge tone={STATUS_TONES[proposal.status]}>{STATUS_LABELS[proposal.status]}</Badge>
       </div>
@@ -219,7 +220,7 @@ function ProposalDrawer({
   return (
     <div className="fixed inset-0 z-[70] bg-black/55 backdrop-blur-sm" role="presentation" onMouseDown={onClose}>
       <aside
-        className="ml-auto flex h-full w-full max-w-[960px] flex-col border-l border-[var(--admin-border)] bg-[var(--admin-surface-strong)] shadow-[var(--admin-shadow)]"
+        className="ms-auto flex h-full w-full max-w-[960px] flex-col border-s border-[var(--admin-border)] bg-[var(--admin-surface-strong)] shadow-[var(--admin-shadow)]"
         role="dialog"
         aria-modal="true"
         aria-label={`Proposal: ${proposal.title}`}
@@ -234,7 +235,7 @@ function ProposalDrawer({
                 {proposal.title}
               </h2>
               <p className="mt-2 text-[14px] text-[var(--admin-muted)]">
-                {proposal.client_name}
+                <UserValue>{proposal.client_name}</UserValue>
                 {proposal.client_company ? ` · ${proposal.client_company}` : ""}
               </p>
             </div>
@@ -376,7 +377,7 @@ function ProposalDrawer({
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
                 <p className="sdm-eyebrow text-[var(--admin-subtle)]">Client</p>
                 <div className="mt-4 space-y-1">
-                  <p className="text-[15px] font-semibold text-[var(--admin-text)]">{proposal.client_name}</p>
+                  <p className="text-[15px] font-semibold text-[var(--admin-text)]"><UserValue>{proposal.client_name}</UserValue></p>
                   {proposal.client_company && (
                     <p className="text-[13px] text-[var(--admin-muted)]">{proposal.client_company}</p>
                   )}
@@ -444,7 +445,7 @@ function ProposalDrawer({
                     <li key={item.label} className="relative flex gap-4 pb-5 last:pb-0">
                       {/* connector line */}
                       {i < arr.length - 1 && (
-                        <span className={`absolute left-[7px] top-4 h-full w-px ${item.done ? "bg-[var(--admin-accent)]/40" : "bg-[var(--admin-border)]"}`} />
+                        <span className={`absolute start-[7px] top-4 h-full w-px ${item.done ? "bg-[var(--admin-accent)]/40" : "bg-[var(--admin-border)]"}`} />
                       )}
                       <span className={`relative mt-1 h-3.5 w-3.5 shrink-0 rounded-full border-2 ${
                         item.done

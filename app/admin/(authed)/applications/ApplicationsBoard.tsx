@@ -230,7 +230,7 @@ function CandidateCard({
     <button
       type="button"
       onClick={onOpen}
-      className={`group w-full border bg-[var(--admin-surface-strong)] px-3 py-2.5 text-left transition-colors ${
+      className={`group w-full border bg-[var(--admin-surface-strong)] px-3 py-2.5 text-start transition-colors ${
         selected
           ? "border-[var(--admin-accent)]"
           : "border-[var(--admin-border)] hover:border-[var(--admin-accent)]"
@@ -311,7 +311,7 @@ function CandidateDrawer({
   return (
     <div className="fixed inset-0 z-[70] bg-black/55 backdrop-blur-sm" role="presentation" onMouseDown={onClose}>
       <aside
-        className="ml-auto flex h-full w-full max-w-[820px] flex-col border-l border-[var(--admin-border)] bg-[var(--admin-surface-strong)] shadow-[var(--admin-shadow)]"
+        className="ms-auto flex h-full w-full max-w-[820px] flex-col border-s border-[var(--admin-border)] bg-[var(--admin-surface-strong)] shadow-[var(--admin-shadow)]"
         role="dialog"
         aria-modal="true"
         aria-label={`Review ${application.name}`}

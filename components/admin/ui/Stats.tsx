@@ -49,7 +49,7 @@ export function FilterChip({
       }`}
     >
       {children}
-      {count != null ? <span className="ml-2 opacity-60">{count}</span> : null}
+      {count != null ? <span className="ms-2 opacity-60">{count}</span> : null}
     </button>
   );
 }

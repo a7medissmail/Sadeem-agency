@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { getCurrentProfile } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { loadBadgeCounts } from "@/lib/admin/signals";
+import { UserValue } from "@/components/admin/ui/UserValue";
 
 export const metadata = { title: "Dashboard - SADEEM Admin" };
 
@@ -188,7 +189,7 @@ export default async function AdminDashboard() {
             data.upcomingBookings.map((booking) => (
               <div key={booking.id} className="border-b border-[var(--admin-border-soft)] px-4 py-3 last:border-0">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="truncate text-[14px] text-[var(--admin-text)]">{booking.name}</p>
+                  <p className="truncate text-[14px] text-[var(--admin-text)]"><UserValue>{booking.name}</UserValue></p>
                   <span className="shrink-0 sdm-eyebrow text-[var(--admin-subtle)]">
                     {booking.meet_link ? "Linked" : "No link"}
                   </span>
@@ -208,7 +209,7 @@ export default async function AdminDashboard() {
             data.recentLeads.map((lead) => (
               <div key={lead.id} className="border-b border-[var(--admin-border-soft)] px-4 py-3 last:border-0">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="truncate text-[14px] text-[var(--admin-text)]">{lead.name}</p>
+                  <p className="truncate text-[14px] text-[var(--admin-text)]"><UserValue>{lead.name}</UserValue></p>
                   <span className="shrink-0 sdm-eyebrow text-[var(--admin-accent)]">{lead.status}</span>
                 </div>
                 <p className="mt-1 sdm-eyebrow text-[var(--admin-subtle)]">

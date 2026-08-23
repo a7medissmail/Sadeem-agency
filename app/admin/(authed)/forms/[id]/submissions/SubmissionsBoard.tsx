@@ -81,7 +81,7 @@ function CopyButton({ text }: { text: string }) {
           setTimeout(() => setCopied(false), 2000);
         });
       }}
-      className="ml-1.5 font-mono text-[10px] text-[var(--admin-accent)] hover:underline"
+      className="ms-1.5 font-mono text-[10px] text-[var(--admin-accent)] hover:underline"
     >
       {copied ? "copied" : "copy"}
     </button>
@@ -173,7 +173,7 @@ function SubmissionDrawer({
       />
 
       {/* Drawer */}
-      <aside className="fixed inset-y-0 right-0 z-50 flex w-full max-w-3xl flex-col overflow-y-auto bg-[var(--admin-bg)] shadow-2xl">
+      <aside className="fixed inset-y-0 end-0 z-50 flex w-full max-w-3xl flex-col overflow-y-auto bg-[var(--admin-bg)] shadow-2xl">
         {/* Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--admin-border)] bg-[var(--admin-bg)] px-6 py-4">
           <div>
