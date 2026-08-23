@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 export function TableShell({ children }: { children: ReactNode }) {
   return (
-    <section className="border border-[var(--admin-border)] rounded-xl bg-[var(--admin-panel)] overflow-hidden">
+    <section className="border border-[var(--sdm-border-default)] rounded-[var(--sdm-radius-lg)] bg-[var(--admin-panel)] overflow-hidden">
       {children}
     </section>
   );
@@ -10,7 +10,7 @@ export function TableShell({ children }: { children: ReactNode }) {
 
 export function TableHeader({ children }: { children: ReactNode }) {
   return (
-    <div className="grid gap-4 px-5 py-3 border-b border-[var(--admin-border)] font-mono text-[10px] tracking-[0.2em] uppercase text-[var(--admin-subtle)]">
+    <div className="sdm-table-header grid gap-4 px-3 py-3 border-b border-[var(--sdm-border-default)] text-[var(--sdm-text-tertiary)]">
       {children}
     </div>
   );
@@ -18,7 +18,7 @@ export function TableHeader({ children }: { children: ReactNode }) {
 
 export function TableRow({ children }: { children: ReactNode }) {
   return (
-    <div className="grid gap-4 px-5 py-3 items-center border-b border-[var(--admin-border-soft)] last:border-0 text-[13.5px]">
+    <div className="sdm-table-cell grid min-h-[44px] gap-4 px-3 items-center border-b border-[var(--sdm-border-subtle)] last:border-0">
       {children}
     </div>
   );

@@ -110,7 +110,7 @@ export default async function CampaignsAdminPage() {
       <section className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
         <form action={createCampaignAction} className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
           <div className="mb-5">
-            <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--admin-accent)]">Compose</p>
+            <p className="sdm-eyebrow text-[var(--admin-accent)]">Compose</p>
             <h2 className="mt-2 text-xl font-semibold">New campaign</h2>
             <p className="mt-1 text-[13px] text-[var(--admin-muted)]">
               Body is sent in the SADEEM email system. Plain text is safest; basic pasted HTML is cleaned before sending.
@@ -178,7 +178,7 @@ export default async function CampaignsAdminPage() {
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <h3 className="text-[20px] font-semibold leading-tight text-[var(--admin-text)]">{campaign.subject}</h3>
-                        <div className="mt-2 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-subtle)]">
+                        <div className="mt-2 sdm-eyebrow text-[var(--admin-subtle)]">
                       {dateFmt.format(new Date(campaign.created_at))}
                         </div>
                       </div>
@@ -188,15 +188,15 @@ export default async function CampaignsAdminPage() {
 
                   <div className="mt-5 grid grid-cols-3 gap-3 border-y border-[var(--admin-border-soft)] py-4">
                     <div>
-                      <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Audience</p>
+                      <p className="sdm-eyebrow text-[var(--admin-subtle)]">Audience</p>
                       <p className="mt-1 text-[13px] text-[var(--admin-muted)]">{count} leads</p>
                     </div>
                     <div>
-                      <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Filter</p>
+                      <p className="sdm-eyebrow text-[var(--admin-subtle)]">Filter</p>
                       <p className="mt-1 text-[13px] text-[var(--admin-muted)]">{campaignAudienceLabel(audience)}</p>
                     </div>
                     <div>
-                      <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Delivery</p>
+                      <p className="sdm-eyebrow text-[var(--admin-subtle)]">Delivery</p>
                       <p className="mt-1 text-[13px] text-[var(--admin-muted)]">
                         {sent} sent{failed ? <span className="text-red-300"> / {failed} failed</span> : null}
                       </p>

@@ -29,7 +29,7 @@ export function AdminPagination({ page, totalPages, basePath, queryParams = {} }
     "cursor-not-allowed border border-[var(--admin-border)] px-4 py-2 text-[var(--admin-muted)] opacity-30";
 
   return (
-    <div className="flex items-center justify-between gap-4 border-t border-[var(--admin-border)] pt-5 font-mono text-[11px] uppercase tracking-[0.18em]">
+    <div className="flex items-center justify-between gap-4 border-t border-[var(--admin-border)] pt-5 sdm-eyebrow">
       <span className="text-[var(--admin-muted)]">
         Page {page} / {totalPages}
       </span>

@@ -28,7 +28,7 @@ export default function InviteForm() {
       className="flex max-w-[760px] flex-col gap-4 border border-[var(--admin-border)] bg-[var(--admin-panel)] p-6"
     >
       <div>
-        <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-accent)]">Invite a staff user</p>
+        <p className="sdm-eyebrow text-[var(--admin-accent)]">Invite a staff user</p>
         <h2 className="mt-2 text-[18px] font-semibold tracking-tight text-[var(--admin-text)]">New user</h2>
         <p className="mt-1 text-[13px] text-[var(--admin-muted)]">
           They&apos;ll receive an email from Supabase to set their password. Roles can be changed any time.

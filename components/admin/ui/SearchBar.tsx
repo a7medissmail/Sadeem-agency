@@ -29,13 +29,13 @@ export function SearchBar({ placeholder = "Search..." }: { placeholder?: string 
 
   return (
     <label
-      className={`flex min-h-[44px] items-center gap-3 border border-[var(--admin-border)] bg-[var(--admin-surface-strong)] px-3 transition-opacity ${
+      className={`flex min-h-[var(--sdm-control-lg)] items-center gap-3 rounded-[var(--sdm-radius-md)] border border-[var(--sdm-border-default)] bg-[var(--sdm-surface-base)] px-3 transition-opacity focus-within:border-[var(--sdm-border-focus)] focus-within:shadow-[var(--sdm-ring-field)] ${
         isPending ? "opacity-60" : ""
       }`}
     >
-      <span className="shrink-0 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)]">
-        Search
-      </span>
+      {/* A01 — "Search" was one of the nine jobs the accent was doing. It is a
+          label on a box, not the action on the page. */}
+      <span className="sdm-eyebrow shrink-0 text-[var(--sdm-text-tertiary)]">Search</span>
       <input
         // key resets the uncontrolled input when the URL changes externally
         key={searchParams.get("q") ?? ""}
@@ -45,10 +45,10 @@ export function SearchBar({ placeholder = "Search..." }: { placeholder?: string 
           timerRef.current = setTimeout(() => push(e.target.value), 380);
         }}
         placeholder={placeholder}
-        className="min-w-0 flex-1 bg-transparent text-[14px] text-[var(--admin-text)] outline-none placeholder:text-[var(--admin-subtle)]"
+        className="sdm-body-small min-w-0 flex-1 bg-transparent text-[var(--admin-text)] outline-none placeholder:text-[var(--admin-subtle)]"
       />
       {isPending && (
-        <span className="shrink-0 animate-pulse font-mono text-[10px] text-[var(--admin-subtle)]">
+        <span className="sdm-metadata shrink-0 animate-pulse text-[var(--admin-subtle)]">
           …
         </span>
       )}

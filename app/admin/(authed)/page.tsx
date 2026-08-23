@@ -77,8 +77,8 @@ function Panel({ title, href, children }: { title: string; href: string; childre
   return (
     <section className="overflow-hidden rounded-xl border border-[var(--admin-border)] bg-[var(--admin-panel)]">
       <div className="flex items-center justify-between border-b border-[var(--admin-border)] px-4 py-3">
-        <h2 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-muted)]">{title}</h2>
-        <Link href={href} className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)] hover:brightness-110">
+        <h2 className="sdm-eyebrow text-[var(--admin-muted)]">{title}</h2>
+        <Link href={href} className="sdm-eyebrow text-[var(--admin-accent)] hover:brightness-110">
           Open
         </Link>
       </div>
@@ -118,7 +118,7 @@ function CountTile({
           : "border-[var(--admin-border)] bg-[var(--admin-panel)] hover:border-[var(--admin-accent)]"
       }`}
     >
-      <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--admin-subtle)]">{label}</div>
+      <div className="sdm-eyebrow text-[var(--admin-subtle)]">{label}</div>
       <div className="mt-3 flex items-baseline gap-2">
         <span className={`text-[34px] font-semibold leading-none tracking-tight ${hot ? "text-[var(--admin-accent)]" : "text-[var(--admin-text)]"}`}>
           {needsAction}
@@ -159,7 +159,7 @@ export default async function AdminDashboard() {
             <Link
               key={action.href}
               href={action.href}
-              className="border border-[var(--admin-border)] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-muted)] transition-colors hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]"
+              className="border border-[var(--admin-border)] px-3 py-2 sdm-eyebrow text-[var(--admin-muted)] transition-colors hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]"
             >
               {action.label}
             </Link>
@@ -189,11 +189,11 @@ export default async function AdminDashboard() {
               <div key={booking.id} className="border-b border-[var(--admin-border-soft)] px-4 py-3 last:border-0">
                 <div className="flex items-center justify-between gap-3">
                   <p className="truncate text-[14px] text-[var(--admin-text)]">{booking.name}</p>
-                  <span className="shrink-0 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-subtle)]">
+                  <span className="shrink-0 sdm-eyebrow text-[var(--admin-subtle)]">
                     {booking.meet_link ? "Linked" : "No link"}
                   </span>
                 </div>
-                <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-accent)]">
+                <p className="mt-1 sdm-eyebrow text-[var(--admin-accent)]">
                   {dateFmt.format(new Date(booking.slot_start))}
                 </p>
               </div>
@@ -209,9 +209,9 @@ export default async function AdminDashboard() {
               <div key={lead.id} className="border-b border-[var(--admin-border-soft)] px-4 py-3 last:border-0">
                 <div className="flex items-center justify-between gap-3">
                   <p className="truncate text-[14px] text-[var(--admin-text)]">{lead.name}</p>
-                  <span className="shrink-0 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-accent)]">{lead.status}</span>
+                  <span className="shrink-0 sdm-eyebrow text-[var(--admin-accent)]">{lead.status}</span>
                 </div>
-                <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-subtle)]">
+                <p className="mt-1 sdm-eyebrow text-[var(--admin-subtle)]">
                   {lead.source} / {dateFmt.format(new Date(lead.created_at))}
                 </p>
               </div>
@@ -227,9 +227,9 @@ export default async function AdminDashboard() {
               <div key={application.id} className="border-b border-[var(--admin-border-soft)] px-4 py-3 last:border-0">
                 <div className="flex items-center justify-between gap-3">
                   <p className="truncate text-[14px] text-[var(--admin-text)]">{application.name}</p>
-                  <span className="shrink-0 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-accent)]">{application.status}</span>
+                  <span className="shrink-0 sdm-eyebrow text-[var(--admin-accent)]">{application.status}</span>
                 </div>
-                <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-subtle)]">
+                <p className="mt-1 sdm-eyebrow text-[var(--admin-subtle)]">
                   {dateFmt.format(new Date(application.created_at))}
                 </p>
               </div>

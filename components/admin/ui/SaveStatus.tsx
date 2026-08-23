@@ -9,11 +9,12 @@ import type { AutoSaveStatus } from "@/components/admin/hooks/useAutoSave";
 export function SaveStatus({ status, error }: { status: AutoSaveStatus; error?: string | null }) {
   if (status === "idle") return null;
 
+  // A08 — status colour comes from the Sadeem ramp, not from Tailwind defaults.
   const color =
     status === "saved"
-      ? "text-emerald-400"
+      ? "text-[var(--sdm-text-success)]"
       : status === "error"
-        ? "text-red-300"
+        ? "text-[var(--sdm-text-danger)]"
         : "text-[var(--admin-muted)]";
 
   const dot =
@@ -34,7 +35,7 @@ export function SaveStatus({ status, error }: { status: AutoSaveStatus; error?: 
     <div
       role="status"
       aria-live="polite"
-      className={`flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] transition-colors ${color}`}
+      className={`sdm-eyebrow flex items-center gap-2 transition-colors ${color}`}
     >
       {dot}
       <span>{label}</span>

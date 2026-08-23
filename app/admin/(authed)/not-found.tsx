@@ -9,7 +9,7 @@ export default function AdminNotFound() {
   return (
     <div className="flex flex-col items-start gap-8 py-16">
       <div>
-        <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">
+        <p className="sdm-eyebrow text-[var(--admin-accent)]">
           ERR · 404
         </p>
         <h1 className="mt-3 text-[40px] font-semibold leading-none tracking-tight text-[var(--admin-text)]">

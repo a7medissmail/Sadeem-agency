@@ -188,7 +188,7 @@ function LeadCard({
       </p>
 
       {/* Row 2: source dot + label · date · optional note badge */}
-      <div className="mt-1.5 flex items-center gap-1.5 font-mono text-[9.5px] uppercase tracking-[0.14em] text-[var(--admin-subtle)]">
+      <div className="mt-1.5 flex items-center gap-1.5 sdm-eyebrow text-[var(--admin-subtle)]">
         <SourceDot source={lead.source} />
         <span>{sourceLabels[lead.source]}</span>
         <span className="opacity-40">·</span>
@@ -237,7 +237,7 @@ function LeadDrawer({
         <header className="border-b border-[var(--admin-border)] p-6">
           <div className="mb-5 flex items-start justify-between gap-5">
             <div className="min-w-0">
-              <p className="font-mono text-[10px] uppercase tracking-[0.26em] text-[var(--admin-accent)]">Lead dossier</p>
+              <p className="sdm-eyebrow text-[var(--admin-accent)]">Lead dossier</p>
               <h2 className="mt-2 truncate text-[34px] font-semibold leading-none tracking-tight text-[var(--admin-text)]">
                 {lead.name}
               </h2>
@@ -246,7 +246,7 @@ function LeadDrawer({
             <button
               type="button"
               onClick={onClose}
-              className="border border-[var(--admin-border)] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-muted)] hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]"
+              className="border border-[var(--admin-border)] px-3 py-2 sdm-eyebrow text-[var(--admin-muted)] hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]"
             >
               Close
             </button>
@@ -262,7 +262,7 @@ function LeadDrawer({
           <div className="grid gap-5 lg:grid-cols-[1fr_0.82fr]">
             <section className="space-y-5">
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-                <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Message</h3>
+                <h3 className="sdm-eyebrow text-[var(--admin-subtle)]">Message</h3>
                 <p className="mt-4 whitespace-pre-wrap text-[14px] leading-relaxed text-[var(--admin-muted)]">
                   {lead.message || "No message was submitted."}
                 </p>
@@ -270,8 +270,8 @@ function LeadDrawer({
 
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
                 <div className="flex items-center justify-between gap-3">
-                  <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Notes</h3>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)]">
+                  <h3 className="sdm-eyebrow text-[var(--admin-subtle)]">Notes</h3>
+                  <span className="sdm-eyebrow text-[var(--admin-accent)]">
                     {String(lead.notes.length).padStart(2, "0")}
                   </span>
                 </div>
@@ -291,7 +291,7 @@ function LeadDrawer({
                     lead.notes.map((note) => (
                       <article key={note.id} className="border border-[var(--admin-border-soft)] bg-[var(--admin-surface-strong)] p-4">
                         <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-[var(--admin-muted)]">{note.note}</p>
-                        <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-subtle)]">
+                        <p className="mt-3 sdm-eyebrow text-[var(--admin-subtle)]">
                           {note.author?.full_name ?? "Staff"} / {dateFmt.format(new Date(note.created_at))}
                         </p>
                       </article>
@@ -304,7 +304,7 @@ function LeadDrawer({
 
             <aside className="space-y-5">
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-                <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Contact</h3>
+                <h3 className="sdm-eyebrow text-[var(--admin-subtle)]">Contact</h3>
                 <div className="mt-4 space-y-3 text-[13px]">
                   <a href={`mailto:${lead.email}`} className="block break-all text-[var(--admin-text)] hover:text-[var(--admin-accent)]">
                     {lead.email}
@@ -319,7 +319,7 @@ function LeadDrawer({
               </div>
 
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-                <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Stage control</h3>
+                <h3 className="sdm-eyebrow text-[var(--admin-subtle)]">Stage control</h3>
                 <form action={updateLeadStatusAction} className="mt-4 space-y-3">
                   <input type="hidden" name="id" value={lead.id} />
                   <Select name="status" defaultValue={lead.status} className="w-full">
@@ -351,10 +351,10 @@ function LeadDrawer({
               </div>
 
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-                <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Actions</h3>
+                <h3 className="sdm-eyebrow text-[var(--admin-subtle)]">Actions</h3>
                 <a
                   href={`mailto:${lead.email}?subject=${encodeURIComponent("Following up from SADEEM")}`}
-                  className="mt-4 inline-flex w-full justify-center border border-[var(--admin-accent)] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)] hover:bg-[var(--admin-accent-soft)]"
+                  className="mt-4 inline-flex w-full justify-center border border-[var(--admin-accent)] px-3 py-2 sdm-eyebrow text-[var(--admin-accent)] hover:bg-[var(--admin-accent-soft)]"
                 >
                   Email lead
                 </a>

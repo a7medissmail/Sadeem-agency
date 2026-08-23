@@ -115,7 +115,7 @@ export default async function ClientsAdminPage({
       </section>
 
       <section>
-        <h2 className="mb-4 font-mono text-[11px] uppercase tracking-[0.24em] text-[var(--admin-subtle)]">
+        <h2 className="mb-4 sdm-eyebrow text-[var(--admin-subtle)]">
           Section text
         </h2>
         <ClientSectionForm section={section} />
@@ -123,10 +123,10 @@ export default async function ClientsAdminPage({
 
       <section>
         <div className="mb-4 flex items-end justify-between gap-3">
-          <h2 className="font-mono text-[11px] uppercase tracking-[0.24em] text-[var(--admin-subtle)]">
+          <h2 className="sdm-eyebrow text-[var(--admin-subtle)]">
             Partner list
           </h2>
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--admin-subtle)]">
+          <p className="sdm-eyebrow text-[var(--admin-subtle)]">
             {partners.length} {partners.length === 1 ? "record" : "records"}
           </p>
         </div>
@@ -139,7 +139,7 @@ export default async function ClientsAdminPage({
           <div className="overflow-hidden border border-[var(--admin-border)] bg-[var(--admin-panel)]">
             <table className="w-full text-left text-[13.5px]">
               <thead className="border-b border-[var(--admin-border)] bg-[var(--admin-surface-strong)]">
-                <tr className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--admin-subtle)]">
+                <tr className="sdm-eyebrow text-[var(--admin-subtle)]">
                   <th className="px-4 py-3">Logo</th>
                   <th className="px-4 py-3">Name</th>
                   <th className="px-4 py-3">Role</th>
@@ -185,7 +185,7 @@ export default async function ClientsAdminPage({
                         />
                         <button
                           type="submit"
-                          className="px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] border border-[var(--admin-border)] bg-[var(--admin-panel)] text-[var(--admin-subtle)] hover:text-[var(--admin-text)] transition-colors"
+                          className="px-2 py-1 sdm-eyebrow border border-[var(--admin-border)] bg-[var(--admin-panel)] text-[var(--admin-subtle)] hover:text-[var(--admin-text)] transition-colors"
                         >
                           Set
                         </button>

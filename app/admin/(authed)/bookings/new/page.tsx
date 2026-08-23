@@ -35,7 +35,7 @@ export default async function NewBookingPage() {
 
       <form action={createBookingAction} className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5 max-w-2xl">
         <div className="mb-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--admin-accent)]">Manual entry</p>
+          <p className="sdm-eyebrow text-[var(--admin-accent)]">Manual entry</p>
           <h2 className="mt-2 text-xl font-semibold text-[var(--admin-text)]">Booking details</h2>
           <p className="mt-1 text-[13px] text-[var(--admin-muted)]">
             Date and time are entered as <strong className="text-[var(--admin-text)]">Riyadh time</strong> (UTC+3). The booking appears in the board immediately.

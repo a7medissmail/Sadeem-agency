@@ -14,12 +14,15 @@ export function PageHeader({
   return (
     <div className="flex items-start justify-between gap-6">
       <div>
-        {eyebrow ? (
-          <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-[var(--admin-accent)]">{eyebrow}</p>
-        ) : null}
-        <h1 className="mt-2 text-[28px] font-semibold tracking-tight">{title}</h1>
+        {/*
+          Audit finding A01 — the eyebrow used to be orange, which spent the
+          accent on a decorative label. A section marker is metadata, not an
+          action, so it is neutral now.
+        */}
+        {eyebrow ? <p className="sdm-eyebrow text-[var(--sdm-text-tertiary)]">{eyebrow}</p> : null}
+        <h1 className="sdm-page-title mt-2">{title}</h1>
         {description ? (
-          <p className="mt-2 text-[14px] text-[var(--admin-muted)] max-w-[60ch]">{description}</p>
+          <p className="sdm-body mt-2 text-[var(--admin-muted)] max-w-[60ch]">{description}</p>
         ) : null}
       </div>
       {actions ? <div className="flex items-center gap-2 shrink-0">{actions}</div> : null}

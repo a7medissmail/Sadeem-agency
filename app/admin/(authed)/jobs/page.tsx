@@ -84,32 +84,32 @@ export default async function JobsAdminPage() {
                   <Link href={`/admin/jobs/${job.id}`} className="block text-[22px] font-semibold leading-tight text-[var(--admin-text)] hover:text-[var(--admin-accent)]">
                     {job.title}
                   </Link>
-                  <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">/{job.slug}</p>
+                  <p className="mt-2 sdm-eyebrow text-[var(--admin-subtle)]">/{job.slug}</p>
                 </div>
                 <Badge tone={job.is_open ? "green" : "neutral"}>{job.is_open ? "Open" : "Closed"}</Badge>
               </div>
 
               <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-[var(--admin-border-soft)] pt-5 text-[12.5px]">
                 <div>
-                  <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Type</dt>
+                  <dt className="sdm-eyebrow text-[var(--admin-subtle)]">Type</dt>
                   <dd className="mt-1 capitalize text-[var(--admin-muted)]">{job.type}</dd>
                 </div>
                 <div>
-                  <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Department</dt>
+                  <dt className="sdm-eyebrow text-[var(--admin-subtle)]">Department</dt>
                   <dd className="mt-1 truncate text-[var(--admin-muted)]">{job.department || "-"}</dd>
                 </div>
                 <div>
-                  <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Location</dt>
+                  <dt className="sdm-eyebrow text-[var(--admin-subtle)]">Location</dt>
                   <dd className="mt-1 truncate text-[var(--admin-muted)]">{job.location || "-"}</dd>
                 </div>
                 <div>
-                  <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Form</dt>
+                  <dt className="sdm-eyebrow text-[var(--admin-subtle)]">Form</dt>
                   <dd className="mt-1 truncate text-[var(--admin-muted)]">
                     {job.application_form_id ? formsById.get(job.application_form_id)?.name ?? "Custom form" : "Default"}
                   </dd>
                 </div>
                 <div>
-                  <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Created</dt>
+                  <dt className="sdm-eyebrow text-[var(--admin-subtle)]">Created</dt>
                   <dd className="mt-1 text-[var(--admin-muted)]">{new Date(job.created_at).toLocaleDateString()}</dd>
                 </div>
               </dl>

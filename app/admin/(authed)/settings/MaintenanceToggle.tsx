@@ -16,7 +16,7 @@ export function MaintenanceToggle({ isOn }: { isOn: boolean }) {
       <input type="hidden" name="enable" value={isOn ? "false" : "true"} />
       <button
         type="submit"
-        className={`px-5 py-2 font-mono text-[11px] uppercase tracking-[0.2em] transition-colors ${
+        className={`px-5 py-2 sdm-eyebrow transition-colors ${
           isOn
             ? "bg-emerald-600 text-white hover:bg-emerald-500"
             : "bg-red-600 text-white hover:bg-red-500"

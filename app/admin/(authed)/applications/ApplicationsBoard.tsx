@@ -249,7 +249,7 @@ function CandidateCard({
       </div>
 
       {/* Row 2: role title */}
-      <p className="mt-0.5 truncate font-mono text-[9.5px] uppercase tracking-[0.14em] text-[var(--admin-subtle)]">
+      <p className="mt-0.5 truncate sdm-eyebrow text-[var(--admin-subtle)]">
         {roleName(application)}
       </p>
 
@@ -259,7 +259,7 @@ function CandidateCard({
       </div>
 
       {/* Row 4: date · notes badge */}
-      <div className="mt-1.5 flex items-center gap-1.5 font-mono text-[9.5px] uppercase tracking-[0.14em] text-[var(--admin-subtle)]">
+      <div className="mt-1.5 flex items-center gap-1.5 sdm-eyebrow text-[var(--admin-subtle)]">
         <span>{shortDateFmt.format(new Date(application.created_at))}</span>
         {application.notes.length > 0 && (
           <>
@@ -289,7 +289,7 @@ function TimelineItem({
       <div>
         <p className="text-[13.5px] font-semibold text-[var(--admin-text)]">{label}</p>
         <p className="mt-1 text-[12.5px] text-[var(--admin-muted)]">{detail}</p>
-        {meta ? <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">{meta}</p> : null}
+        {meta ? <p className="mt-1 sdm-eyebrow text-[var(--admin-subtle)]">{meta}</p> : null}
       </div>
     </div>
   );
@@ -320,7 +320,7 @@ function CandidateDrawer({
         <header className="border-b border-[var(--admin-border)] p-6">
           <div className="mb-5 flex items-start justify-between gap-5">
             <div className="min-w-0">
-              <p className="font-mono text-[10px] uppercase tracking-[0.26em] text-[var(--admin-accent)]">Candidate dossier</p>
+              <p className="sdm-eyebrow text-[var(--admin-accent)]">Candidate dossier</p>
               <h2 className="mt-2 truncate text-[34px] font-semibold leading-none tracking-tight text-[var(--admin-text)]">
                 {application.name}
               </h2>
@@ -329,7 +329,7 @@ function CandidateDrawer({
             <button
               type="button"
               onClick={onClose}
-              className="border border-[var(--admin-border)] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-muted)] hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]"
+              className="border border-[var(--admin-border)] px-3 py-2 sdm-eyebrow text-[var(--admin-muted)] hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]"
             >
               Close
             </button>
@@ -345,7 +345,7 @@ function CandidateDrawer({
           <div className="grid gap-5 lg:grid-cols-[1fr_0.82fr]">
             <section className="space-y-5">
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-                <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Cover note</h3>
+                <h3 className="sdm-eyebrow text-[var(--admin-subtle)]">Cover note</h3>
                 <p className="mt-4 whitespace-pre-wrap text-[14px] leading-relaxed text-[var(--admin-muted)]">
                   {application.cover_note || "No cover note was submitted."}
                 </p>
@@ -353,11 +353,11 @@ function CandidateDrawer({
 
               {answers.length > 0 ? (
                 <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-                  <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Custom answers</h3>
+                  <h3 className="sdm-eyebrow text-[var(--admin-subtle)]">Custom answers</h3>
                   <div className="mt-4 divide-y divide-[var(--admin-border-soft)]">
                     {answers.map((answer) => (
                       <div key={answer.key} className="grid gap-2 py-3 md:grid-cols-[0.38fr_1fr]">
-                        <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-accent)]">{answer.label}</p>
+                        <p className="sdm-eyebrow text-[var(--admin-accent)]">{answer.label}</p>
                         <p className="text-[13px] leading-relaxed text-[var(--admin-muted)]">{answer.value}</p>
                       </div>
                     ))}
@@ -367,8 +367,8 @@ function CandidateDrawer({
 
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
                 <div className="flex items-center justify-between gap-3">
-                  <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Notes</h3>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)]">
+                  <h3 className="sdm-eyebrow text-[var(--admin-subtle)]">Notes</h3>
+                  <span className="sdm-eyebrow text-[var(--admin-accent)]">
                     {String(application.notes.length).padStart(2, "0")}
                   </span>
                 </div>
@@ -388,7 +388,7 @@ function CandidateDrawer({
                     application.notes.map((note) => (
                       <article key={note.id} className="border border-[var(--admin-border-soft)] bg-[var(--admin-surface-strong)] p-4">
                         <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-[var(--admin-muted)]">{note.note}</p>
-                        <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-subtle)]">
+                        <p className="mt-3 sdm-eyebrow text-[var(--admin-subtle)]">
                           {note.authorName} / {dateFmt.format(new Date(note.created_at))}
                         </p>
                       </article>
@@ -400,7 +400,7 @@ function CandidateDrawer({
 
             <aside className="space-y-5">
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-                <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Contact</h3>
+                <h3 className="sdm-eyebrow text-[var(--admin-subtle)]">Contact</h3>
                 <div className="mt-4 space-y-3 text-[13px]">
                   <a href={`mailto:${application.email}`} className="block break-all text-[var(--admin-text)] hover:text-[var(--admin-accent)]">
                     {application.email}
@@ -424,7 +424,7 @@ function CandidateDrawer({
               </div>
 
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-                <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Profile controls</h3>
+                <h3 className="sdm-eyebrow text-[var(--admin-subtle)]">Profile controls</h3>
                 <form action={updateApplicationMetaAction} className="mt-4 space-y-3">
                   <input type="hidden" name="id" value={application.id} />
                   <FieldRow label="Owner">
@@ -453,7 +453,7 @@ function CandidateDrawer({
               </div>
 
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-                <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Stage control</h3>
+                <h3 className="sdm-eyebrow text-[var(--admin-subtle)]">Stage control</h3>
                 <form action={updateApplicationStatusAction} className="mt-4 space-y-3">
                   <input type="hidden" name="id" value={application.id} />
                   <Select name="status" defaultValue={application.status} className="w-full">
@@ -483,14 +483,14 @@ function CandidateDrawer({
               </div>
 
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-                <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Files</h3>
+                <h3 className="sdm-eyebrow text-[var(--admin-subtle)]">Files</h3>
                 <div className="mt-4">
                   {application.resumeDownloadUrl ? (
                     <a
                       href={application.resumeDownloadUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex border border-[var(--admin-accent)] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)] hover:bg-[var(--admin-accent-soft)]"
+                      className="inline-flex border border-[var(--admin-accent)] px-3 py-2 sdm-eyebrow text-[var(--admin-accent)] hover:bg-[var(--admin-accent-soft)]"
                     >
                       Open resume
                     </a>
@@ -501,7 +501,7 @@ function CandidateDrawer({
               </div>
 
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-                <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Timeline</h3>
+                <h3 className="sdm-eyebrow text-[var(--admin-subtle)]">Timeline</h3>
                 <div className="mt-4 space-y-4">
                   <TimelineItem label="Submitted" detail={dateFmt.format(new Date(application.created_at))} meta={application.email} />
                   {application.history.map((event) => (

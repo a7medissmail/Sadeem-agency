@@ -1,20 +1,19 @@
 "use client";
 
 import { useFormState, useFormStatus } from "react-dom";
+import { Button } from "@/components/admin/ui/Button";
 import { loginAction, type LoginResult } from "./actions";
 
 const initial: LoginResult = {};
 
 function SubmitButton() {
   const { pending } = useFormStatus();
+  // Was a hand-rolled button with hard-coded hexes, sitting outside the system
+  // on the one screen every session starts with.
   return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="mt-2 inline-flex items-center justify-center gap-3 border border-[#ff6a00] bg-[#ff6a00] px-5 py-3 font-mono text-[11px] tracking-[0.24em] text-white uppercase transition-colors hover:bg-[#ff7d20] disabled:opacity-60"
-    >
-      {pending ? "Signing in…" : "Sign in"}
-    </button>
+    <Button type="submit" size="lg" loading={pending} loadingLabel="Signing in…" className="mt-2">
+      Sign in
+    </Button>
   );
 }
 
@@ -24,7 +23,7 @@ export default function LoginForm({ next }: { next?: string }) {
     <form action={formAction} className="flex flex-col gap-4">
       {next ? <input type="hidden" name="next" value={next} /> : null}
       <label className="flex flex-col gap-2">
-        <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-white/55">Email</span>
+        <span className="sdm-eyebrow text-white/55">Email</span>
         <input
           name="email"
           type="email"
@@ -34,7 +33,7 @@ export default function LoginForm({ next }: { next?: string }) {
         />
       </label>
       <label className="flex flex-col gap-2">
-        <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-white/55">Password</span>
+        <span className="sdm-eyebrow text-white/55">Password</span>
         <input
           name="password"
           type="password"

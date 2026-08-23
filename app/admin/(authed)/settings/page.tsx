@@ -54,7 +54,7 @@ export default async function SettingsPage() {
       {/* ── Maintenance mode ─────────────────────────────────────── */}
       <section className={`flex items-start justify-between gap-6 border p-5 ${settings.is_maintenance_mode ? "border-red-500/40 bg-red-500/[0.06]" : "border-[var(--admin-border)] bg-[var(--admin-panel)]"}`}>
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">Site Status</p>
+          <p className="sdm-eyebrow text-[var(--admin-accent)]">Site Status</p>
           <h2 className="mt-1 text-[22px] font-semibold leading-snug tracking-tight text-[var(--admin-text)]">
             Maintenance Mode
           </h2>
@@ -64,12 +64,12 @@ export default async function SettingsPage() {
             The middleware cache refreshes within 30 seconds of toggling.
           </p>
           {settings.is_maintenance_mode ? (
-            <div className="mt-3 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-red-400">
+            <div className="mt-3 inline-flex items-center gap-2 sdm-eyebrow text-red-400">
               <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-red-400" />
               Site is offline — maintenance page is live
             </div>
           ) : (
-            <div className="mt-3 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-emerald-400">
+            <div className="mt-3 inline-flex items-center gap-2 sdm-eyebrow text-emerald-400">
               <span className="inline-block h-2 w-2 rounded-full bg-emerald-400" />
               Site is online
             </div>
@@ -88,7 +88,7 @@ export default async function SettingsPage() {
             />
             <button
               type="submit"
-              className="px-3 py-2 font-mono text-[11px] uppercase tracking-[0.2em] border border-[var(--admin-border)] bg-[var(--admin-panel)] text-[var(--admin-muted)] hover:text-[var(--admin-text)] transition-colors"
+              className="px-3 py-2 sdm-eyebrow border border-[var(--admin-border)] bg-[var(--admin-panel)] text-[var(--admin-muted)] hover:text-[var(--admin-text)] transition-colors"
             >
               Save
             </button>
@@ -101,17 +101,17 @@ export default async function SettingsPage() {
       {/* ── Brand settings ───────────────────────────────────────── */}
       <section className="grid grid-cols-2 gap-3 xl:grid-cols-3">
         <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
-          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Dark logo</p>
+          <p className="sdm-eyebrow text-[var(--admin-subtle)]">Dark logo</p>
           <div className="mt-3 text-[30px] font-semibold leading-none text-[var(--admin-text)]">{settings.logo_dark_url ? "Set" : "-"}</div>
           <p className="mt-3 text-[12.5px] text-[var(--admin-muted)]">Light nav</p>
         </div>
         <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
-          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">White logo</p>
+          <p className="sdm-eyebrow text-[var(--admin-subtle)]">White logo</p>
           <div className="mt-3 text-[30px] font-semibold leading-none text-[var(--admin-text)]">{settings.logo_light_url ? "Set" : "-"}</div>
           <p className="mt-3 text-[12.5px] text-[var(--admin-muted)]">Dark nav/footer</p>
         </div>
         <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
-          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Favicon</p>
+          <p className="sdm-eyebrow text-[var(--admin-subtle)]">Favicon</p>
           <div className="mt-3 text-[30px] font-semibold leading-none text-[var(--admin-text)]">{settings.favicon_url ? "Set" : "-"}</div>
           <p className="mt-3 text-[12.5px] text-[var(--admin-muted)]">Browser icon</p>
         </div>

@@ -120,7 +120,7 @@ function CopyButton({ text, label }: { text: string; label: string }) {
           setTimeout(() => setCopied(false), 2000);
         });
       }}
-      className="border border-[var(--admin-accent)] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)] hover:bg-[var(--admin-accent-soft)] transition-colors"
+      className="border border-[var(--admin-accent)] px-3 py-2 sdm-eyebrow text-[var(--admin-accent)] hover:bg-[var(--admin-accent-soft)] transition-colors"
     >
       {copied ? "Copied!" : label}
     </button>
@@ -165,7 +165,7 @@ function ProposalCard({
         </span>
       </div>
 
-      <div className="mt-4 flex items-center justify-between gap-3 border-t border-[var(--admin-border-soft)] pt-3 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">
+      <div className="mt-4 flex items-center justify-between gap-3 border-t border-[var(--admin-border-soft)] pt-3 sdm-eyebrow text-[var(--admin-subtle)]">
         <span>{shortFmt.format(new Date(proposal.created_at))}</span>
         <span className="text-[var(--admin-accent)]/70 transition-colors group-hover:text-[var(--admin-accent)]" aria-hidden="true">
           Open →
@@ -229,7 +229,7 @@ function ProposalDrawer({
         <header className="border-b border-[var(--admin-border)] px-8 py-6">
           <div className="mb-5 flex items-start justify-between gap-5">
             <div className="min-w-0">
-              <p className="font-mono text-[10px] uppercase tracking-[0.26em] text-[var(--admin-accent)]">Proposal Brief</p>
+              <p className="sdm-eyebrow text-[var(--admin-accent)]">Proposal Brief</p>
               <h2 className="mt-2 truncate text-[30px] font-semibold leading-none tracking-tight text-[var(--admin-text)]">
                 {proposal.title}
               </h2>
@@ -241,7 +241,7 @@ function ProposalDrawer({
             <button
               type="button"
               onClick={onClose}
-              className="shrink-0 border border-[var(--admin-border)] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-muted)] hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]"
+              className="shrink-0 border border-[var(--admin-border)] px-3 py-2 sdm-eyebrow text-[var(--admin-muted)] hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]"
             >
               Close
             </button>
@@ -269,7 +269,7 @@ function ProposalDrawer({
 
               {/* Magic link */}
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-                <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Magic link</h3>
+                <h3 className="sdm-eyebrow text-[var(--admin-subtle)]">Magic link</h3>
                 {portalUrl ? (
                   <div className="mt-4 space-y-3">
                     <p className="break-all rounded bg-[var(--admin-surface-strong)] p-3 font-mono text-[11px] text-[var(--admin-text)]">
@@ -302,8 +302,8 @@ function ProposalDrawer({
               {proposal.submission ? (
                 <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
                   <div className="flex items-center justify-between gap-3">
-                    <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Brief Submission</h3>
-                    <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-emerald-400">● Received</span>
+                    <h3 className="sdm-eyebrow text-[var(--admin-subtle)]">Brief Submission</h3>
+                    <span className="sdm-eyebrow text-emerald-400">● Received</span>
                   </div>
                   <p className="mt-2 text-[12px] text-[var(--admin-subtle)]">
                     {dateFmt.format(new Date(proposal.submission.created_at))}
@@ -319,7 +319,7 @@ function ProposalDrawer({
                         .replace(/\b\w/g, (c) => c.toUpperCase());
                       return (
                         <div key={answer.field_key}>
-                          <p className="mb-1.5 font-mono text-[9.5px] uppercase tracking-[0.2em] text-[var(--admin-accent)]">
+                          <p className="mb-1.5 sdm-eyebrow text-[var(--admin-accent)]">
                             {label}
                           </p>
                           <p className="text-[13.5px] leading-relaxed text-[var(--admin-text)]">
@@ -343,7 +343,7 @@ function ProposalDrawer({
               {/* Quotation builder — available once brief is submitted */}
               {["submitted", "reviewed", "converted", "draft", "sent", "opened", "in_progress"].includes(proposal.status) && (
                 <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-                  <h3 className="mb-4 font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Quotation</h3>
+                  <h3 className="mb-4 sdm-eyebrow text-[var(--admin-subtle)]">Quotation</h3>
                   <QuotationBuilder
                     proposalId={proposal.id}
                     existingQuotation={proposal.quotation}
@@ -353,7 +353,7 @@ function ProposalDrawer({
 
               {/* Internal notes */}
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-                <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Internal notes</h3>
+                <h3 className="sdm-eyebrow text-[var(--admin-subtle)]">Internal notes</h3>
                 <form action={updateProposalNotesAction} className="mt-4 space-y-3">
                   <input type="hidden" name="id" value={proposal.id} />
                   <Textarea
@@ -374,7 +374,7 @@ function ProposalDrawer({
 
               {/* Client info */}
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Client</p>
+                <p className="sdm-eyebrow text-[var(--admin-subtle)]">Client</p>
                 <div className="mt-4 space-y-1">
                   <p className="text-[15px] font-semibold text-[var(--admin-text)]">{proposal.client_name}</p>
                   {proposal.client_company && (
@@ -391,7 +391,7 @@ function ProposalDrawer({
 
               {/* Status control */}
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Update status</p>
+                <p className="sdm-eyebrow text-[var(--admin-subtle)]">Update status</p>
                 <form action={updateProposalStatusAction} className="mt-4 space-y-3">
                   <input type="hidden" name="id" value={proposal.id} />
                   <Select name="status" defaultValue={proposal.status} className="w-full">
@@ -433,7 +433,7 @@ function ProposalDrawer({
 
               {/* Timeline */}
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Timeline</p>
+                <p className="sdm-eyebrow text-[var(--admin-subtle)]">Timeline</p>
                 <ol className="mt-5 space-y-0">
                   {[
                     { label: "Created",   at: proposal.created_at,  done: true },
@@ -470,7 +470,7 @@ function ProposalDrawer({
 
               {/* Delete */}
               <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
-                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Danger zone</p>
+                <p className="sdm-eyebrow text-[var(--admin-subtle)]">Danger zone</p>
                 <form
                   action={deleteProposalAction}
                   className="mt-4"
@@ -613,7 +613,7 @@ export function ProposalBoard({
         <div className="border border-emerald-500/30 bg-emerald-500/[0.06] p-5">
           <div className="flex items-start justify-between gap-5">
             <div className="min-w-0">
-              <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-emerald-400">Proposal created</p>
+              <p className="sdm-eyebrow text-emerald-400">Proposal created</p>
               <p className="mt-2 break-all font-mono text-[12px] text-[var(--admin-text)]">{newTokenUrl}</p>
               <p className="mt-2 text-[12.5px] text-emerald-300/80">
                 Copy this link and send it to the client. It won&apos;t be shown again.
@@ -624,7 +624,7 @@ export function ProposalBoard({
               <button
                 type="button"
                 onClick={() => { setNewToken(null); setNewTokenUrl(null); }}
-                className="border border-[var(--admin-border)] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-muted)] hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]"
+                className="border border-[var(--admin-border)] px-3 py-2 sdm-eyebrow text-[var(--admin-muted)] hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]"
               >
                 Dismiss
               </button>
@@ -637,11 +637,11 @@ export function ProposalBoard({
       {showCreate ? (
         <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-6">
           <div className="mb-5 flex items-center justify-between gap-3">
-            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-accent)]">New proposal</p>
+            <p className="sdm-eyebrow text-[var(--admin-accent)]">New proposal</p>
             <button
               type="button"
               onClick={() => setShowCreate(false)}
-              className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-muted)] hover:text-[var(--admin-text)]"
+              className="sdm-eyebrow text-[var(--admin-muted)] hover:text-[var(--admin-text)]"
             >
               Cancel
             </button>
@@ -653,7 +653,7 @@ export function ProposalBoard({
           <button
             type="button"
             onClick={() => setShowCreate(true)}
-            className="border border-[var(--admin-accent)] px-5 py-2.5 font-mono text-[11px] uppercase tracking-[0.2em] text-[var(--admin-accent)] hover:bg-[var(--admin-accent-soft)] transition-colors"
+            className="border border-[var(--admin-accent)] px-5 py-2.5 sdm-eyebrow text-[var(--admin-accent)] hover:bg-[var(--admin-accent-soft)] transition-colors"
           >
             + New proposal
           </button>
@@ -664,7 +664,7 @@ export function ProposalBoard({
       <section className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
         <div className="grid gap-3 xl:grid-cols-[1fr_auto] xl:items-center">
           <label className="flex min-h-[44px] items-center gap-3 border border-[var(--admin-border)] bg-[var(--admin-surface-strong)] px-3">
-            <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)]">Search</span>
+            <span className="sdm-eyebrow text-[var(--admin-accent)]">Search</span>
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}

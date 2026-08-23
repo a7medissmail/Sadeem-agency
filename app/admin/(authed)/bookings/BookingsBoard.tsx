@@ -120,7 +120,7 @@ function BookingCard({
       }`}
     >
       <div>
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--admin-accent)]">{dayFmt.format(start)}</p>
+        <p className="sdm-eyebrow text-[var(--admin-accent)]">{dayFmt.format(start)}</p>
         <p className="mt-2 text-[24px] font-semibold leading-none text-[var(--admin-text)]">{timeFmt.format(start)}</p>
         <p className="mt-2 text-[11px] text-[var(--admin-subtle)]">{minutesBetween(booking.slot_start, booking.slot_end)} min</p>
       </div>
@@ -135,8 +135,8 @@ function BookingCard({
       </div>
 
       <div className="flex flex-row items-center justify-between gap-4 md:flex-col md:items-end">
-        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">{meetingState(booking)}</span>
-        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)]/70 transition-colors group-hover:text-[var(--admin-accent)]">Open →</span>
+        <span className="sdm-eyebrow text-[var(--admin-subtle)]">{meetingState(booking)}</span>
+        <span className="sdm-eyebrow text-[var(--admin-accent)]/70 transition-colors group-hover:text-[var(--admin-accent)]">Open →</span>
       </div>
     </button>
   );
@@ -162,7 +162,7 @@ function BookingDossier({ booking, forms }: { booking: BookingBoardRow | null; f
     <aside className="xl:sticky xl:top-24">
       <div className="border border-[var(--admin-border)] bg-[var(--admin-surface-strong)] shadow-[var(--admin-shadow)]">
         <header className="border-b border-[var(--admin-border)] p-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.26em] text-[var(--admin-accent)]">Meeting dossier</p>
+          <p className="sdm-eyebrow text-[var(--admin-accent)]">Meeting dossier</p>
           <h2 className="mt-2 text-[30px] font-semibold leading-none tracking-tight text-[var(--admin-text)]">{booking.name}</h2>
           <p className="mt-2 text-[13.5px] text-[var(--admin-muted)]">{dateFmt.format(new Date(booking.slot_start))}</p>
           <div className="mt-5 grid grid-cols-2 gap-3">
@@ -173,7 +173,7 @@ function BookingDossier({ booking, forms }: { booking: BookingBoardRow | null; f
 
         <div className="space-y-5 p-5">
           <section>
-            <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Visitor</h3>
+            <h3 className="sdm-eyebrow text-[var(--admin-subtle)]">Visitor</h3>
             <div className="mt-3 space-y-2 text-[13px]">
               <a href={`mailto:${booking.email}`} className="block break-all text-[var(--admin-text)] hover:text-[var(--admin-accent)]">
                 {booking.email}
@@ -187,12 +187,12 @@ function BookingDossier({ booking, forms }: { booking: BookingBoardRow | null; f
           </section>
 
           <section>
-            <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Topic</h3>
+            <h3 className="sdm-eyebrow text-[var(--admin-subtle)]">Topic</h3>
             <p className="mt-3 whitespace-pre-wrap text-[13.5px] leading-relaxed text-[var(--admin-muted)]">{booking.topic || "No topic submitted."}</p>
           </section>
 
           <section>
-            <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Timeline</h3>
+            <h3 className="sdm-eyebrow text-[var(--admin-subtle)]">Timeline</h3>
             <div className="mt-3 space-y-3">
               {timeline.map((item) => (
                 <div key={item.label} className="grid grid-cols-[18px_1fr] gap-3">
@@ -207,7 +207,7 @@ function BookingDossier({ booking, forms }: { booking: BookingBoardRow | null; f
           </section>
 
           <section className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
-            <h3 className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Meeting controls</h3>
+            <h3 className="sdm-eyebrow text-[var(--admin-subtle)]">Meeting controls</h3>
             <form action={updateBookingStatusAction} className="mt-4 space-y-3">
               <input type="hidden" name="id" value={booking.id} />
               <Select name="status" defaultValue={booking.status} className="w-full">
@@ -287,7 +287,7 @@ function AvailabilityRules({ rules }: { rules: AvailabilityRuleRow[] }) {
   const activeRules = rules.filter((rule) => rule.active).length;
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="font-mono text-[11px] uppercase tracking-[0.24em] text-[var(--admin-subtle)]">
+      <h2 className="sdm-eyebrow text-[var(--admin-subtle)]">
         Availability windows — {activeRules} of {rules.length} active
       </h2>
 
@@ -376,7 +376,7 @@ function CapacityGuardrails({
   return (
     <section className="flex flex-col gap-4">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.24em] text-[var(--admin-subtle)]">
+        <h2 className="sdm-eyebrow text-[var(--admin-subtle)]">
           Capacity — {capLabel}
         </h2>
         <p className="text-[12.5px] text-[var(--admin-muted)]">
@@ -401,17 +401,17 @@ function CapacityGuardrails({
         className="grid gap-3 border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4 xl:grid-cols-[repeat(5,1fr)_auto] xl:items-end"
       >
         <label className="flex flex-col gap-1.5">
-          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--admin-muted)]">
+          <span className="sdm-eyebrow text-[var(--admin-muted)]">
             Max / week
           </span>
           <Input name="max_per_week" type="number" min={0} max={100} defaultValue={settings.max_per_week} required />
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--admin-muted)]">Max / day</span>
+          <span className="sdm-eyebrow text-[var(--admin-muted)]">Max / day</span>
           <Input name="max_per_day" type="number" min={0} max={50} defaultValue={settings.max_per_day} required />
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--admin-muted)]">
+          <span className="sdm-eyebrow text-[var(--admin-muted)]">
             Min notice (h)
           </span>
           <Input
@@ -424,7 +424,7 @@ function CapacityGuardrails({
           />
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--admin-muted)]">
+          <span className="sdm-eyebrow text-[var(--admin-muted)]">
             Horizon (days)
           </span>
           <Input
@@ -437,7 +437,7 @@ function CapacityGuardrails({
           />
         </label>
         <label className="flex flex-col gap-1.5">
-          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--admin-muted)]">
+          <span className="sdm-eyebrow text-[var(--admin-muted)]">
             Week starts
           </span>
           <Select name="week_starts_on" defaultValue={String(settings.week_starts_on)}>
@@ -458,22 +458,22 @@ function CapacityGuardrails({
       </form>
 
       <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
-        <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Blackout dates</p>
+        <p className="sdm-eyebrow text-[var(--admin-subtle)]">Blackout dates</p>
         <p className="mt-2 text-[13px] text-[var(--admin-muted)]">
           Holidays, travel, or a heads-down week. Nothing is bookable inside these ranges (end date included).
         </p>
 
         <form action={createBookingBlackoutAction} className="mt-4 grid gap-3 xl:grid-cols-[0.8fr_0.8fr_1.4fr_auto] xl:items-end">
           <label className="flex flex-col gap-1.5">
-            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--admin-muted)]">From</span>
+            <span className="sdm-eyebrow text-[var(--admin-muted)]">From</span>
             <Input name="starts_on" type="date" required />
           </label>
           <label className="flex flex-col gap-1.5">
-            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--admin-muted)]">To</span>
+            <span className="sdm-eyebrow text-[var(--admin-muted)]">To</span>
             <Input name="ends_on" type="date" required />
           </label>
           <label className="flex flex-col gap-1.5">
-            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--admin-muted)]">Reason</span>
+            <span className="sdm-eyebrow text-[var(--admin-muted)]">Reason</span>
             <Input name="reason" type="text" maxLength={160} placeholder="Eid holiday, offsite, …" />
           </label>
           <Button type="submit" variant="outline" className="justify-center">

@@ -12,10 +12,15 @@ import type { ReactNode } from "react";
 
 export function MetricCard({ label, value, hint }: { label: string; value: number | string; hint?: string }) {
   return (
-    <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
-      <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">{label}</p>
-      <div className="mt-3 text-[30px] font-semibold leading-none text-[var(--admin-text)]">{value}</div>
-      {hint ? <p className="mt-3 text-[12.5px] text-[var(--admin-muted)]">{hint}</p> : null}
+    <div className="rounded-[var(--sdm-radius-lg)] border border-[var(--sdm-border-default)] bg-[var(--admin-panel)] p-5">
+      <p className="sdm-eyebrow text-[var(--sdm-text-tertiary)]">{label}</p>
+      {/*
+        A01 — two of the four dashboard tiles used to glow orange with nothing
+        to say whether that meant "selected", "urgent" or "good". A number is
+        information; the tile stays neutral and the words carry the meaning.
+      */}
+      <div className="sdm-display mt-3 tabular-nums text-[var(--admin-text)]">{value}</div>
+      {hint ? <p className="sdm-helper-text mt-3 text-[var(--admin-muted)]">{hint}</p> : null}
     </div>
   );
 }
@@ -37,10 +42,10 @@ export function FilterChip({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] transition-colors outline-none focus-visible:shadow-[var(--sdm-ring)] ${
+      className={`sdm-eyebrow rounded-[var(--sdm-radius-md)] border px-3 py-2 transition-colors outline-none focus-visible:shadow-[var(--sdm-ring)] ${
         active
-          ? "border-[var(--admin-accent)] bg-[var(--admin-accent-soft)] text-[var(--admin-text)]"
-          : "border-[var(--admin-border)] text-[var(--admin-muted)] hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]"
+          ? "border-[var(--sdm-border-selected)] bg-[var(--sdm-surface-selected)] text-[var(--admin-text)]"
+          : "border-[var(--sdm-border-default)] text-[var(--admin-muted)] hover:border-[var(--sdm-border-strong)] hover:text-[var(--admin-text)]"
       }`}
     >
       {children}

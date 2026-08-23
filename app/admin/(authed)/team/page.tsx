@@ -77,7 +77,7 @@ export default async function TeamAdminPage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/78 via-black/12 to-transparent" />
                   <div className="absolute left-4 top-4 flex items-center gap-2">
                     <Badge tone={member.is_active ? "green" : "neutral"}>{member.is_active ? "Live" : "Off"}</Badge>
-                    <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/60">#{member.sort_order}</span>
+                    <span className="sdm-eyebrow text-white/60">#{member.sort_order}</span>
                   </div>
                 </div>
               </Link>
@@ -86,7 +86,7 @@ export default async function TeamAdminPage() {
                 <Link href={`/admin/team/${member.id}`} className="block text-[24px] font-semibold leading-tight text-[var(--admin-text)] hover:text-[var(--admin-accent)]">
                   {member.name}
                 </Link>
-                <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)]">{member.role || "Role not set"}</p>
+                <p className="mt-2 sdm-eyebrow text-[var(--admin-accent)]">{member.role || "Role not set"}</p>
                 <p className="mt-4 line-clamp-3 min-h-[62px] text-[13.5px] leading-relaxed text-[var(--admin-muted)]">
                   {member.bio || "No bio yet."}
                 </p>

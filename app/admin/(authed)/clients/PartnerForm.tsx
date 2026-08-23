@@ -79,7 +79,7 @@ function Fields({ partner, errors = {} }: { partner?: PartnerValues; errors?: Re
 
       {partner?.logo_url ? (
         <div className="flex items-center gap-4 border border-[var(--admin-border-soft)] bg-[var(--admin-surface-strong)] p-4">
-          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">Current</p>
+          <p className="sdm-eyebrow text-[var(--admin-subtle)]">Current</p>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={partner.logo_url} alt={partner.name ?? "Partner"} className="h-12 w-auto max-w-[160px] object-contain" />
         </div>
@@ -122,7 +122,7 @@ function PartnerCreateInner({ partner }: { partner?: PartnerValues }) {
         {state.error ? (
           <div className="flex-1 border border-red-400/25 bg-red-500/[0.08] px-3 py-2 text-[13px] text-red-200">{state.error}</div>
         ) : (
-          <Link href="/admin/clients" className="font-mono text-[11px] uppercase tracking-[0.22em] text-[var(--admin-muted)] hover:text-[var(--admin-accent)]">← Back to clients</Link>
+          <Link href="/admin/clients" className="sdm-eyebrow text-[var(--admin-muted)] hover:text-[var(--admin-accent)]">← Back to clients</Link>
         )}
         <CreateButton />
       </div>
@@ -147,7 +147,7 @@ function PartnerEditInner({ partner }: { partner?: PartnerValues }) {
       <Fields partner={partner} />
 
       <div className="flex items-center justify-between gap-3 border-t border-[var(--admin-border-soft)] pt-4">
-        <Link href="/admin/clients" className="font-mono text-[11px] uppercase tracking-[0.22em] text-[var(--admin-muted)] hover:text-[var(--admin-accent)]">← Back to clients</Link>
+        <Link href="/admin/clients" className="sdm-eyebrow text-[var(--admin-muted)] hover:text-[var(--admin-accent)]">← Back to clients</Link>
         <SaveStatus status={status} error={errorMsg} />
       </div>
     </form>

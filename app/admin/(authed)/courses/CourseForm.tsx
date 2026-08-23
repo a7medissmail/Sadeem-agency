@@ -223,7 +223,7 @@ function CourseCreateInner({ course }: { course?: CourseFormValues }) {
 
       <div className="flex items-center gap-4 pt-2">
         <CreateButton />
-        <Link href="/admin/courses" className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-[var(--admin-muted)] hover:text-[var(--admin-text)]">Cancel</Link>
+        <Link href="/admin/courses" className="sdm-eyebrow text-[var(--admin-muted)] hover:text-[var(--admin-text)]">Cancel</Link>
       </div>
     </form>
   );
@@ -254,7 +254,7 @@ function CourseEditInner({ course }: { course?: CourseFormValues }) {
       <Fields course={course} title={title} slug={slug} onTitleChange={onTitleChange} setSlug={setSlug} setSlugTouched={setSlugTouched} />
 
       <div className="flex items-center justify-between gap-4 border-t border-[var(--admin-border-soft)] pt-4">
-        <Link href="/admin/courses" className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-[var(--admin-muted)] hover:text-[var(--admin-text)]">← Back to courses</Link>
+        <Link href="/admin/courses" className="sdm-eyebrow text-[var(--admin-muted)] hover:text-[var(--admin-text)]">← Back to courses</Link>
         <SaveStatus status={status} error={errorMsg} />
       </div>
     </form>

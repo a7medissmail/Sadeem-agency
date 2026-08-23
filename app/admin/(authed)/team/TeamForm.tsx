@@ -154,7 +154,7 @@ function TeamCreateInner({ member }: { member?: TeamMemberValues }) {
 
       <div className="flex items-center gap-4 pt-2">
         <CreateButton />
-        <Link href="/admin/team" className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-[var(--admin-muted)] hover:text-[var(--admin-text)]">Cancel</Link>
+        <Link href="/admin/team" className="sdm-eyebrow text-[var(--admin-muted)] hover:text-[var(--admin-text)]">Cancel</Link>
       </div>
     </form>
   );
@@ -177,7 +177,7 @@ function TeamEditInner({ member }: { member?: TeamMemberValues }) {
       <Fields member={member} />
 
       <div className="flex items-center justify-between gap-4 border-t border-[var(--admin-border-soft)] pt-4">
-        <Link href="/admin/team" className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-[var(--admin-muted)] hover:text-[var(--admin-text)]">← Back to team</Link>
+        <Link href="/admin/team" className="sdm-eyebrow text-[var(--admin-muted)] hover:text-[var(--admin-text)]">← Back to team</Link>
         <SaveStatus status={status} error={errorMsg} />
       </div>
     </form>

@@ -177,7 +177,7 @@ function SubmissionDrawer({
         {/* Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--admin-border)] bg-[var(--admin-bg)] px-6 py-4">
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-accent)]">
+            <p className="sdm-eyebrow text-[var(--admin-accent)]">
               Submission
             </p>
             <p className="mt-1 text-[18px] font-semibold leading-tight text-[var(--admin-text)]">
@@ -198,7 +198,7 @@ function SubmissionDrawer({
           {/* Meta */}
           <section className="grid grid-cols-2 gap-4">
             <div>
-              <dt className="font-mono text-[9.5px] uppercase tracking-[0.2em] text-[var(--admin-subtle)]">
+              <dt className="sdm-eyebrow text-[var(--admin-subtle)]">
                 Email
               </dt>
               <dd className="mt-1 font-mono text-[12px] text-[var(--admin-text)]">
@@ -218,7 +218,7 @@ function SubmissionDrawer({
               </dd>
             </div>
             <div>
-              <dt className="font-mono text-[9.5px] uppercase tracking-[0.2em] text-[var(--admin-subtle)]">
+              <dt className="sdm-eyebrow text-[var(--admin-subtle)]">
                 Received
               </dt>
               <dd className="mt-1 font-mono text-[12px] text-[var(--admin-text)]">
@@ -227,7 +227,7 @@ function SubmissionDrawer({
             </div>
             {submission.related_type ? (
               <div className="col-span-2">
-                <dt className="font-mono text-[9.5px] uppercase tracking-[0.2em] text-[var(--admin-subtle)]">
+                <dt className="sdm-eyebrow text-[var(--admin-subtle)]">
                   Linked to
                 </dt>
                 <dd className="mt-1 font-mono text-[12px] text-[var(--admin-muted)]">
@@ -239,7 +239,7 @@ function SubmissionDrawer({
 
           {/* Answers */}
           <section>
-            <h3 className="mb-4 font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--admin-accent)]">
+            <h3 className="mb-4 sdm-eyebrow text-[var(--admin-accent)]">
               Answers
             </h3>
             {submission.answers.length === 0 ? (
@@ -252,7 +252,7 @@ function SubmissionDrawer({
                   const type = meta?.type || "text";
                   return (
                     <div key={answer.field_key} className="py-3">
-                      <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">
+                      <dt className="sdm-eyebrow text-[var(--admin-subtle)]">
                         {label}
                       </dt>
                       <dd className="mt-1.5 whitespace-pre-wrap text-[13.5px] leading-relaxed text-[var(--admin-text)]">
@@ -267,7 +267,7 @@ function SubmissionDrawer({
 
           {/* Status */}
           <section className="border-t border-[var(--admin-border)] pt-6">
-            <h3 className="mb-3 font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--admin-accent)]">
+            <h3 className="mb-3 sdm-eyebrow text-[var(--admin-accent)]">
               Status
             </h3>
             <div className="flex flex-wrap gap-2">
@@ -277,7 +277,7 @@ function SubmissionDrawer({
                   type="button"
                   disabled={isPending || submission.status === s}
                   onClick={() => handleStatus(s)}
-                  className={`border px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                  className={`border px-3 py-2 sdm-eyebrow transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
                     submission.status === s
                       ? "border-[var(--admin-accent)] bg-[var(--admin-accent-soft)] text-[var(--admin-text)]"
                       : "border-[var(--admin-border)] text-[var(--admin-muted)] hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]"

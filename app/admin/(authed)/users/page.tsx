@@ -97,7 +97,7 @@ export default async function UsersPage() {
                 <input type="hidden" name="id" value={user.id} />
                 <div className="min-w-0">
                   <Input name="full_name" defaultValue={user.full_name ?? ""} className="w-full text-[15px] font-semibold" />
-                  <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-subtle)]">{user.id === me.id ? "Current user" : "Staff user"}</p>
+                  <p className="mt-2 sdm-eyebrow text-[var(--admin-subtle)]">{user.id === me.id ? "Current user" : "Staff user"}</p>
                 </div>
                 <div className="truncate text-[13px] text-[var(--admin-muted)]">{user.email ?? "-"}</div>
                 <div>
@@ -113,7 +113,7 @@ export default async function UsersPage() {
                 </div>
               </form>
               <div className="mt-3 flex items-center justify-between border-t border-[var(--admin-border-soft)] pt-3">
-                <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">
+                <span className="sdm-eyebrow text-[var(--admin-subtle)]">
                   Joined {new Date(user.created_at).toLocaleDateString()}
                 </span>
                 {user.id !== me.id ? (

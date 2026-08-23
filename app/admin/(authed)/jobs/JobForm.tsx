@@ -212,7 +212,7 @@ function JobCreateInner({ job, forms }: { job?: JobFormValues; forms?: Applicati
 
       <div className="flex items-center gap-4 pt-2">
         <CreateButton />
-        <Link href="/admin/jobs" className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-[var(--admin-muted)] hover:text-[var(--admin-text)]">Cancel</Link>
+        <Link href="/admin/jobs" className="sdm-eyebrow text-[var(--admin-muted)] hover:text-[var(--admin-text)]">Cancel</Link>
       </div>
     </form>
   );
@@ -242,7 +242,7 @@ function JobEditInner({ job, forms }: { job?: JobFormValues; forms?: Application
       <Fields job={job} forms={forms} onTitleChange={onTitleChange} slug={slug} setSlug={setSlug} setSlugTouched={setSlugTouched} title={title} />
 
       <div className="flex items-center justify-between gap-4 border-t border-[var(--admin-border-soft)] pt-4">
-        <Link href="/admin/jobs" className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-[var(--admin-muted)] hover:text-[var(--admin-text)]">← Back to roles</Link>
+        <Link href="/admin/jobs" className="sdm-eyebrow text-[var(--admin-muted)] hover:text-[var(--admin-text)]">← Back to roles</Link>
         <SaveStatus status={status} error={errorMsg} />
       </div>
     </form>

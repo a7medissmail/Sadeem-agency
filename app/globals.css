@@ -5235,6 +5235,11 @@ section.team-roster {
   --sdm-ring: 0 0 0 2px var(--sdm-surface-base), 0 0 0 4px var(--sdm-border-focus);
   --sdm-ring-danger: 0 0 0 2px var(--sdm-surface-base), 0 0 0 4px var(--sdm-danger-400);
 
+  /* Fields take the border change plus a soft glow instead of the offset ring —
+     an offset ring around a text box reads as a second border. */
+  --sdm-ring-field: 0 0 0 3px color-mix(in srgb, var(--sdm-action-primary) 16%, transparent);
+  --sdm-ring-field-danger: 0 0 0 3px color-mix(in srgb, var(--sdm-action-danger) 18%, transparent);
+
   /* Elevation — shadow only detaches a floating layer from the page beneath. */
   --sdm-elevation-low: 0 1px 2px rgba(0, 0, 0, 0.4);
   --sdm-elevation-medium: 0 4px 12px rgba(0, 0, 0, 0.45);
@@ -5291,6 +5296,166 @@ section.team-roster {
     radial-gradient(760px 480px at 12% -10%, rgba(255, 106, 0, 0.07), transparent 64%),
     linear-gradient(180deg, var(--admin-bg-2), var(--admin-bg));
   color-scheme: dark;
+}
+
+/*
+ * Type scale — audit findings A04 and A05.
+ *
+ * 10, 10.5, 11, 12.5, 13, 13.5, 14, 28 and 30 px were in use across the
+ * primitives with no ratio and no named roles, so two engineers picked two
+ * different values for the same job. These are the named roles. Reach for one
+ * of them instead of writing a px value at a call site.
+ *
+ * The important change: mono-uppercase-tracked is no longer the default label
+ * style. It drops from 10 px / 0.22em to 11 px / 0.10em and is confined to
+ * machine-shaped values — IDs, timestamps, counts, keyboard hints, table
+ * headers. Anything a person reads and fills in gets sentence-case Geist.
+ *
+ * Declared after @tailwind utilities so a class here wins over the inline
+ * font-mono/text-[10px]/tracking-[…] trio it replaces, at equal specificity.
+ */
+.sdm-display,
+.sdm-page-title,
+.sdm-section-title,
+.sdm-card-title,
+.sdm-body-large,
+.sdm-body,
+.sdm-body-small,
+.sdm-label,
+.sdm-form-label,
+.sdm-helper-text,
+.sdm-caption,
+.sdm-nav-item,
+.sdm-button-label,
+.sdm-table-cell {
+  font-family: var(--font-sans);
+  text-transform: none;
+}
+
+.sdm-metadata,
+.sdm-table-header,
+.sdm-eyebrow {
+  font-family: var(--font-mono);
+}
+
+.sdm-display {
+  font-size: 34px;
+  line-height: 40px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+.sdm-page-title {
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.sdm-section-title {
+  font-size: 17px;
+  line-height: 24px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.sdm-card-title {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.sdm-body-large {
+  font-size: 15px;
+  line-height: 24px;
+  font-weight: 400;
+}
+.sdm-body {
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 400;
+}
+.sdm-body-small {
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 400;
+}
+.sdm-label,
+.sdm-form-label {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.sdm-helper-text {
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 400;
+}
+.sdm-caption {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+}
+.sdm-nav-item {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+}
+.sdm-button-label {
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+.sdm-table-cell {
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Machine-shaped values only. */
+.sdm-metadata {
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+.sdm-table-header {
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+/*
+ * The one that replaces the ~190 hand-written mono-uppercase call sites. Same
+ * role the old 10 px / 0.22em label was doing everywhere, at a size and a
+ * tracking that can actually be read at a glance.
+ */
+.sdm-eyebrow {
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/*
+ * Arabic — audit finding A06.
+ * Uppercase does not exist in Arabic and letter-spacing breaks the cursive
+ * joins that make the script readable, so the tracked styles collapse to plain
+ * Plex Arabic. This is the whole reason the label style had to change: there
+ * was no non-tracked label token to switch to.
+ */
+:lang(ar) .sdm-eyebrow,
+:lang(ar) .sdm-table-header,
+:lang(ar) .sdm-metadata,
+.sdm-eyebrow:lang(ar),
+.sdm-table-header:lang(ar),
+.sdm-metadata:lang(ar) {
+  font-family: "IBM Plex Sans Arabic", var(--font-sans);
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 /*
@@ -5368,8 +5533,8 @@ section.team-roster {
 .admin-kicker {
   margin: 0;
   color: var(--admin-accent);
-  font-size: 10px;
-  letter-spacing: 0.34em;
+  font-size: 11px;
+  letter-spacing: 0.12em;
 }
 
 .admin-brand-title {
@@ -5400,8 +5565,8 @@ section.team-roster {
 .admin-nav-group-label {
   margin: 0 8px 6px;
   color: var(--admin-subtle);
-  font-size: 9px;
-  letter-spacing: 0.22em;
+  font-size: 11px;
+  letter-spacing: 0.12em;
 }
 
 .admin-nav-group-links {
@@ -5515,8 +5680,8 @@ section.team-roster {
 .admin-profile-role {
   margin-top: 3px;
   color: var(--admin-accent);
-  font-size: 9px;
-  letter-spacing: 0.2em;
+  font-size: 11px;
+  letter-spacing: 0.12em;
 }
 
 .admin-signout {
@@ -5525,8 +5690,8 @@ section.team-roster {
   background: transparent;
   color: var(--admin-muted);
   padding: 0 10px;
-  font-size: 10px;
-  letter-spacing: 0.18em;
+  font-size: 11px;
+  letter-spacing: 0.12em;
   cursor: pointer;
   transition: color 0.22s ease;
 }
@@ -5562,8 +5727,8 @@ section.team-roster {
 .admin-topbar-kicker {
   margin: 0 0 4px;
   color: var(--admin-accent);
-  font-size: 9px;
-  letter-spacing: 0.24em;
+  font-size: 11px;
+  letter-spacing: 0.12em;
 }
 
 .admin-topbar-title {
@@ -5630,7 +5795,7 @@ section.team-roster {
 .admin-command-mark {
   color: var(--admin-accent);
   font-size: 11px;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.12em;
 }
 
 .admin-command-copy {
@@ -5663,8 +5828,8 @@ section.team-roster {
   border: 1px solid var(--admin-border);
   background: var(--admin-panel);
   color: var(--admin-muted);
-  font-size: 10px;
-  letter-spacing: 0.17em;
+  font-size: 11px;
+  letter-spacing: 0.12em;
   cursor: pointer;
   transition: color 0.22s ease, border-color 0.22s ease, background 0.22s ease;
 }
@@ -5713,8 +5878,8 @@ section.team-roster {
 
 .admin-section-kicker {
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.28em;
+  font-size: 11px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--admin-accent);
   margin-bottom: 12px;
@@ -5784,8 +5949,8 @@ section.team-roster {
 
 .admin-needs-action-cta {
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
+  font-size: 11px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--admin-accent);
   margin-top: 8px;
@@ -5847,8 +6012,8 @@ section.team-roster {
 .admin-activity-head p {
   margin: 0;
   color: var(--admin-text);
-  font-size: 10px;
-  letter-spacing: 0.24em;
+  font-size: 11px;
+  letter-spacing: 0.12em;
 }
 
 .admin-activity-head span {
@@ -5867,8 +6032,8 @@ section.team-roster {
   border: 0;
   background: transparent;
   color: var(--admin-accent);
-  font-size: 9px;
-  letter-spacing: 0.18em;
+  font-size: 11px;
+  letter-spacing: 0.12em;
   cursor: pointer;
 }
 
@@ -5899,8 +6064,8 @@ section.team-roster {
 .admin-activity-item span,
 .admin-activity-item time {
   color: var(--admin-accent);
-  font-size: 9px;
-  letter-spacing: 0.18em;
+  font-size: 11px;
+  letter-spacing: 0.12em;
 }
 
 .admin-activity-item span.is-muted,
@@ -5962,8 +6127,8 @@ section.team-roster {
 
 .admin-palette-input-row span {
   color: var(--admin-accent);
-  font-size: 12px;
-  letter-spacing: 0.18em;
+  font-size: 11px;
+  letter-spacing: 0.12em;
 }
 
 .admin-palette-input-row input {
@@ -5988,8 +6153,8 @@ section.team-roster {
 .admin-palette-group {
   padding: 13px 10px 7px;
   color: var(--admin-subtle);
-  font-size: 9px;
-  letter-spacing: 0.22em;
+  font-size: 11px;
+  letter-spacing: 0.12em;
 }
 
 .admin-palette-item {
@@ -6042,8 +6207,8 @@ section.team-roster {
   background: var(--admin-panel);
   color: var(--admin-muted);
   padding: 0 12px;
-  font-size: 10px;
-  letter-spacing: 0.17em;
+  font-size: 11px;
+  letter-spacing: 0.12em;
 }
 
 .admin-content {
@@ -6080,8 +6245,8 @@ section.team-roster {
     padding: 8px 14px;
     border: 1px solid var(--admin-border);
     font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.18em;
+    font-size: 11px;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--admin-muted);
   }
@@ -6440,8 +6605,8 @@ section.team-roster {
 .admin-form-preview-toolbar span,
 .admin-form-preview-toolbar code {
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.18em;
+  font-size: 11px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 

@@ -25,7 +25,7 @@ export default async function NewLeadPage() {
 
       <form action={createLeadAction} className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5 max-w-2xl">
         <div className="mb-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--admin-accent)]">Contact</p>
+          <p className="sdm-eyebrow text-[var(--admin-accent)]">Contact</p>
           <h2 className="mt-2 text-xl font-semibold text-[var(--admin-text)]">Lead details</h2>
           <p className="mt-1 text-[13px] text-[var(--admin-muted)]">
             All fields except name and email are optional. The lead will appear in the board immediately.

@@ -68,7 +68,7 @@ export default async function EditCampaignPage({ params }: { params: { id: strin
         <form action={updateCampaignAction} className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5 max-w-2xl">
           <input type="hidden" name="id" value={campaign.id} />
           <div className="mb-5">
-            <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--admin-accent)]">Draft</p>
+            <p className="sdm-eyebrow text-[var(--admin-accent)]">Draft</p>
             <h2 className="mt-2 text-xl font-semibold text-[var(--admin-text)]">Update campaign</h2>
             <p className="mt-1 text-[13px] text-[var(--admin-muted)]">
               Changes are saved as a draft. Review the audience count on the main page before sending.

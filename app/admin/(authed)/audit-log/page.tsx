@@ -27,7 +27,7 @@ export default async function AuditLogPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">SYSTEM</p>
+        <p className="sdm-eyebrow text-[var(--admin-accent)]">SYSTEM</p>
         <h1 className="mt-2 text-[32px] font-semibold tracking-tight">Audit Log</h1>
         <p className="mt-2 text-[14.5px] text-[var(--admin-muted)]">
           Last 100 destructive actions — who deleted or changed what.
@@ -49,12 +49,12 @@ export default async function AuditLogPage() {
           <table className="w-full text-[13px]">
             <thead>
               <tr className="border-b border-[var(--admin-border)] bg-[var(--admin-panel-hover)]">
-                <th className="px-4 py-3 text-left font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">When</th>
-                <th className="px-4 py-3 text-left font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Actor</th>
-                <th className="px-4 py-3 text-left font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Action</th>
-                <th className="px-4 py-3 text-left font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Table</th>
-                <th className="px-4 py-3 text-left font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Record</th>
-                <th className="px-4 py-3 text-left font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Detail</th>
+                <th className="px-4 py-3 text-left sdm-eyebrow text-[var(--admin-subtle)]">When</th>
+                <th className="px-4 py-3 text-left sdm-eyebrow text-[var(--admin-subtle)]">Actor</th>
+                <th className="px-4 py-3 text-left sdm-eyebrow text-[var(--admin-subtle)]">Action</th>
+                <th className="px-4 py-3 text-left sdm-eyebrow text-[var(--admin-subtle)]">Table</th>
+                <th className="px-4 py-3 text-left sdm-eyebrow text-[var(--admin-subtle)]">Record</th>
+                <th className="px-4 py-3 text-left sdm-eyebrow text-[var(--admin-subtle)]">Detail</th>
               </tr>
             </thead>
             <tbody>
@@ -70,7 +70,7 @@ export default async function AuditLogPage() {
                     {entry.actor_name ?? <span className="text-[var(--admin-subtle)]">—</span>}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`font-mono text-[11px] uppercase tracking-[0.14em] ${actionColors[entry.action] ?? "text-[var(--admin-muted)]"}`}>
+                    <span className={`sdm-eyebrow ${actionColors[entry.action] ?? "text-[var(--admin-muted)]"}`}>
                       {entry.action}
                     </span>
                   </td>

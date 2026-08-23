@@ -94,7 +94,7 @@ function CopyButton({ text }: { text: string }) {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       })}
-      className="border border-[var(--admin-accent)] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)] hover:bg-[var(--admin-accent-soft)] transition-colors"
+      className="border border-[var(--admin-accent)] px-3 py-2 sdm-eyebrow text-[var(--admin-accent)] hover:bg-[var(--admin-accent-soft)] transition-colors"
     >
       {copied ? "Copied!" : "Copy link"}
     </button>
@@ -306,7 +306,7 @@ export function QuotationBuilder({
               fd.set("id", q.id);
               startDelete(() => deleteQuotationAction(fd));
             }}
-            className="font-mono text-[10px] uppercase tracking-[0.18em] text-red-400 hover:text-red-300 transition-colors"
+            className="sdm-eyebrow text-red-400 hover:text-red-300 transition-colors"
           >
             Delete
           </button>
@@ -331,7 +331,7 @@ export function QuotationBuilder({
           ))}
           {q?.status === "declined" && q.decline_reason && (
             <div className="mt-3 rounded border border-[var(--admin-border)] bg-[var(--admin-surface-strong)] px-3 py-2">
-              <p className="font-mono text-[9.5px] uppercase tracking-[0.2em] text-[var(--admin-subtle)] mb-1">Decline reason</p>
+              <p className="sdm-eyebrow text-[var(--admin-subtle)] mb-1">Decline reason</p>
               <p className="text-[12.5px] leading-relaxed text-[var(--admin-muted)]">{q.decline_reason}</p>
             </div>
           )}
@@ -341,7 +341,7 @@ export function QuotationBuilder({
       {/* Token banner — after sending */}
       {effectiveToken && (
         <div className="qb-token-banner">
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-emerald-300 mb-2">Quote link ready — copy before closing</p>
+          <p className="sdm-eyebrow text-emerald-300 mb-2">Quote link ready — copy before closing</p>
           <code className="block break-all text-[12px] text-emerald-200 mb-3 select-all">
             {getPortalUrl(effectiveToken)}
           </code>
@@ -519,7 +519,7 @@ export function QuotationBuilder({
             type="button"
             onClick={handleRegenerate}
             disabled={isRegen}
-            className="mt-2 block font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)] transition-colors hover:text-[var(--admin-danger)] disabled:opacity-50"
+            className="mt-2 block sdm-eyebrow text-[var(--admin-subtle)] transition-colors hover:text-[var(--admin-danger)] disabled:opacity-50"
           >
             {isRegen ? "Regenerating…" : "Regenerate link (revoke old)"}
           </button>

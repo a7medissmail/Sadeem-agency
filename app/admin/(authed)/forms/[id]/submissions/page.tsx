@@ -112,7 +112,7 @@ export default async function FormSubmissionsPage({ params }: { params: Promise<
           <div className="flex items-center gap-2">
             <a
               href={`/api/admin/export/forms/${id}`}
-              className="inline-flex items-center justify-center gap-2.5 font-mono uppercase tracking-[0.22em] transition-colors border border-[var(--admin-accent)] text-[var(--admin-accent)] hover:bg-[var(--admin-accent-soft)] px-3 py-1.5 text-[10px]"
+              className="inline-flex items-center justify-center gap-2.5 sdm-eyebrow transition-colors border border-[var(--admin-accent)] text-[var(--admin-accent)] hover:bg-[var(--admin-accent-soft)] px-3 py-1.5 text-[10px]"
             >
               Export CSV
             </a>
@@ -145,7 +145,7 @@ export default async function FormSubmissionsPage({ params }: { params: Promise<
           ] as const
         ).map(({ label, value, tone }) => (
           <div key={label} className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">{label}</p>
+            <p className="sdm-eyebrow text-[var(--admin-subtle)]">{label}</p>
             <div className="mt-3 flex items-end gap-3">
               <span className="text-[30px] font-semibold leading-none text-[var(--admin-text)]">{value}</span>
               {value > 0 ? <Badge tone={tone as "neutral" | "blue" | "green"}>{label}</Badge> : null}

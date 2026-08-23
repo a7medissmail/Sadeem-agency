@@ -16,7 +16,7 @@ export function Badge({ tone = "neutral", children }: { tone?: Tone; children: R
   return (
     <span
       className={[
-        "inline-flex items-center px-2 py-0.5 rounded-full border font-mono text-[10px] tracking-[0.16em] uppercase",
+        "inline-flex items-center px-2 py-0.5 rounded-full border sdm-eyebrow",
         tones[tone],
       ].join(" ")}
     >

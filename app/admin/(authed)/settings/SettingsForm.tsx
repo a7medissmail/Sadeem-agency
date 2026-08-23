@@ -49,7 +49,7 @@ export default function SettingsForm({ settings }: { settings: SettingsRow }) {
       <div className="flex flex-col gap-6">
         <section className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
           <div className="mb-5">
-            <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--admin-accent)]">Brand</p>
+            <p className="sdm-eyebrow text-[var(--admin-accent)]">Brand</p>
             <h2 className="mt-2 text-xl font-semibold">Logo and favicon</h2>
             <p className="mt-1 text-[13px] text-[var(--admin-muted)]">
               Dark logo is for light nav. White logo is for dark nav and footer.
@@ -88,7 +88,7 @@ export default function SettingsForm({ settings }: { settings: SettingsRow }) {
 
         <section className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
           <div className="mb-5">
-            <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--admin-accent)]">Footer</p>
+            <p className="sdm-eyebrow text-[var(--admin-accent)]">Footer</p>
             <h2 className="mt-2 text-xl font-semibold">Contact and social links</h2>
           </div>
 
@@ -125,7 +125,7 @@ export default function SettingsForm({ settings }: { settings: SettingsRow }) {
       </div>
 
       <aside className="h-fit border border-[var(--admin-border)] bg-[var(--admin-surface-strong)] p-5 shadow-[var(--admin-shadow)]">
-        <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--admin-accent)]">Notes</p>
+        <p className="sdm-eyebrow text-[var(--admin-accent)]">Notes</p>
         <div className="mt-4 space-y-4 text-[13.5px] leading-relaxed text-[var(--admin-muted)]">
           <p>Use transparent SVG or PNG logos. Keep both variants visually identical, only color changes.</p>
           <p>Social icons render through Font Awesome 6 brand icons in react-icons, matching the public footer.</p>

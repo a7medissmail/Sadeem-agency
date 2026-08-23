@@ -78,7 +78,7 @@ function SortableSection({
             <p className={`text-[14px] ${entry.enabled ? "text-[var(--admin-text)]" : "text-[var(--admin-subtle)]"}`}>
               {entry.label}
               {entry.locked ? (
-                <span className="ml-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">
+                <span className="ml-2 sdm-eyebrow text-[var(--admin-subtle)]">
                   Locked
                 </span>
               ) : null}
@@ -91,7 +91,7 @@ function SortableSection({
         </div>
 
         <label
-          className={`flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] ${
+          className={`flex items-center gap-2 sdm-eyebrow ${
             entry.locked ? "cursor-not-allowed text-[var(--admin-subtle)]" : "cursor-pointer text-[var(--admin-muted)]"
           }`}
         >
@@ -172,7 +172,7 @@ export function HomeSectionsEditor({ sections }: { sections: ResolvedHomeSection
   return (
     <section className="flex flex-col gap-4">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.24em] text-[var(--admin-subtle)]">
+        <h2 className="sdm-eyebrow text-[var(--admin-subtle)]">
           Homepage sections — {visibleCount} visible, {entries.length - visibleCount} hidden
         </h2>
         <p className="text-[12.5px] text-[var(--admin-muted)]">
@@ -196,7 +196,7 @@ export function HomeSectionsEditor({ sections }: { sections: ResolvedHomeSection
           {saving ? "Publishing…" : "Publish layout"}
         </Button>
         {dirty && !saving ? (
-          <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-amber-400">Unpublished changes</span>
+          <span className="sdm-eyebrow text-amber-400">Unpublished changes</span>
         ) : null}
         {status ? <span className="text-[13px] text-[var(--admin-muted)]">{status}</span> : null}
       </div>

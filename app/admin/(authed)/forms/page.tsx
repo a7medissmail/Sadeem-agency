@@ -99,7 +99,7 @@ export default async function FormsAdminPage() {
                   <Link href={`/admin/forms/${form.id}`} className="block text-[22px] font-semibold leading-tight text-[var(--admin-text)] hover:text-[var(--admin-accent)]">
                     {form.name}
                   </Link>
-                  <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">
+                  <p className="mt-2 sdm-eyebrow text-[var(--admin-subtle)]">
                     /{form.slug} / {form.purpose}
                   </p>
                 </div>
@@ -112,15 +112,15 @@ export default async function FormsAdminPage() {
 
               <dl className="mt-6 grid grid-cols-3 border-y border-[var(--admin-border-soft)] py-4 text-[12.5px]">
                 <div>
-                  <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Fields</dt>
+                  <dt className="sdm-eyebrow text-[var(--admin-subtle)]">Fields</dt>
                   <dd className="mt-1 text-[var(--admin-text)]">{form.fieldCount}</dd>
                 </div>
                 <div>
-                  <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Responses</dt>
+                  <dt className="sdm-eyebrow text-[var(--admin-subtle)]">Responses</dt>
                   <dd className="mt-1 text-[var(--admin-text)]">{form.submissionCount}</dd>
                 </div>
                 <div>
-                  <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Button</dt>
+                  <dt className="sdm-eyebrow text-[var(--admin-subtle)]">Button</dt>
                   <dd className="mt-1 truncate text-[var(--admin-text)]">{form.submit_label}</dd>
                 </div>
               </dl>

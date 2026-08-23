@@ -90,11 +90,11 @@ function FieldPreview({ field }: { field: FieldRowType }) {
             {field.label}
             {field.is_required ? <span className="text-[var(--admin-accent)]"> *</span> : null}
           </p>
-          <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--admin-subtle)]">
+          <p className="mt-1 sdm-eyebrow text-[var(--admin-subtle)]">
             {field.field_key} / {fieldTypeLabels[field.type]}
           </p>
         </div>
-        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)]">
+        <span className="sdm-eyebrow text-[var(--admin-accent)]">
           {String(field.sort_order).padStart(2, "0")}
         </span>
       </div>
@@ -104,7 +104,7 @@ function FieldPreview({ field }: { field: FieldRowType }) {
           {options.map((option: Json, index) => {
             const label = option && typeof option === "object" && !Array.isArray(option) && "label" in option ? String(option.label ?? "") : "";
             return label ? (
-              <span key={`${label}-${index}`} className="border border-[var(--admin-border)] px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-[var(--admin-muted)]">
+              <span key={`${label}-${index}`} className="border border-[var(--admin-border)] px-2 py-1 sdm-eyebrow text-[var(--admin-muted)]">
                 {label}
               </span>
             ) : null;
@@ -124,7 +124,7 @@ function FieldEditor({ field }: { field: FieldRowType }) {
     <details className="group border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4">
         <FieldPreview field={field} />
-        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-[var(--admin-subtle)] group-open:text-[var(--admin-accent)]">
+        <span className="sdm-eyebrow text-[var(--admin-subtle)] group-open:text-[var(--admin-accent)]">
           Edit
         </span>
       </summary>
@@ -398,16 +398,16 @@ export function FormDefinitionForm({ mode, form }: { mode: "create" | "edit"; fo
       <div className="flex flex-wrap items-center gap-3 md:col-span-2">
         <SaveButton>{mode === "create" ? "Create form" : "Save form"}</SaveButton>
         {form?.id ? (
-          <Link href={`/admin/forms/${form.id}/preview`} className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)] hover:text-[var(--admin-text)]">
+          <Link href={`/admin/forms/${form.id}/preview`} className="sdm-eyebrow text-[var(--admin-accent)] hover:text-[var(--admin-text)]">
             Preview
           </Link>
         ) : null}
         {form?.is_active ? (
-          <Link href={`/forms/${form.slug}`} target="_blank" className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)] hover:text-[var(--admin-text)]">
+          <Link href={`/forms/${form.slug}`} target="_blank" className="sdm-eyebrow text-[var(--admin-accent)] hover:text-[var(--admin-text)]">
             Open live
           </Link>
         ) : null}
-        <Link href="/admin/forms" className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-muted)] hover:text-[var(--admin-text)]">
+        <Link href="/admin/forms" className="sdm-eyebrow text-[var(--admin-muted)] hover:text-[var(--admin-text)]">
           Back to forms
         </Link>
       </div>
@@ -450,14 +450,14 @@ export function FormBuilderEditor({ form, fields: initialFields }: { form: FormR
     <div className="grid gap-8 xl:grid-cols-[0.9fr_1.1fr]">
       <section className="space-y-5">
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">Definition</p>
+          <p className="sdm-eyebrow text-[var(--admin-accent)]">Definition</p>
           <h2 className="mt-2 text-[28px] font-semibold tracking-tight text-[var(--admin-text)]">Form shell</h2>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Link href={`/admin/forms/${form.id}/preview`} className="border border-[var(--admin-border)] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-muted)] hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]">
+            <Link href={`/admin/forms/${form.id}/preview`} className="border border-[var(--admin-border)] px-3 py-2 sdm-eyebrow text-[var(--admin-muted)] hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]">
               Preview
             </Link>
             {form.is_active ? (
-              <Link href={`/forms/${form.slug}`} target="_blank" className="border border-[var(--admin-accent)] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)] hover:bg-[var(--admin-accent-soft)]">
+              <Link href={`/forms/${form.slug}`} target="_blank" className="border border-[var(--admin-accent)] px-3 py-2 sdm-eyebrow text-[var(--admin-accent)] hover:bg-[var(--admin-accent-soft)]">
                 Open live
               </Link>
             ) : null}
@@ -468,7 +468,7 @@ export function FormBuilderEditor({ form, fields: initialFields }: { form: FormR
 
       <section className="space-y-5">
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">Fields</p>
+          <p className="sdm-eyebrow text-[var(--admin-accent)]">Fields</p>
           <h2 className="mt-2 text-[28px] font-semibold tracking-tight text-[var(--admin-text)]">Builder</h2>
           <p className="mt-2 max-w-[60ch] text-[13px] leading-relaxed text-[var(--admin-muted)]">
             Use controlled field types only. This keeps client-facing forms safe and lets us map answers into hiring, CRM, and proposal workflows later.

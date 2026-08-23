@@ -69,7 +69,7 @@ export default async function SuccessStoriesAdminPage() {
                   <Link href={`/admin/success-stories/${story.id}`} className="block text-[22px] font-semibold leading-tight text-[var(--admin-text)] hover:text-[var(--admin-accent)]">
                     {story.title}
                   </Link>
-                  <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">
+                  <p className="mt-2 sdm-eyebrow text-[var(--admin-subtle)]">
                     /{story.slug}
                     {story.client_name ? ` / ${story.client_name}` : ""}
                   </p>
@@ -78,7 +78,7 @@ export default async function SuccessStoriesAdminPage() {
               </div>
 
               <div className="mt-6 border-y border-[var(--admin-border-soft)] py-5">
-                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-accent)]">Headline metric</p>
+                <p className="sdm-eyebrow text-[var(--admin-accent)]">Headline metric</p>
                 <p className="mt-2 text-[30px] font-semibold leading-none text-[var(--admin-text)]">
                   {story.metric_value || "-"}
                   {story.metric_label ? <span className="ml-2 text-[14px] font-normal text-[var(--admin-muted)]">{story.metric_label}</span> : null}
@@ -87,11 +87,11 @@ export default async function SuccessStoriesAdminPage() {
 
               <dl className="mt-5 grid grid-cols-2 gap-4 text-[12.5px]">
                 <div>
-                  <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Industry</dt>
+                  <dt className="sdm-eyebrow text-[var(--admin-subtle)]">Industry</dt>
                   <dd className="mt-1 truncate text-[var(--admin-muted)]">{story.industry || "-"}</dd>
                 </div>
                 <div>
-                  <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Order</dt>
+                  <dt className="sdm-eyebrow text-[var(--admin-subtle)]">Order</dt>
                   <dd className="mt-1 text-[var(--admin-muted)]">{story.sort_order}</dd>
                 </div>
               </dl>

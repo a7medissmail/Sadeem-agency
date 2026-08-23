@@ -227,7 +227,7 @@ function StoryCreateInner({ story }: { story?: StoryValues }) {
 
       <div className="flex items-center gap-4 pt-2">
         <CreateButton />
-        <Link href="/admin/success-stories" className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-[var(--admin-muted)] hover:text-[var(--admin-text)]">Cancel</Link>
+        <Link href="/admin/success-stories" className="sdm-eyebrow text-[var(--admin-muted)] hover:text-[var(--admin-text)]">Cancel</Link>
       </div>
     </form>
   );
@@ -258,7 +258,7 @@ function StoryEditInner({ story }: { story?: StoryValues }) {
       <Fields story={story} title={title} slug={slug} onTitleChange={onTitleChange} setSlug={setSlug} setSlugTouched={setSlugTouched} />
 
       <div className="flex items-center justify-between gap-4 border-t border-[var(--admin-border-soft)] pt-4">
-        <Link href="/admin/success-stories" className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-[var(--admin-muted)] hover:text-[var(--admin-text)]">← Back to stories</Link>
+        <Link href="/admin/success-stories" className="sdm-eyebrow text-[var(--admin-muted)] hover:text-[var(--admin-text)]">← Back to stories</Link>
         <SaveStatus status={status} error={errorMsg} />
       </div>
     </form>

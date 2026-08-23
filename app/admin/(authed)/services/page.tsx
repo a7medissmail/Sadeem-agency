@@ -99,7 +99,7 @@ export default async function ServicesAdminPage() {
               <section key={cat.id}>
                 <div className="mb-4 flex items-center gap-4">
                   <div className="flex-1">
-                    <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-[var(--admin-accent)]">
+                    <p className="sdm-eyebrow text-[var(--admin-accent)]">
                       {cat.label}
                     </p>
                     {cat.tagline && (
@@ -174,7 +174,7 @@ export default async function ServicesAdminPage() {
           {uncategorized.length > 0 && (
             <section>
               <div className="mb-4">
-                <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-amber-400">Uncategorized</p>
+                <p className="sdm-eyebrow text-amber-400">Uncategorized</p>
                 <p className="mt-0.5 text-[13px] text-[var(--admin-muted)]">
                   These services have a category slug not found in the categories table.
                 </p>

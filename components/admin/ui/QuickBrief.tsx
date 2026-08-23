@@ -81,7 +81,7 @@ export function QuickBriefPanel({ forms, createBrief }: Props) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="mt-3 inline-flex w-full justify-center border border-[var(--admin-border)] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-muted)] transition-colors hover:border-[var(--admin-accent)] hover:text-[var(--admin-accent)]"
+        className="mt-3 inline-flex w-full justify-center border border-[var(--admin-border)] px-3 py-2 sdm-eyebrow text-[var(--admin-muted)] transition-colors hover:border-[var(--admin-accent)] hover:text-[var(--admin-accent)]"
       >
         Send Brief →
       </button>
@@ -93,12 +93,12 @@ export function QuickBriefPanel({ forms, createBrief }: Props) {
     if (result.error) {
       return (
         <div className="mt-3 space-y-3 border border-red-500/30 bg-red-500/[0.06] p-4">
-          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-red-400">Error</p>
+          <p className="sdm-eyebrow text-red-400">Error</p>
           <p className="text-[12.5px] text-[var(--admin-muted)]">{result.error}</p>
           <button
             type="button"
             onClick={reset}
-            className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)] hover:underline"
+            className="sdm-eyebrow text-[var(--admin-accent)] hover:underline"
           >
             Try again
           </button>
@@ -110,25 +110,25 @@ export function QuickBriefPanel({ forms, createBrief }: Props) {
 
     return (
       <div className="mt-3 space-y-3 border border-[var(--admin-accent)]/30 bg-[var(--admin-accent-soft)] p-4">
-        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)]">Brief ready</p>
+        <p className="sdm-eyebrow text-[var(--admin-accent)]">Brief ready</p>
         <p className="break-all font-mono text-[10px] text-[var(--admin-muted)]">{link}</p>
         <div className="flex gap-2">
           <button
             type="button"
             onClick={copyLink}
-            className="flex-1 border border-[var(--admin-accent)] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-accent)] transition-colors hover:bg-[var(--admin-accent)] hover:text-[var(--admin-bg)]"
+            className="flex-1 border border-[var(--admin-accent)] px-3 py-2 sdm-eyebrow text-[var(--admin-accent)] transition-colors hover:bg-[var(--admin-accent)] hover:text-[var(--admin-bg)]"
           >
             {copied ? "Copied ✓" : "Copy link"}
           </button>
           <button
             type="button"
             onClick={reset}
-            className="border border-[var(--admin-border)] px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-muted)] transition-colors hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]"
+            className="border border-[var(--admin-border)] px-3 py-2 sdm-eyebrow text-[var(--admin-muted)] transition-colors hover:border-[var(--admin-accent)] hover:text-[var(--admin-text)]"
           >
             Done
           </button>
         </div>
-        <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[var(--admin-subtle)]">
+        <p className="sdm-eyebrow text-[var(--admin-subtle)]">
           This link appears only once — save it now.
         </p>
       </div>
@@ -139,7 +139,7 @@ export function QuickBriefPanel({ forms, createBrief }: Props) {
   return (
     <div className="mt-3 space-y-3 border border-[var(--admin-border)] bg-[var(--admin-panel)] p-4">
       <div className="flex items-center justify-between gap-2">
-        <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">New Brief</p>
+        <p className="sdm-eyebrow text-[var(--admin-subtle)]">New Brief</p>
         <button
           type="button"
           onClick={reset}
@@ -210,7 +210,7 @@ export function QuickBriefPanel({ forms, createBrief }: Props) {
         </Button>
       </div>
 
-      <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[var(--admin-subtle)]">
+      <p className="sdm-eyebrow text-[var(--admin-subtle)]">
         &ldquo;Send now&rdquo; emails the client immediately via briefs@
       </p>
     </div>

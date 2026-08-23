@@ -202,7 +202,7 @@ export default function ServiceForm({
           <button
             type="button"
             onClick={addDeliverable}
-            className="self-start text-[12px] font-mono tracking-[0.15em] uppercase text-[var(--admin-accent)] hover:opacity-70 transition-opacity"
+            className="sdm-button-label self-start text-[var(--sdm-text-brand)] underline underline-offset-[3px] decoration-[color-mix(in_srgb,var(--sdm-text-brand)_40%,transparent)] transition-colors hover:text-[var(--sdm-orange-300)]"
           >
             + Add deliverable
           </button>

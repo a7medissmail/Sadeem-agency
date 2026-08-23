@@ -73,7 +73,7 @@ export default async function CoursesAdminPage() {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={course.image_url} alt="" className="h-full w-full object-cover opacity-80 transition-transform duration-500 group-hover:scale-[1.03]" />
                   ) : (
-                    <div className="grid h-full place-items-center font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--admin-subtle)]">
+                    <div className="grid h-full place-items-center sdm-eyebrow text-[var(--admin-subtle)]">
                       No cover
                     </div>
                   )}
@@ -88,26 +88,26 @@ export default async function CoursesAdminPage() {
                 <Link href={`/admin/courses/${course.id}`} className="block text-[22px] font-semibold leading-tight text-[var(--admin-text)] hover:text-[var(--admin-accent)]">
                   {course.title}
                 </Link>
-                <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">/{course.slug}</p>
+                <p className="mt-2 sdm-eyebrow text-[var(--admin-subtle)]">/{course.slug}</p>
                 <p className="mt-4 line-clamp-2 min-h-[42px] text-[13.5px] leading-relaxed text-[var(--admin-muted)]">
                   {course.summary || "No summary yet."}
                 </p>
 
                 <dl className="mt-5 grid grid-cols-2 gap-3 border-t border-[var(--admin-border-soft)] pt-4 text-[12.5px]">
                   <div>
-                    <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">When</dt>
+                    <dt className="sdm-eyebrow text-[var(--admin-subtle)]">When</dt>
                     <dd className="mt-1 text-[var(--admin-muted)]">{course.starts_at ? fmt.format(new Date(course.starts_at)) : "-"}</dd>
                   </div>
                   <div>
-                    <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Where</dt>
+                    <dt className="sdm-eyebrow text-[var(--admin-subtle)]">Where</dt>
                     <dd className="mt-1 truncate text-[var(--admin-muted)]">{course.location || "-"}</dd>
                   </div>
                   <div>
-                    <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Seats</dt>
+                    <dt className="sdm-eyebrow text-[var(--admin-subtle)]">Seats</dt>
                     <dd className="mt-1 text-[var(--admin-muted)]">{course.capacity ?? "-"}</dd>
                   </div>
                   <div>
-                    <dt className="font-mono text-[9px] uppercase tracking-[0.18em] text-[var(--admin-subtle)]">Price</dt>
+                    <dt className="sdm-eyebrow text-[var(--admin-subtle)]">Price</dt>
                     <dd className="mt-1 text-[var(--admin-muted)]">{priceFmt(course.price, course.currency)}</dd>
                   </div>
                 </dl>
