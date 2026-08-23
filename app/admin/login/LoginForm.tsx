@@ -2,6 +2,7 @@
 
 import { useFormState, useFormStatus } from "react-dom";
 import { Button } from "@/components/admin/ui/Button";
+import { FieldRow, Input } from "@/components/admin/ui/Field";
 import { loginAction, type LoginResult } from "./actions";
 
 const initial: LoginResult = {};
@@ -22,29 +23,16 @@ export default function LoginForm({ next }: { next?: string }) {
   return (
     <form action={formAction} className="flex flex-col gap-4">
       {next ? <input type="hidden" name="next" value={next} /> : null}
-      <label className="flex flex-col gap-2">
-        <span className="sdm-eyebrow text-white/55">Email</span>
-        <input
-          name="email"
-          type="email"
-          required
-          autoComplete="email"
-          className="bg-transparent border border-white/15 px-4 py-3 outline-none focus:border-[#ff6a00] text-white/95"
-        />
-      </label>
-      <label className="flex flex-col gap-2">
-        <span className="sdm-eyebrow text-white/55">Password</span>
-        <input
-          name="password"
-          type="password"
-          required
-          autoComplete="current-password"
-          minLength={8}
-          className="bg-transparent border border-white/15 px-4 py-3 outline-none focus:border-[#ff6a00] text-white/95"
-        />
-      </label>
+      {/* Was two hand-rolled inputs with their own border, focus colour and
+          text colour. Same control as every other form in the tool now. */}
+      <FieldRow label="Email">
+        <Input name="email" type="email" required autoComplete="email" />
+      </FieldRow>
+      <FieldRow label="Password">
+        <Input name="password" type="password" required autoComplete="current-password" minLength={8} />
+      </FieldRow>
       {state.error ? (
-        <p className="text-[13px] text-red-400" role="alert">
+        <p className="text-[13px] text-[var(--sdm-text-danger)]" role="alert">
           {state.error}
         </p>
       ) : null}

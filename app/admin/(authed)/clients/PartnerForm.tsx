@@ -27,7 +27,7 @@ type PartnerValues = {
 
 function FieldError({ messages }: { messages?: string[] }) {
   if (!messages?.length) return null;
-  return <p className="text-[12.5px] leading-snug text-red-300">{messages[0]}</p>;
+  return <p className="text-[12.5px] leading-snug text-[var(--sdm-text-danger)]">{messages[0]}</p>;
 }
 
 function Fields({ partner, errors = {} }: { partner?: PartnerValues; errors?: Record<string, string[]> }) {
@@ -120,7 +120,7 @@ function PartnerCreateInner({ partner }: { partner?: PartnerValues }) {
 
       <div className="flex items-center justify-between gap-3 border-t border-[var(--admin-border-soft)] pt-4">
         {state.error ? (
-          <div className="flex-1 border border-red-400/25 bg-red-500/[0.08] px-3 py-2 text-[13px] text-red-200">{state.error}</div>
+          <div className="flex-1 border border-[color-mix(in_srgb,var(--sdm-status-danger)_25%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-danger)_8%,transparent)] px-3 py-2 text-[13px] text-[var(--sdm-text-danger)]">{state.error}</div>
         ) : (
           <Link href="/admin/clients" className="sdm-eyebrow text-[var(--admin-muted)] hover:text-[var(--admin-accent)]">← Back to clients</Link>
         )}

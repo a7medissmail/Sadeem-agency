@@ -29,7 +29,7 @@ function toSlug(value: string) {
 
 function FieldError({ messages }: { messages?: string[] }) {
   if (!messages?.length) return null;
-  return <p className="text-[12.5px] leading-snug text-red-300 mt-1">{messages[0]}</p>;
+  return <p className="text-[12.5px] leading-snug text-[var(--sdm-text-danger)] mt-1">{messages[0]}</p>;
 }
 
 function FieldHint({ text }: { text: string }) {

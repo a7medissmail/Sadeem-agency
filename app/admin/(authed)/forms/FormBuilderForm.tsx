@@ -68,7 +68,7 @@ const purposeLabels: Record<FormPurpose, string> = {
 
 function FieldError({ messages }: { messages?: string[] }) {
   if (!messages?.length) return null;
-  return <p className="text-[12.5px] leading-snug text-red-300">{messages[0]}</p>;
+  return <p className="text-[12.5px] leading-snug text-[var(--sdm-text-danger)]">{messages[0]}</p>;
 }
 
 function SaveButton({ children }: { children: string }) {
@@ -179,7 +179,7 @@ function FieldEditor({ field }: { field: FieldRowType }) {
             Required
           </label>
 
-          {state.error ? <p className="md:col-span-2 text-[12.5px] text-red-300">{state.error}</p> : null}
+          {state.error ? <p className="md:col-span-2 text-[12.5px] text-[var(--sdm-text-danger)]">{state.error}</p> : null}
 
           <div className="flex flex-wrap gap-3 md:col-span-2">
             <SaveButton>Save field</SaveButton>
@@ -317,7 +317,7 @@ function AddFieldForm({ formId, nextSort }: { formId: string; nextSort: number }
         Required
       </label>
 
-      {state.error ? <p className="md:col-span-2 text-[12.5px] text-red-300">{state.error}</p> : null}
+      {state.error ? <p className="md:col-span-2 text-[12.5px] text-[var(--sdm-text-danger)]">{state.error}</p> : null}
 
       <div className="md:col-span-2">
         <SaveButton>Add field</SaveButton>
@@ -393,7 +393,7 @@ export function FormDefinitionForm({ mode, form }: { mode: "create" | "edit"; fo
         Active and available to public renderers
       </label>
 
-      {state.error ? <p className="md:col-span-2 text-[12.5px] text-red-300">{state.error}</p> : null}
+      {state.error ? <p className="md:col-span-2 text-[12.5px] text-[var(--sdm-text-danger)]">{state.error}</p> : null}
 
       <div className="flex flex-wrap items-center gap-3 md:col-span-2">
         <SaveButton>{mode === "create" ? "Create form" : "Save form"}</SaveButton>

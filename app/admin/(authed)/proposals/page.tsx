@@ -233,10 +233,10 @@ export default async function ProposalsPage({
   return (
     <div className="flex flex-col gap-8">
       {error ? (
-        <div className="rounded-md border border-amber-500/30 bg-amber-500/[0.06] px-4 py-3 text-[13px] text-amber-200">
+        <div className="rounded-md border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-warning)]">
           <div className="mb-1 font-semibold">Couldn&apos;t load proposals.</div>
-          <div className="text-amber-200/80">
-            Run migration <code className="text-amber-100">0021_proposals.sql</code> first, then reload.
+          <div className="text-[color-mix(in_srgb,var(--sdm-text-warning)_80%,transparent)]">
+            Run migration <code className="text-[var(--sdm-text-warning)]">0021_proposals.sql</code> first, then reload.
           </div>
         </div>
       ) : null}

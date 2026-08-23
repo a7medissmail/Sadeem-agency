@@ -92,8 +92,8 @@ export function QuickBriefPanel({ forms, createBrief }: Props) {
   if (result) {
     if (result.error) {
       return (
-        <div className="mt-3 space-y-3 border border-red-500/30 bg-red-500/[0.06] p-4">
-          <p className="sdm-eyebrow text-red-400">Error</p>
+        <div className="mt-3 space-y-3 border border-[color-mix(in_srgb,var(--sdm-status-danger)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-danger)_6%,transparent)] p-4">
+          <p className="sdm-eyebrow text-[var(--sdm-text-danger)]">Error</p>
           <p className="text-[12.5px] text-[var(--admin-muted)]">{result.error}</p>
           <button
             type="button"

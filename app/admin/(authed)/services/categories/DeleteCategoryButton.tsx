@@ -14,7 +14,7 @@ export function DeleteCategoryButton({ id, label }: { id: string; label: string 
       <input type="hidden" name="id" value={id} />
       <button
         type="submit"
-        className="text-xs text-[var(--admin-muted)] hover:text-red-400 transition-colors"
+        className="text-xs text-[var(--admin-muted)] hover:text-[var(--sdm-text-danger)] transition-colors"
       >
         Delete
       </button>

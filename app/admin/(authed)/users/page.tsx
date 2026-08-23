@@ -72,8 +72,8 @@ export default async function UsersPage() {
       />
 
       {loadError ? (
-        <div className="border border-amber-500/30 bg-amber-500/[0.06] text-amber-200 text-[13px] rounded-md px-4 py-3">
-          Couldn&apos;t load users: <code className="text-amber-100">{loadError}</code>
+        <div className="border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] text-[var(--sdm-text-warning)] text-[13px] rounded-md px-4 py-3">
+          Couldn&apos;t load users: <code className="text-[var(--sdm-text-warning)]">{loadError}</code>
         </div>
       ) : null}
 

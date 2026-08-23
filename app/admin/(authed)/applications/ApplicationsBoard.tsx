@@ -19,6 +19,7 @@ import { FieldRow, Input, Select, Textarea } from "@/components/admin/ui/Field";
 import { FilterChip, MetricCard } from "@/components/admin/ui/Stats";
 import { applicationStatuses } from "@/lib/validation/careers";
 import type { ApplicationStatus, Json } from "@/types/database";
+import { statusLadders } from "@/lib/admin/status";
 import {
   addApplicationNoteAction,
   deleteApplicationAction,
@@ -90,13 +91,7 @@ const statusLabels: Record<ApplicationStatus, string> = {
   rejected: "Rejected",
 };
 
-const statusTones: Record<ApplicationStatus, "orange" | "blue" | "violet" | "green" | "red"> = {
-  new: "orange",
-  review: "blue",
-  interview: "violet",
-  offer: "green",
-  rejected: "red",
-};
+const statusTones = statusLadders.application;
 
 const statusNotes: Record<ApplicationStatus, string> = {
   new: "Needs first pass",

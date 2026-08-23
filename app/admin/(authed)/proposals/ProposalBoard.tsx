@@ -21,6 +21,7 @@ import {
 } from "./actions";
 import { QuotationBuilder, type QuotationRow } from "./QuotationBuilder";
 import { UserValue } from "@/components/admin/ui/UserValue";
+import { statusLadders } from "@/lib/admin/status";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -71,16 +72,7 @@ const STATUS_LABELS: Record<ProposalStatus, string> = {
   expired: "Expired",
 };
 
-const STATUS_TONES: Record<ProposalStatus, "blue" | "amber" | "violet" | "green" | "red" | "orange"> = {
-  draft: "blue",
-  sent: "amber",
-  opened: "violet",
-  in_progress: "orange",
-  submitted: "green",
-  reviewed: "green",
-  converted: "green",
-  expired: "red",
-};
+const STATUS_TONES = statusLadders.proposal;
 
 const STATUS_HINTS: Record<ProposalStatus, string> = {
   draft: "Not sent to client",
@@ -160,8 +152,8 @@ function ProposalCard({
       <div className="flex flex-col gap-1.5 font-mono text-[10.5px] text-[var(--admin-subtle)]">
         <span className="truncate">{proposal.client_email}</span>
         {proposal.client_company ? <span className="truncate">{proposal.client_company}</span> : null}
-        {proposal.form ? <span>Form: {proposal.form.name}</span> : <span className="text-amber-400/80">No form linked</span>}
-        <span className={expired && proposal.status !== "submitted" ? "text-red-400" : ""}>
+        {proposal.form ? <span>Form: {proposal.form.name}</span> : <span className="text-[color-mix(in_srgb,var(--sdm-text-warning)_80%,transparent)]">No form linked</span>}
+        <span className={expired && proposal.status !== "submitted" ? "text-[var(--sdm-text-danger)]" : ""}>
           Expires {shortFmt.format(new Date(proposal.expires_at))}
         </span>
       </div>
@@ -277,7 +269,7 @@ function ProposalDrawer({
                       {portalUrl}
                     </p>
                     <CopyButton text={portalUrl} label="Copy link" />
-                    <p className="text-[12px] text-amber-400">
+                    <p className="text-[12px] text-[var(--sdm-text-warning)]">
                       Save this link now — it won&apos;t be shown again. Regenerating invalidates the old one.
                     </p>
                   </div>
@@ -287,7 +279,7 @@ function ProposalDrawer({
                       The raw token is only shown once at creation or after regeneration. Use the button below to get a new link.
                     </p>
                     {regenState.error ? (
-                      <p className="text-[12.5px] text-red-400">{regenState.error}</p>
+                      <p className="text-[12.5px] text-[var(--sdm-text-danger)]">{regenState.error}</p>
                     ) : null}
                     <form action={regenAction}>
                       <input type="hidden" name="id" value={proposal.id} />
@@ -304,7 +296,7 @@ function ProposalDrawer({
                 <div className="border border-[var(--admin-border)] bg-[var(--admin-panel)] p-5">
                   <div className="flex items-center justify-between gap-3">
                     <h3 className="sdm-eyebrow text-[var(--admin-subtle)]">Brief Submission</h3>
-                    <span className="sdm-eyebrow text-emerald-400">● Received</span>
+                    <span className="sdm-eyebrow text-[var(--sdm-text-success)]">● Received</span>
                   </div>
                   <p className="mt-2 text-[12px] text-[var(--admin-subtle)]">
                     {dateFmt.format(new Date(proposal.submission.created_at))}
@@ -417,10 +409,10 @@ function ProposalDrawer({
                   </form>
                 )}
                 {emailState.error ? (
-                  <p className="mt-2 text-[12px] text-red-400">{emailState.error}</p>
+                  <p className="mt-2 text-[12px] text-[var(--sdm-text-danger)]">{emailState.error}</p>
                 ) : null}
                 {emailState.ok && !emailState.rawToken ? (
-                  <p className="mt-2 text-[12px] text-emerald-400">Email sent — link copied above.</p>
+                  <p className="mt-2 text-[12px] text-[var(--sdm-text-success)]">Email sent — link copied above.</p>
                 ) : null}
                 {proposal.status === "draft" && (
                   <form action={markProposalSentAction} className="mt-2">
@@ -516,7 +508,7 @@ function CreateProposalPanel({
   return (
     <form action={action} className="space-y-4">
       {state.error ? (
-        <p className="rounded border border-red-500/30 bg-red-500/[0.06] px-3 py-2 text-[13px] text-red-300">
+        <p className="rounded border border-[color-mix(in_srgb,var(--sdm-status-danger)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-danger)_6%,transparent)] px-3 py-2 text-[13px] text-[var(--sdm-text-danger)]">
           {state.error}
         </p>
       ) : null}
@@ -611,12 +603,12 @@ export function ProposalBoard({
 
       {/* New token banner */}
       {newTokenUrl ? (
-        <div className="border border-emerald-500/30 bg-emerald-500/[0.06] p-5">
+        <div className="border border-[color-mix(in_srgb,var(--sdm-status-success)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-success)_6%,transparent)] p-5">
           <div className="flex items-start justify-between gap-5">
             <div className="min-w-0">
-              <p className="sdm-eyebrow text-emerald-400">Proposal created</p>
+              <p className="sdm-eyebrow text-[var(--sdm-text-success)]">Proposal created</p>
               <p className="mt-2 break-all font-mono text-[12px] text-[var(--admin-text)]">{newTokenUrl}</p>
-              <p className="mt-2 text-[12.5px] text-emerald-300/80">
+              <p className="mt-2 text-[12.5px] text-[color-mix(in_srgb,var(--sdm-text-success)_80%,transparent)]">
                 Copy this link and send it to the client. It won&apos;t be shown again.
               </p>
             </div>

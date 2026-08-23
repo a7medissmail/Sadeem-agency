@@ -71,7 +71,7 @@ function FlashBanner({ updated }: { updated?: string }) {
   };
   const text = messages[updated] ?? "Saved.";
   return (
-    <div className="border border-emerald-400/25 bg-emerald-500/[0.08] px-4 py-3 text-[13px] text-emerald-200">
+    <div className="border border-[color-mix(in_srgb,var(--sdm-status-success)_25%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-success)_8%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-success)]">
       {text}
     </div>
   );
@@ -103,7 +103,7 @@ export default async function ClientsAdminPage({
       <FlashBanner updated={searchParams.updated} />
 
       {error ? (
-        <div className="rounded-md border border-amber-500/30 bg-amber-500/[0.06] px-4 py-3 text-[13px] text-amber-200">
+        <div className="rounded-md border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-warning)]">
           Couldn&apos;t load clients data: <code>{error}</code>
         </div>
       ) : null}

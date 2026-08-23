@@ -138,7 +138,7 @@ export default function SettingsForm({ settings }: { settings: SettingsRow }) {
         </div>
 
         {status === "error" ? (
-          <div className="mt-4 border border-red-400/25 bg-red-500/[0.08] px-4 py-3 text-[13px] text-red-200">
+          <div className="mt-4 border border-[color-mix(in_srgb,var(--sdm-status-danger)_25%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-danger)_8%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-danger)]">
             {errorMsg}
           </div>
         ) : null}

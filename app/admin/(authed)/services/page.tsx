@@ -71,7 +71,7 @@ export default async function ServicesAdminPage() {
       />
 
       {error ? (
-        <div className="rounded-md border border-amber-500/30 bg-amber-500/[0.06] px-4 py-3 text-[13px] text-amber-200">
+        <div className="rounded-md border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-warning)]">
           Couldn&apos;t load data: <code>{error}</code>
         </div>
       ) : null}
@@ -174,7 +174,7 @@ export default async function ServicesAdminPage() {
           {uncategorized.length > 0 && (
             <section>
               <div className="mb-4">
-                <p className="sdm-eyebrow text-amber-400">Uncategorized</p>
+                <p className="sdm-eyebrow text-[var(--sdm-text-warning)]">Uncategorized</p>
                 <p className="mt-0.5 text-[13px] text-[var(--admin-muted)]">
                   These services have a category slug not found in the categories table.
                 </p>
@@ -183,7 +183,7 @@ export default async function ServicesAdminPage() {
                 {uncategorized.map((service) => (
                   <article
                     key={service.id}
-                    className="group overflow-hidden border border-amber-500/20 bg-[var(--admin-panel)] transition-colors hover:border-amber-400/50"
+                    className="group overflow-hidden border border-[color-mix(in_srgb,var(--sdm-status-warning)_20%,transparent)] bg-[var(--admin-panel)] transition-colors hover:border-[color-mix(in_srgb,var(--sdm-status-warning)_50%,transparent)]"
                   >
                     <div className="p-5">
                       <div className="flex items-start justify-between gap-3">

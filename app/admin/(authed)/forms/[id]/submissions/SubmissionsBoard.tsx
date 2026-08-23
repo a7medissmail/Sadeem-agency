@@ -6,6 +6,7 @@ import { Button } from "@/components/admin/ui/Button";
 import { FilterChip } from "@/components/admin/ui/Stats";
 import type { FormSubmissionStatus } from "@/types/database";
 import { updateSubmissionStatusAction } from "../../actions";
+import { statusLadders } from "@/lib/admin/status";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -37,12 +38,7 @@ export type SubmissionRow = {
 const dateFmt = new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short" });
 const shortFmt = new Intl.DateTimeFormat("en", { month: "short", day: "numeric" });
 
-const STATUS_TONES: Record<FormSubmissionStatus, "blue" | "amber" | "green" | "neutral"> = {
-  new: "blue",
-  reviewed: "green",
-  converted: "green",
-  archived: "neutral",
-};
+const STATUS_TONES = statusLadders.submission;
 
 const STATUS_LABELS: Record<FormSubmissionStatus, string> = {
   new: "New",

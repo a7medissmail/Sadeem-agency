@@ -18,8 +18,8 @@ export function MaintenanceToggle({ isOn }: { isOn: boolean }) {
         type="submit"
         className={`px-5 py-2 sdm-eyebrow transition-colors ${
           isOn
-            ? "bg-emerald-600 text-white hover:bg-emerald-500"
-            : "bg-red-600 text-white hover:bg-red-500"
+            ? "bg-[var(--sdm-status-success)] text-white hover:bg-[var(--sdm-status-success)]"
+            : "bg-[var(--sdm-status-danger)] text-white hover:bg-[var(--sdm-status-danger)]"
         }`}
       >
         {isOn ? "Bring site online" : "Enable maintenance mode"}

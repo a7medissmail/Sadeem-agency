@@ -16,6 +16,7 @@ import type { CampaignStatus, Database } from "@/types/database";
 import { createCampaignAction } from "./actions";
 import { DeleteCampaignButton } from "./DeleteCampaignButton";
 import { SendCampaignButton } from "./SendCampaignButton";
+import { statusLadders } from "@/lib/admin/status";
 
 export const metadata = { title: "Email Center - SADEEM Admin" };
 
@@ -26,12 +27,7 @@ type Lead = Pick<
   "id" | "email" | "status" | "source" | "marketing_unsubscribed_at"
 >;
 
-const statusTones: Record<CampaignStatus, "neutral" | "blue" | "green" | "red" | "amber"> = {
-  draft: "neutral",
-  sending: "blue",
-  sent: "green",
-  failed: "red",
-};
+const statusTones = statusLadders.campaign;
 
 function audienceFromJson(value: unknown): CampaignAudience {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
@@ -96,7 +92,7 @@ export default async function CampaignsAdminPage() {
       <PageHeader eyebrow="P6" title="Email Studio" description="Compose, target, and dispatch CRM updates from the same operating surface." />
 
       {error ? (
-        <div className="rounded-md border border-amber-500/30 bg-amber-500/[0.06] px-4 py-3 text-[13px] text-amber-200">
+        <div className="rounded-md border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-warning)]">
           Couldn&apos;t load email center: <code>{error}</code>
         </div>
       ) : null}
@@ -198,7 +194,7 @@ export default async function CampaignsAdminPage() {
                     <div>
                       <p className="sdm-eyebrow text-[var(--admin-subtle)]">Delivery</p>
                       <p className="mt-1 text-[13px] text-[var(--admin-muted)]">
-                        {sent} sent{failed ? <span className="text-red-300"> / {failed} failed</span> : null}
+                        {sent} sent{failed ? <span className="text-[var(--sdm-text-danger)]"> / {failed} failed</span> : null}
                       </p>
                     </div>
                   </div>

@@ -21,6 +21,7 @@ import {
 } from "./actions";
 import { QuickBriefPanel, type BriefFormLite } from "@/components/admin/ui/QuickBrief";
 import { UserValue } from "@/components/admin/ui/UserValue";
+import { statusLadders } from "@/lib/admin/status";
 
 export type BookingBoardRow = {
   id: string;
@@ -68,12 +69,7 @@ const statusLabels: Record<BookingStatus, string> = {
   no_show: "No-show",
 };
 
-const statusTones: Record<BookingStatus, "blue" | "green" | "red" | "amber"> = {
-  scheduled: "blue",
-  completed: "green",
-  cancelled: "red",
-  no_show: "amber",
-};
+const statusTones = statusLadders.booking;
 
 const statusNotes: Record<BookingStatus, string> = {
   scheduled: "Live conversation",

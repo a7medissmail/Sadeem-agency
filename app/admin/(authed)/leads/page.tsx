@@ -89,10 +89,10 @@ export default async function LeadsPage({
   return (
     <div className="flex flex-col gap-8">
       {error ? (
-        <div className="rounded-md border border-amber-500/30 bg-amber-500/[0.06] px-4 py-3 text-[13px] text-amber-200">
+        <div className="rounded-md border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-warning)]">
           <div className="mb-1 font-semibold">Couldn&apos;t load leads.</div>
-          <div className="text-amber-200/80">
-            Postgres returned: <code className="text-amber-100">{error}</code>. Check the Supabase migrations for this project.
+          <div className="text-[color-mix(in_srgb,var(--sdm-text-warning)_80%,transparent)]">
+            Postgres returned: <code className="text-[var(--sdm-text-warning)]">{error}</code>. Check the Supabase migrations for this project.
           </div>
         </div>
       ) : null}

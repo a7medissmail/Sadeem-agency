@@ -22,7 +22,11 @@ function ToneDot({ tone }: { tone: "light" | "dark" }) {
     <span
       title={tone === "dark" ? "Dark background" : "Light background"}
       className={`inline-block h-2.5 w-2.5 shrink-0 rounded-full border ${
-        tone === "dark" ? "border-[var(--admin-border)] bg-[#111]" : "border-[var(--admin-border)] bg-[#f4f4f2]"
+        // Swatches previewing the public site's own palette, not admin chrome —
+        // so they read the marketing tokens rather than the admin ones.
+        tone === "dark"
+          ? "border-[var(--admin-border)] bg-[var(--black)]"
+          : "border-[var(--admin-border)] bg-[var(--white-warm)]"
       }`}
     />
   );
@@ -196,7 +200,7 @@ export function HomeSectionsEditor({ sections }: { sections: ResolvedHomeSection
           {saving ? "Publishing…" : "Publish layout"}
         </Button>
         {dirty && !saving ? (
-          <span className="sdm-eyebrow text-amber-400">Unpublished changes</span>
+          <span className="sdm-eyebrow text-[var(--sdm-text-warning)]">Unpublished changes</span>
         ) : null}
         {status ? <span className="text-[13px] text-[var(--admin-muted)]">{status}</span> : null}
       </div>

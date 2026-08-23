@@ -6,10 +6,10 @@ export default function LoginPage({ searchParams }: { searchParams: { next?: str
   return (
     <main className="min-h-screen flex items-center justify-center px-6">
       <div className="w-full max-w-[380px]">
-        <p className="sdm-eyebrow text-[#ff6a00] mb-3">SADEEM ADMIN</p>
-        <h1 className="text-[28px] font-semibold tracking-tight mb-8">Sign in to continue.</h1>
+        <p className="sdm-eyebrow mb-3 text-[var(--sdm-text-tertiary)]">SADEEM ADMIN</p>
+        <h1 className="sdm-page-title mb-8">Sign in to continue.</h1>
         <LoginForm next={searchParams?.next} />
-        <p className="mt-8 sdm-eyebrow text-white/35">
+        <p className="sdm-helper-text mt-8 text-[var(--sdm-text-disabled)]">
           Access is restricted to SADEEM staff.
         </p>
       </div>

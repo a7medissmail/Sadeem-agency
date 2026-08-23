@@ -40,7 +40,7 @@ function toSlug(value: string) {
 
 function FieldError({ messages }: { messages?: string[] }) {
   if (!messages?.length) return null;
-  return <p className="text-[12.5px] leading-snug text-red-300 mt-1">{messages[0]}</p>;
+  return <p className="text-[12.5px] leading-snug text-[var(--sdm-text-danger)] mt-1">{messages[0]}</p>;
 }
 
 function FieldHint({ text }: { text: string }) {
@@ -193,7 +193,7 @@ export default function ServiceForm({
                 <button
                   type="button"
                   onClick={() => removeDeliverable(i)}
-                  className="text-[var(--admin-muted)] hover:text-red-400 text-lg leading-none px-1"
+                  className="text-[var(--admin-muted)] hover:text-[var(--sdm-text-danger)] text-lg leading-none px-1"
                   aria-label="Remove"
                 >×</button>
               )}

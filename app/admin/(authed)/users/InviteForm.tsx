@@ -54,8 +54,8 @@ export default function InviteForm() {
         </FieldRow>
       </div>
 
-      {state.error ? <p className="text-[13px] text-red-400" role="alert">{state.error}</p> : null}
-      {state.ok ? <p className="text-[13px] text-emerald-300">Invitation sent.</p> : null}
+      {state.error ? <p className="text-[13px] text-[var(--sdm-text-danger)]" role="alert">{state.error}</p> : null}
+      {state.ok ? <p className="text-[13px] text-[var(--sdm-text-success)]">Invitation sent.</p> : null}
       <SubmitButton />
     </form>
   );

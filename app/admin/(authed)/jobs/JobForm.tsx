@@ -45,7 +45,7 @@ function toSlug(value: string): string {
 
 function FieldError({ messages }: { messages?: string[] }) {
   if (!messages?.length) return null;
-  return <p className="text-[12.5px] leading-snug text-red-300">{messages[0]}</p>;
+  return <p className="text-[12.5px] leading-snug text-[var(--sdm-text-danger)]">{messages[0]}</p>;
 }
 
 function onCodeEditorKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
@@ -207,7 +207,7 @@ function JobCreateInner({ job, forms }: { job?: JobFormValues; forms?: Applicati
       <Fields job={job} forms={forms} errors={errors} onTitleChange={onTitleChange} slug={slug} setSlug={setSlug} setSlugTouched={setSlugTouched} title={title} />
 
       {state.error ? (
-        <div className="border border-red-400/25 bg-red-500/[0.08] px-4 py-3 text-[13px] text-red-200" role="alert">{state.error}</div>
+        <div className="border border-[color-mix(in_srgb,var(--sdm-status-danger)_25%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-danger)_8%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-danger)]" role="alert">{state.error}</div>
       ) : null}
 
       <div className="flex items-center gap-4 pt-2">

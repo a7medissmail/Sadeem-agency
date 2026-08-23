@@ -306,7 +306,7 @@ export function QuotationBuilder({
               fd.set("id", q.id);
               startDelete(() => deleteQuotationAction(fd));
             }}
-            className="sdm-eyebrow text-red-400 hover:text-red-300 transition-colors"
+            className="sdm-eyebrow text-[var(--sdm-text-danger)] hover:text-[var(--sdm-text-danger)] transition-colors"
           >
             Delete
           </button>
@@ -341,8 +341,8 @@ export function QuotationBuilder({
       {/* Token banner — after sending */}
       {effectiveToken && (
         <div className="qb-token-banner">
-          <p className="sdm-eyebrow text-emerald-300 mb-2">Quote link ready — copy before closing</p>
-          <code className="block break-all text-[12px] text-emerald-200 mb-3 select-all">
+          <p className="sdm-eyebrow text-[var(--sdm-text-success)] mb-2">Quote link ready — copy before closing</p>
+          <code className="block break-all text-[12px] text-[var(--sdm-text-success)] mb-3 select-all">
             {getPortalUrl(effectiveToken)}
           </code>
           <CopyButton text={getPortalUrl(effectiveToken)} />
@@ -491,7 +491,7 @@ export function QuotationBuilder({
           </Button>
         )}
         {saveState.ok && !saveState.error && (
-          <p className="font-mono text-[10px] text-emerald-400 mt-1">Saved.</p>
+          <p className="font-mono text-[10px] text-[var(--sdm-text-success)] mt-1">Saved.</p>
         )}
       </form>
 

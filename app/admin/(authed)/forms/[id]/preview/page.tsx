@@ -70,7 +70,7 @@ export default async function FormPreviewPage({ params }: { params: Promise<{ id
       />
 
       {error ? (
-        <div className="rounded-md border border-amber-500/30 bg-amber-500/[0.06] px-4 py-3 text-[13px] text-amber-200">
+        <div className="rounded-md border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-warning)]">
           Couldn&apos;t load preview: <code>{error}</code>
         </div>
       ) : null}

@@ -29,6 +29,7 @@ import {
 import { Textarea } from "@/components/admin/ui/Field";
 import { QuickBriefPanel, type BriefFormLite } from "@/components/admin/ui/QuickBrief";
 import { UserValue } from "@/components/admin/ui/UserValue";
+import { statusLadders } from "@/lib/admin/status";
 
 type LeadNote = {
   id: string;
@@ -70,13 +71,7 @@ const sourceLabels: Record<LeadSource, string> = {
   other: "Other",
 };
 
-const statusTones: Record<LeadStatus, "blue" | "amber" | "violet" | "green" | "red"> = {
-  new: "blue",
-  contacted: "amber",
-  qualified: "violet",
-  won: "green",
-  lost: "red",
-};
+const statusTones = statusLadders.lead;
 
 const statusNotes: Record<LeadStatus, string> = {
   new: "Needs triage",
@@ -95,7 +90,7 @@ function ownerName(lead: LeadBoardRow, staff: StaffRow[]) {
 }
 
 function SourceDot({ source }: { source: LeadSource }) {
-  const tone = source === "consultation" ? "bg-sky-400" : source === "course" ? "bg-violet-400" : source === "homepage" ? "bg-[var(--admin-accent)]" : "bg-[var(--admin-muted)]";
+  const tone = source === "consultation" ? "bg-[var(--sdm-status-info)]" : source === "course" ? "bg-[var(--sdm-status-info)]" : source === "homepage" ? "bg-[var(--admin-accent)]" : "bg-[var(--admin-muted)]";
   return <span className={`h-2 w-2 rounded-full ${tone}`} aria-hidden="true" />;
 }
 
@@ -205,7 +200,7 @@ function LeadCard({
         {lead.marketing_unsubscribed_at ? (
           <>
             <span className="opacity-40">·</span>
-            <span className="text-red-400/70">unsub</span>
+            <span className="text-[color-mix(in_srgb,var(--sdm-text-danger)_70%,transparent)]">unsub</span>
           </>
         ) : null}
       </div>

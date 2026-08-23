@@ -5201,6 +5201,7 @@ section.team-roster {
   --sdm-text-success: var(--sdm-success-400);
   --sdm-text-warning: var(--sdm-warning-400);
   --sdm-text-danger: var(--sdm-danger-400);
+  --sdm-text-info: var(--sdm-info-400);
 
   /* Border — all 1 px, all built from the foreground at low alpha so they
      survive any surface change. Focus is the only 2 px border in the system. */
@@ -5227,8 +5228,11 @@ section.team-roster {
   --sdm-nav-active-bar: var(--sdm-orange-500);
   --sdm-status-success: var(--sdm-success-500);
   --sdm-status-warning: var(--sdm-warning-500);
-  --sdm-status-error: var(--sdm-danger-500);
+  --sdm-status-danger: var(--sdm-danger-500);
   --sdm-status-info: var(--sdm-info-500);
+  /* The spec calls this one status.error; the ladder calls every other tone by
+     its ramp name, so both spellings resolve to the same value. */
+  --sdm-status-error: var(--sdm-status-danger);
 
   /* Focus ring — the single 2 px border in the system, 2 px offset.
      Applied as a box-shadow so it never shifts layout. */
@@ -5494,6 +5498,49 @@ section.team-roster {
   font-family: "IBM Plex Sans Arabic", var(--sdm-font-sans);
   letter-spacing: 0;
   text-transform: none;
+}
+
+/*
+ * Status tones — audit finding A08.
+ *
+ * sky-300, emerald-300, amber-200, red-300 and violet-300 were framework
+ * defaults sitting inside a hand-tuned warm-neutral palette, and no rule mapped
+ * a lead stage or a proposal state to a tone, so each board decided for itself:
+ * "new" was orange on Applications and blue on Leads.
+ *
+ * Six tones, each a triple. A component sets one tone class and reads the three
+ * variables — it never names a colour. See lib/admin/status.ts for which stage
+ * of which entity earns which tone.
+ */
+.sdm-tone-neutral {
+  --tone-fg: var(--sdm-text-tertiary);
+  --tone-line: var(--sdm-border-default);
+  --tone-bg: color-mix(in srgb, var(--sdm-neutral-50) 4%, transparent);
+}
+.sdm-tone-info {
+  --tone-fg: var(--sdm-text-info);
+  --tone-line: color-mix(in srgb, var(--sdm-status-info) 30%, transparent);
+  --tone-bg: color-mix(in srgb, var(--sdm-status-info) 8%, transparent);
+}
+.sdm-tone-brand {
+  --tone-fg: var(--sdm-text-brand);
+  --tone-line: color-mix(in srgb, var(--sdm-action-primary) 30%, transparent);
+  --tone-bg: color-mix(in srgb, var(--sdm-action-primary) 8%, transparent);
+}
+.sdm-tone-warning {
+  --tone-fg: var(--sdm-text-warning);
+  --tone-line: color-mix(in srgb, var(--sdm-status-warning) 30%, transparent);
+  --tone-bg: color-mix(in srgb, var(--sdm-status-warning) 8%, transparent);
+}
+.sdm-tone-success {
+  --tone-fg: var(--sdm-text-success);
+  --tone-line: color-mix(in srgb, var(--sdm-status-success) 30%, transparent);
+  --tone-bg: color-mix(in srgb, var(--sdm-status-success) 8%, transparent);
+}
+.sdm-tone-danger {
+  --tone-fg: var(--sdm-text-danger);
+  --tone-line: color-mix(in srgb, var(--sdm-status-danger) 30%, transparent);
+  --tone-bg: color-mix(in srgb, var(--sdm-status-danger) 8%, transparent);
 }
 
 /*

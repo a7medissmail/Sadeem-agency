@@ -52,7 +52,7 @@ export default async function SettingsPage() {
       />
 
       {/* ── Maintenance mode ─────────────────────────────────────── */}
-      <section className={`flex items-start justify-between gap-6 border p-5 ${settings.is_maintenance_mode ? "border-red-500/40 bg-red-500/[0.06]" : "border-[var(--admin-border)] bg-[var(--admin-panel)]"}`}>
+      <section className={`flex items-start justify-between gap-6 border p-5 ${settings.is_maintenance_mode ? "border-[color-mix(in_srgb,var(--sdm-status-danger)_40%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-danger)_6%,transparent)]" : "border-[var(--admin-border)] bg-[var(--admin-panel)]"}`}>
         <div>
           <p className="sdm-eyebrow text-[var(--admin-accent)]">Site Status</p>
           <h2 className="mt-1 text-[22px] font-semibold leading-snug tracking-tight text-[var(--admin-text)]">
@@ -64,13 +64,13 @@ export default async function SettingsPage() {
             The middleware cache refreshes within 30 seconds of toggling.
           </p>
           {settings.is_maintenance_mode ? (
-            <div className="mt-3 inline-flex items-center gap-2 sdm-eyebrow text-red-400">
-              <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-red-400" />
+            <div className="mt-3 inline-flex items-center gap-2 sdm-eyebrow text-[var(--sdm-text-danger)]">
+              <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-[var(--sdm-status-danger)]" />
               Site is offline — maintenance page is live
             </div>
           ) : (
-            <div className="mt-3 inline-flex items-center gap-2 sdm-eyebrow text-emerald-400">
-              <span className="inline-block h-2 w-2 rounded-full bg-emerald-400" />
+            <div className="mt-3 inline-flex items-center gap-2 sdm-eyebrow text-[var(--sdm-text-success)]">
+              <span className="inline-block h-2 w-2 rounded-full bg-[var(--sdm-status-success)]" />
               Site is online
             </div>
           )}
@@ -118,7 +118,7 @@ export default async function SettingsPage() {
       </section>
 
       {error ? (
-        <div className="rounded-md border border-amber-500/30 bg-amber-500/[0.06] px-4 py-3 text-[13px] text-amber-200">
+        <div className="rounded-md border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-warning)]">
           Couldn&apos;t load settings: <code>{error}</code>. Run{" "}
           <code>supabase/migrations/0011_site_settings.sql</code> in Supabase SQL Editor.
         </div>
