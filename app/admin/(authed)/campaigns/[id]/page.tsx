@@ -8,6 +8,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { campaignLeadSources, campaignLeadStatuses } from "@/lib/validation/campaign";
 import type { Database } from "@/types/database";
 import { updateCampaignAction } from "../actions";
+import { InlineAlert } from "@/components/admin/ui/Feedback";
 
 export const metadata = { title: "Edit Campaign - SADEEM Admin" };
 
@@ -59,9 +60,9 @@ export default async function EditCampaignPage({ params }: { params: { id: strin
       />
 
       {error ? (
-        <div className="rounded-md border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-warning)]">
+        <InlineAlert tone="warning">
           Couldn&apos;t load campaign: <code>{error}</code>
-        </div>
+        </InlineAlert>
       ) : null}
 
       {campaign ? (

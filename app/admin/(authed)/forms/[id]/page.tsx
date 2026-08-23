@@ -6,6 +6,7 @@ import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { Database } from "@/types/database";
 import { FormBuilderEditor } from "../FormBuilderForm";
+import { InlineAlert } from "@/components/admin/ui/Feedback";
 
 export const metadata = { title: "Edit Form - SADEEM Admin" };
 
@@ -70,9 +71,9 @@ export default async function EditFormPage({ params }: { params: { id: string } 
       />
 
       {error ? (
-        <div className="rounded-md border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-warning)]">
+        <InlineAlert tone="warning">
           Couldn&apos;t load form: <code>{error}</code>
-        </div>
+        </InlineAlert>
       ) : null}
 
       {form ? <FormBuilderEditor form={form} fields={fields} /> : null}

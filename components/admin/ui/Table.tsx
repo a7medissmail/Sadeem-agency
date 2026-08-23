@@ -24,11 +24,3 @@ export function TableRow({ children }: { children: ReactNode }) {
   );
 }
 
-export function EmptyState({ title, hint }: { title: string; hint?: string }) {
-  return (
-    <div className="px-5 py-10 text-center">
-      <p className="text-[14px] text-[var(--admin-muted)]">{title}</p>
-      {hint ? <p className="mt-1 text-[13px] text-[var(--admin-subtle)]">{hint}</p> : null}
-    </div>
-  );
-}

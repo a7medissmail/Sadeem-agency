@@ -14,6 +14,8 @@ import {
 import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
 import { MetricCard } from "@/components/admin/ui/Stats";
 import ClientSectionForm from "./ClientSectionForm";
+import { InlineAlert } from "@/components/admin/ui/Feedback";
+import { EmptyState } from "@/components/admin/ui/EmptyState";
 
 export const metadata = { title: "Clients - SADEEM Admin" };
 
@@ -103,9 +105,9 @@ export default async function ClientsAdminPage({
       <FlashBanner updated={searchParams.updated} />
 
       {error ? (
-        <div className="rounded-md border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-warning)]">
+        <InlineAlert tone="warning">
           Couldn&apos;t load clients data: <code>{error}</code>
-        </div>
+        </InlineAlert>
       ) : null}
 
       <section className="grid grid-cols-2 gap-3 xl:grid-cols-3">
@@ -132,9 +134,11 @@ export default async function ClientsAdminPage({
         </div>
 
         {partners.length === 0 ? (
-          <div className="border border-dashed border-[var(--admin-border)] bg-[var(--admin-panel)] px-5 py-12 text-center text-[13px] text-[var(--admin-subtle)]">
-            No partners yet. Run migration 0018 then add the first partner.
-          </div>
+          <EmptyState
+            title="No partners yet"
+            hint="Partner logos appear on the public site. Run migration 0018, then add the first one."
+            action={<Link href="/admin/clients/new"><Button>Add partner</Button></Link>}
+          />
         ) : (
           <div className="overflow-hidden border border-[var(--admin-border)] bg-[var(--admin-panel)]">
             <table className="w-full text-start text-[13.5px]">
@@ -209,7 +213,8 @@ export default async function ClientsAdminPage({
                         <DeleteConfirmButton
                           action={deleteClientPartnerAction}
                           id={p.id}
-                          message={`Delete "${p.name}"? This cannot be undone.`}
+                          objectName={p.name}
+                          blastRadius="This partner is removed from the public site. This cannot be undone."
                         />
                       </div>
                     </td>

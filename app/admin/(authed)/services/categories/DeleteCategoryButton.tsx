@@ -1,23 +1,15 @@
 "use client";
 
+import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
 import { deleteCategoryAction } from "./actions";
 
 export function DeleteCategoryButton({ id, label }: { id: string; label: string }) {
   return (
-    <form
+    <DeleteConfirmButton
       action={deleteCategoryAction}
-      onSubmit={(e) => {
-        if (!confirm(`Delete category "${label}"? This will not delete its services.`))
-          e.preventDefault();
-      }}
-    >
-      <input type="hidden" name="id" value={id} />
-      <button
-        type="submit"
-        className="text-xs text-[var(--admin-muted)] hover:text-[var(--sdm-text-danger)] transition-colors"
-      >
-        Delete
-      </button>
-    </form>
+      id={id}
+      objectName={label}
+      blastRadius="Services in this category are kept, but they lose their grouping on /services until you reassign them."
+    />
   );
 }

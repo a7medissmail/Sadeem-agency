@@ -22,6 +22,7 @@ import {
 import { QuickBriefPanel, type BriefFormLite } from "@/components/admin/ui/QuickBrief";
 import { UserValue } from "@/components/admin/ui/UserValue";
 import { statusLadders } from "@/lib/admin/status";
+import { EmptyState } from "@/components/admin/ui/EmptyState";
 
 export type BookingBoardRow = {
   id: string;
@@ -577,9 +578,11 @@ export function BookingsBoard({
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_430px]">
         <div className="flex flex-col gap-3">
           {filtered.length === 0 ? (
-            <div className="border border-dashed border-[var(--admin-border)] bg-[var(--admin-panel)] px-5 py-12 text-center text-[13px] text-[var(--admin-subtle)]">
-              No bookings match this view.
-            </div>
+            <EmptyState
+              kind="filtered"
+              title="No consultations match this view"
+              hint="Bookings exist — the current status and date filters just exclude them all."
+            />
           ) : (
             filtered.map((booking) => (
               <BookingCard key={booking.id} booking={booking} selected={booking.id === selectedId} onOpen={() => setSelectedId(booking.id)} />

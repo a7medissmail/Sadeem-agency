@@ -4,6 +4,7 @@ import { getCurrentProfile } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { loadBadgeCounts } from "@/lib/admin/signals";
 import { UserValue } from "@/components/admin/ui/UserValue";
+import { InlineAlert } from "@/components/admin/ui/Feedback";
 
 export const metadata = { title: "Dashboard - SADEEM Admin" };
 
@@ -169,9 +170,9 @@ export default async function AdminDashboard() {
       </div>
 
       {!data ? (
-        <div className="rounded-md border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-warning)]">
+        <InlineAlert tone="warning">
           Couldn&apos;t read dashboard data. Confirm Supabase env vars and migrations are applied.
-        </div>
+        </InlineAlert>
       ) : null}
 
       {data && badgeCounts ? (

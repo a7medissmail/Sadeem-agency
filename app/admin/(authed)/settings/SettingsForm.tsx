@@ -6,6 +6,7 @@ import { FieldRow, Input, Textarea } from "@/components/admin/ui/Field";
 import { socialPlatformLabels, socialPlatforms, socialUrlForPlatform, type SocialPlatform } from "@/lib/site/social";
 import { updateSiteSettingsAction, type SiteSettingsState } from "./actions";
 import type { Database, Json } from "@/types/database";
+import { InlineAlert } from "@/components/admin/ui/Feedback";
 
 const initial: SiteSettingsState = {};
 const platforms = socialPlatforms;
@@ -138,9 +139,9 @@ export default function SettingsForm({ settings }: { settings: SettingsRow }) {
         </div>
 
         {status === "error" ? (
-          <div className="mt-4 border border-[color-mix(in_srgb,var(--sdm-status-danger)_25%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-danger)_8%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-danger)]">
+          <div className="mt-4"><InlineAlert tone="danger">
             {errorMsg}
-          </div>
+          </InlineAlert></div>
         ) : null}
       </aside>
     </form>

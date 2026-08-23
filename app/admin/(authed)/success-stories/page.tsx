@@ -8,6 +8,8 @@ import { deleteSuccessStoryAction, toggleSuccessStoryPublishedAction } from "./a
 import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
 import { MetricCard } from "@/components/admin/ui/Stats";
 import { UserValue } from "@/components/admin/ui/UserValue";
+import { InlineAlert } from "@/components/admin/ui/Feedback";
+import { EmptyState } from "@/components/admin/ui/EmptyState";
 
 export const metadata = { title: "Success Stories - SADEEM Admin" };
 
@@ -46,9 +48,9 @@ export default async function SuccessStoriesAdminPage() {
       />
 
       {error ? (
-        <div className="rounded-md border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-warning)]">
+        <InlineAlert tone="warning">
           Couldn&apos;t load success stories: <code>{error}</code>
-        </div>
+        </InlineAlert>
       ) : null}
 
       <section className="grid grid-cols-2 gap-3 xl:grid-cols-3">
@@ -58,9 +60,11 @@ export default async function SuccessStoriesAdminPage() {
       </section>
 
       {stories.length === 0 ? (
-        <div className="border border-dashed border-[var(--admin-border)] bg-[var(--admin-panel)] px-5 py-12 text-center text-[13px] text-[var(--admin-subtle)]">
-          No success stories yet. Create the first proof point.
-        </div>
+        <EmptyState
+          title="No success stories yet"
+          hint="Case narratives carry the homepage and the stories library. Start with the one that has the clearest number attached."
+          action={<Link href="/admin/success-stories/new"><Button>Create story</Button></Link>}
+        />
       ) : (
         <section className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
           {stories.map((story) => (
@@ -116,7 +120,8 @@ export default async function SuccessStoriesAdminPage() {
                 <DeleteConfirmButton
                   action={deleteSuccessStoryAction}
                   id={story.id}
-                  message={`Delete "${story.title}"? This cannot be undone.`}
+                  objectName={story.title}
+                  blastRadius="The story is removed from the homepage and the stories library. This cannot be undone."
                 />
               </div>
             </article>

@@ -8,6 +8,8 @@ import { Badge } from "@/components/admin/ui/Badge";
 import { Button } from "@/components/admin/ui/Button";
 import { MetricCard } from "@/components/admin/ui/Stats";
 import { DeleteServiceButton } from "./DeleteServiceButton";
+import { InlineAlert } from "@/components/admin/ui/Feedback";
+import { EmptyState } from "@/components/admin/ui/EmptyState";
 
 export const metadata = { title: "Services - SADEEM Admin" };
 
@@ -71,9 +73,9 @@ export default async function ServicesAdminPage() {
       />
 
       {error ? (
-        <div className="rounded-md border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-warning)]">
+        <InlineAlert tone="warning">
           Couldn&apos;t load data: <code>{error}</code>
-        </div>
+        </InlineAlert>
       ) : null}
 
       {/* Overview */}
@@ -84,12 +86,15 @@ export default async function ServicesAdminPage() {
       </section>
 
       {services.length === 0 ? (
-        <div className="border border-dashed border-[var(--admin-border)] bg-[var(--admin-panel)] px-5 py-12 text-center text-[13px] text-[var(--admin-subtle)]">
-          No services yet.{" "}
-          <Link href="/admin/services/new" className="text-[var(--admin-accent)] underline-offset-2 hover:underline">
-            Create the first service.
-          </Link>
-        </div>
+        <EmptyState
+          title="No services yet"
+          hint="Services are the public pages clients read before they book. Each one belongs to a category and carries its own deliverables."
+          action={
+            <Link href="/admin/services/new">
+              <Button>Create service</Button>
+            </Link>
+          }
+        />
       ) : (
         <div className="flex flex-col gap-10">
           {categories.map((cat) => {

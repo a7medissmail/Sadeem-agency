@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 /**
@@ -96,21 +97,17 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
 };
 
-export function Button({
-  variant = "primary",
-  size = "md",
-  loading = false,
-  loadingLabel,
-  className,
-  disabled,
-  children,
-  ...rest
-}: ButtonProps) {
+/** Forwards its ref so dialogs can put initial focus on a specific button. */
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  { variant = "primary", size = "md", loading = false, loadingLabel, className, disabled, children, ...rest },
+  ref,
+) {
   const resolved: Variant = variant === "outline" ? "tertiary" : variant;
 
   return (
     <button
       {...rest}
+      ref={ref}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       className={[
@@ -125,4 +122,4 @@ export function Button({
       {loading && loadingLabel ? loadingLabel : children}
     </button>
   );
-}
+});

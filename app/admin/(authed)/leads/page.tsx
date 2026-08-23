@@ -7,6 +7,7 @@ import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { LeadsBoard, type LeadBoardRow, type StaffRow } from "./LeadsBoard";
 import type { BriefFormLite } from "@/components/admin/ui/QuickBrief";
+import { InlineAlert } from "@/components/admin/ui/Feedback";
 
 export const metadata = { title: "Leads - SADEEM Admin" };
 
@@ -89,12 +90,12 @@ export default async function LeadsPage({
   return (
     <div className="flex flex-col gap-8">
       {error ? (
-        <div className="rounded-md border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-warning)]">
+        <InlineAlert tone="warning">
           <div className="mb-1 font-semibold">Couldn&apos;t load leads.</div>
           <div className="text-[color-mix(in_srgb,var(--sdm-text-warning)_80%,transparent)]">
             Postgres returned: <code className="text-[var(--sdm-text-warning)]">{error}</code>. Check the Supabase migrations for this project.
           </div>
-        </div>
+        </InlineAlert>
       ) : null}
 
       <PageHeader

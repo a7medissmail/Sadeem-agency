@@ -8,6 +8,7 @@ import SettingsForm from "./SettingsForm";
 import { MaintenanceToggle } from "./MaintenanceToggle";
 import { HomeSectionsEditor } from "./HomeSectionsEditor";
 import { saveMaintenanceMessageAction } from "./actions";
+import { InlineAlert } from "@/components/admin/ui/Feedback";
 
 export const metadata = { title: "Website Settings - SADEEM Admin" };
 
@@ -118,10 +119,10 @@ export default async function SettingsPage() {
       </section>
 
       {error ? (
-        <div className="rounded-md border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-warning)]">
+        <InlineAlert tone="warning">
           Couldn&apos;t load settings: <code>{error}</code>. Run{" "}
           <code>supabase/migrations/0011_site_settings.sql</code> in Supabase SQL Editor.
-        </div>
+        </InlineAlert>
       ) : null}
 
       <HomeSectionsEditor sections={homeSections} />

@@ -12,6 +12,7 @@ import {
   type ClientPartnerFormState,
 } from "@/lib/actions/clients";
 import type { ClientPartnerRole } from "@/types/database";
+import { InlineAlert } from "@/components/admin/ui/Feedback";
 
 const initial: ClientPartnerFormState = {};
 
@@ -120,7 +121,7 @@ function PartnerCreateInner({ partner }: { partner?: PartnerValues }) {
 
       <div className="flex items-center justify-between gap-3 border-t border-[var(--admin-border-soft)] pt-4">
         {state.error ? (
-          <div className="flex-1 border border-[color-mix(in_srgb,var(--sdm-status-danger)_25%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-danger)_8%,transparent)] px-3 py-2 text-[13px] text-[var(--sdm-text-danger)]">{state.error}</div>
+          <div className="flex-1"><InlineAlert tone="danger">{state.error}</InlineAlert></div>
         ) : (
           <Link href="/admin/clients" className="sdm-eyebrow text-[var(--admin-muted)] hover:text-[var(--admin-accent)]">← Back to clients</Link>
         )}

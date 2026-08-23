@@ -7,6 +7,8 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { deleteJobAction, toggleJobOpenAction } from "./actions";
 import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
 import { MetricCard } from "@/components/admin/ui/Stats";
+import { InlineAlert } from "@/components/admin/ui/Feedback";
+import { EmptyState } from "@/components/admin/ui/EmptyState";
 
 export const metadata = { title: "Careers - SADEEM Admin" };
 
@@ -60,9 +62,9 @@ export default async function JobsAdminPage() {
       />
 
       {error ? (
-        <div className="rounded-md border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-warning)]">
+        <InlineAlert tone="warning">
           Couldn&apos;t load roles: <code>{error}</code>
-        </div>
+        </InlineAlert>
       ) : null}
 
       <section className="grid grid-cols-2 gap-3 xl:grid-cols-3">
@@ -72,9 +74,11 @@ export default async function JobsAdminPage() {
       </section>
 
       {jobs.length === 0 ? (
-        <div className="border border-dashed border-[var(--admin-border)] bg-[var(--admin-panel)] px-5 py-12 text-center text-[13px] text-[var(--admin-subtle)]">
-          No roles yet. Publish the first opening.
-        </div>
+        <EmptyState
+          title="No roles yet"
+          hint="Open roles appear on the careers page and feed the applications pipeline."
+          action={<Link href="/admin/jobs/new"><Button>Publish role</Button></Link>}
+        />
       ) : (
         <section className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
           {jobs.map((job) => (
@@ -125,7 +129,8 @@ export default async function JobsAdminPage() {
                 <DeleteConfirmButton
                   action={deleteJobAction}
                   id={job.id}
-                  message={`Delete "${job.title}"? This cannot be undone.`}
+                  objectName={job.title}
+                  blastRadius="The role leaves the careers page. Applications already received are kept. This cannot be undone."
                 />
               </div>
             </article>

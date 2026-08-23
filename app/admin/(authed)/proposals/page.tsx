@@ -5,6 +5,7 @@ import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { ProposalBoard, type FormLite, type ProposalRow, type SubmissionLite } from "./ProposalBoard";
 import type { QuotationRow, QuotationItemRow } from "./QuotationBuilder";
+import { InlineAlert } from "@/components/admin/ui/Feedback";
 
 export const metadata = { title: "Proposals - SADEEM Admin" };
 
@@ -233,12 +234,12 @@ export default async function ProposalsPage({
   return (
     <div className="flex flex-col gap-8">
       {error ? (
-        <div className="rounded-md border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-warning)]">
+        <InlineAlert tone="warning">
           <div className="mb-1 font-semibold">Couldn&apos;t load proposals.</div>
           <div className="text-[color-mix(in_srgb,var(--sdm-text-warning)_80%,transparent)]">
             Run migration <code className="text-[var(--sdm-text-warning)]">0021_proposals.sql</code> first, then reload.
           </div>
-        </div>
+        </InlineAlert>
       ) : null}
 
       <PageHeader

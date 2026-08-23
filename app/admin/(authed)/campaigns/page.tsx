@@ -17,6 +17,8 @@ import { createCampaignAction } from "./actions";
 import { DeleteCampaignButton } from "./DeleteCampaignButton";
 import { SendCampaignButton } from "./SendCampaignButton";
 import { statusLadders } from "@/lib/admin/status";
+import { InlineAlert } from "@/components/admin/ui/Feedback";
+import { EmptyState } from "@/components/admin/ui/EmptyState";
 
 export const metadata = { title: "Email Center - SADEEM Admin" };
 
@@ -92,9 +94,9 @@ export default async function CampaignsAdminPage() {
       <PageHeader eyebrow="P6" title="Email Studio" description="Compose, target, and dispatch CRM updates from the same operating surface." />
 
       {error ? (
-        <div className="rounded-md border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-warning)]">
+        <InlineAlert tone="warning">
           Couldn&apos;t load email center: <code>{error}</code>
-        </div>
+        </InlineAlert>
       ) : null}
 
       <section className="grid grid-cols-2 gap-3 xl:grid-cols-3">
@@ -156,9 +158,10 @@ export default async function CampaignsAdminPage() {
 
         <div className="flex flex-col gap-3">
           {campaigns.length === 0 ? (
-            <div className="border border-dashed border-[var(--admin-border)] bg-[var(--admin-panel)] px-5 py-12 text-center text-[13px] text-[var(--admin-subtle)]">
-              No campaigns yet. Create a draft, review the audience count, then send.
-            </div>
+            <EmptyState
+              title="No campaigns yet"
+              hint="Draft a campaign, review the audience count it resolves to, then send. Nothing leaves the building before you press send."
+            />
           ) : (
             campaigns.map((campaign) => {
               const campaignSends = sendsByCampaign.get(campaign.id) ?? [];
@@ -208,7 +211,7 @@ export default async function CampaignsAdminPage() {
                     {canSend ? (
                       <SendCampaignButton campaignId={campaign.id} recipientCount={count} />
                     ) : null}
-                    <DeleteCampaignButton campaignId={campaign.id} />
+                    <DeleteCampaignButton campaignId={campaign.id} campaignName={campaign.subject} />
                   </div>
                 </article>
               );

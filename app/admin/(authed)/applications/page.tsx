@@ -5,6 +5,7 @@ import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { ApplicationStatus, Json } from "@/types/database";
 import { ApplicationsBoard, type ApplicationBoardRow, type StaffRow } from "./ApplicationsBoard";
+import { InlineAlert } from "@/components/admin/ui/Feedback";
 
 export const metadata = { title: "Applications - SADEEM Admin" };
 
@@ -210,9 +211,9 @@ export default async function ApplicationsAdminPage({
       />
 
       {error ? (
-        <div className="rounded-md border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-warning)]">
+        <InlineAlert tone="warning">
           Couldn&apos;t load applications: <code>{error}</code>
-        </div>
+        </InlineAlert>
       ) : null}
 
       {/* Server-side search — updates URL, triggers page re-fetch with DB filter */}

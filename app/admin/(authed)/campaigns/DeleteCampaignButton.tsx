@@ -1,20 +1,23 @@
 "use client";
 
+import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
 import { deleteCampaignAction } from "./actions";
-import { Button } from "@/components/admin/ui/Button";
 
-export function DeleteCampaignButton({ campaignId }: { campaignId: string }) {
+export function DeleteCampaignButton({
+  campaignId,
+  campaignName,
+}: {
+  campaignId: string;
+  campaignName?: string;
+}) {
   return (
-    <form
+    <DeleteConfirmButton
       action={deleteCampaignAction}
-      onSubmit={(e) => {
-        if (!window.confirm("Delete this campaign? This cannot be undone.")) e.preventDefault();
-      }}
-    >
-      <input type="hidden" name="id" value={campaignId} />
-      <Button type="submit" size="sm" variant="danger">
-        Del
-      </Button>
-    </form>
+      id={campaignId}
+      // "Del" was the label. The confirm button carries the verb now.
+      label="Delete"
+      objectName={campaignName}
+      blastRadius="The campaign and its draft content go away. Emails already sent are not recalled. This cannot be undone."
+    />
   );
 }

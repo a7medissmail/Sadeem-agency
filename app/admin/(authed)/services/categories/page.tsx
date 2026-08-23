@@ -6,6 +6,8 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import { Button } from "@/components/admin/ui/Button";
 import { DeleteCategoryButton } from "./DeleteCategoryButton";
+import { InlineAlert } from "@/components/admin/ui/Feedback";
+import { EmptyState } from "@/components/admin/ui/EmptyState";
 
 export const metadata = { title: "Service Categories - SADEEM Admin" };
 
@@ -63,18 +65,21 @@ export default async function CategoriesAdminPage() {
       />
 
       {error ? (
-        <div className="rounded-md border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-warning)]">
+        <InlineAlert tone="warning">
           Couldn&apos;t load categories: <code>{error}</code>
-        </div>
+        </InlineAlert>
       ) : null}
 
       {categories.length === 0 ? (
-        <div className="border border-dashed border-[var(--admin-border)] bg-[var(--admin-panel)] px-5 py-12 text-center text-[13px] text-[var(--admin-subtle)]">
-          No categories yet.{" "}
-          <Link href="/admin/services/categories/new" className="text-[var(--admin-accent)] underline-offset-2 hover:underline">
-            Create the first category.
-          </Link>
-        </div>
+        <EmptyState
+          title="No categories yet"
+          hint="Categories group services on /services. A service cannot be published without one."
+          action={
+            <Link href="/admin/services/categories/new">
+              <Button>Create category</Button>
+            </Link>
+          }
+        />
       ) : (
         <div className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
           {categories.map((cat) => (

@@ -6,6 +6,7 @@ import DynamicFormRenderer from "@/components/DynamicFormRenderer";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { Database } from "@/types/database";
+import { InlineAlert } from "@/components/admin/ui/Feedback";
 
 export const metadata = { title: "Preview Form - SADEEM Admin" };
 
@@ -70,9 +71,9 @@ export default async function FormPreviewPage({ params }: { params: Promise<{ id
       />
 
       {error ? (
-        <div className="rounded-md border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-warning)]">
+        <InlineAlert tone="warning">
           Couldn&apos;t load preview: <code>{error}</code>
-        </div>
+        </InlineAlert>
       ) : null}
 
       {form ? (

@@ -5,6 +5,7 @@ import { SaveStatus } from "@/components/admin/ui/SaveStatus";
 import { useAutoSave } from "@/components/admin/hooks/useAutoSave";
 import type { Database } from "@/types/database";
 import { updateClientSectionAction, type ClientSectionFormState } from "@/lib/actions/clients";
+import { InlineAlert } from "@/components/admin/ui/Feedback";
 
 type SectionRow = Database["public"]["Tables"]["client_section"]["Row"];
 
@@ -54,9 +55,9 @@ export default function ClientSectionForm({ section }: { section: SectionRow }) 
 
       <div className="xl:col-span-2 flex items-center justify-between gap-3 border-t border-[var(--admin-border-soft)] pt-4">
         {status === "error" ? (
-          <div className="flex-1 border border-[color-mix(in_srgb,var(--sdm-status-danger)_25%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-danger)_8%,transparent)] px-3 py-2 text-[13px] text-[var(--sdm-text-danger)]">
+          <div className="flex-1"><InlineAlert tone="danger">
             {errorMsg}
-          </div>
+          </InlineAlert></div>
         ) : (
           <p className="text-[12.5px] text-[var(--admin-muted)]">
             Changes save automatically as you type.

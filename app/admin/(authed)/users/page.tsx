@@ -8,6 +8,8 @@ import InviteForm from "./InviteForm";
 import { deleteUserAction, updateUserAction } from "./actions";
 import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
 import { MetricCard } from "@/components/admin/ui/Stats";
+import { InlineAlert } from "@/components/admin/ui/Feedback";
+import { EmptyState } from "@/components/admin/ui/EmptyState";
 
 export const metadata = { title: "Users - SADEEM Admin" };
 
@@ -72,9 +74,9 @@ export default async function UsersPage() {
       />
 
       {loadError ? (
-        <div className="border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] text-[var(--sdm-text-warning)] text-[13px] rounded-md px-4 py-3">
+        <InlineAlert tone="warning">
           Couldn&apos;t load users: <code className="text-[var(--sdm-text-warning)]">{loadError}</code>
-        </div>
+        </InlineAlert>
       ) : null}
 
       <section className="grid grid-cols-2 gap-3 xl:grid-cols-3">
@@ -86,9 +88,10 @@ export default async function UsersPage() {
       <InviteForm />
 
       {users.length === 0 ? (
-        <div className="border border-dashed border-[var(--admin-border)] bg-[var(--admin-panel)] px-5 py-12 text-center text-[13px] text-[var(--admin-subtle)]">
-          No users yet. Invite the first staff member above.
-        </div>
+        <EmptyState
+          title="No staff accounts yet"
+          hint="Use the invite form above. Prefer Editor unless someone needs to manage users or billing."
+        />
       ) : (
         <section className="grid gap-3">
           {users.map((user) => (
@@ -121,7 +124,9 @@ export default async function UsersPage() {
                     action={deleteUserAction}
                     id={user.id}
                     label="Delete user"
-                    message={`Delete user ${user.email ?? user.id}? This cannot be undone.`}
+                    objectName={user.email ?? user.id}
+                    blastRadius="This person loses access to the admin immediately. Records they created are kept. This cannot be undone."
+                    typeToConfirm
                   />
                 ) : null}
               </div>

@@ -1,4 +1,5 @@
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { InlineAlert } from "@/components/admin/ui/Feedback";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Audit Log - SADEEM Admin" };
@@ -35,9 +36,9 @@ export default async function AuditLogPage() {
       </div>
 
       {error ? (
-        <div className="rounded-md border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-warning)]">
+        <InlineAlert tone="warning">
           {error.message}. Run migration 0027_audit_log.sql in Supabase first.
-        </div>
+        </InlineAlert>
       ) : null}
 
       <div className="overflow-hidden rounded-xl border border-[var(--admin-border)] bg-[var(--admin-panel)]">

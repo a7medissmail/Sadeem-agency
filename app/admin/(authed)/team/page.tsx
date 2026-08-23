@@ -7,6 +7,8 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { deleteTeamMemberAction, toggleTeamMemberActiveAction } from "./actions";
 import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
 import { MetricCard } from "@/components/admin/ui/Stats";
+import { InlineAlert } from "@/components/admin/ui/Feedback";
+import { EmptyState } from "@/components/admin/ui/EmptyState";
 
 export const metadata = { title: "Team - SADEEM Admin" };
 
@@ -45,9 +47,9 @@ export default async function TeamAdminPage() {
       />
 
       {error ? (
-        <div className="rounded-md border border-[color-mix(in_srgb,var(--sdm-status-warning)_30%,transparent)] bg-[color-mix(in_srgb,var(--sdm-status-warning)_6%,transparent)] px-4 py-3 text-[13px] text-[var(--sdm-text-warning)]">
+        <InlineAlert tone="warning">
           Couldn&apos;t load team members: <code>{error}</code>
-        </div>
+        </InlineAlert>
       ) : null}
 
       <section className="grid grid-cols-2 gap-3 xl:grid-cols-3">
@@ -57,9 +59,11 @@ export default async function TeamAdminPage() {
       </section>
 
       {members.length === 0 ? (
-        <div className="border border-dashed border-[var(--admin-border)] bg-[var(--admin-panel)] px-5 py-12 text-center text-[13px] text-[var(--admin-subtle)]">
-          No team members yet. Add the first profile.
-        </div>
+        <EmptyState
+          title="No team members yet"
+          hint="Profiles here render the public team roster, in the order you set."
+          action={<Link href="/admin/team/new"><Button>Add member</Button></Link>}
+        />
       ) : (
         <section className="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3">
           {members.map((member) => (
@@ -105,7 +109,8 @@ export default async function TeamAdminPage() {
                   <DeleteConfirmButton
                     action={deleteTeamMemberAction}
                     id={member.id}
-                    message={`Delete team member "${member.name}"? This cannot be undone.`}
+                    objectName={member.name}
+                    blastRadius="The profile is removed from the public team roster. This cannot be undone."
                   />
                 </div>
               </div>
