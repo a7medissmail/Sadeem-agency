@@ -6,6 +6,8 @@ import { sendEmail } from "@/lib/email/resend";
 import { getEmailBranding, leadConfirmation, leadNotification } from "@/lib/email/templates";
 import { checkRateLimit } from "@/lib/security/rateLimit";
 import { verifyTurnstile } from "@/lib/turnstile";
+import { trackServer } from "@/lib/analytics/server";
+import type { LeadSourceParam } from "@/lib/analytics/events";
 import { redirect } from "next/navigation";
 
 export type SubmitLeadState =
@@ -77,6 +79,16 @@ export async function submitLeadAction(
     console.error("[submitLead] insert error:", error);
     return { status: "error", message: "Could not save your message. Please try again." };
   }
+
+  // The conversion is counted here rather than on /thank-you, because this is
+  // the line that means a lead actually exists. A browser beacon on the
+  // thank-you page loses every visitor running an ad blocker; this loses none.
+  // No personal data goes with it — the CRM knows who, analytics knows only
+  // that one arrived and through which door.
+  await trackServer({
+    name: "lead_submitted",
+    params: { source: source as LeadSourceParam, has_company: Boolean(company) },
+  });
 
   // Best-effort emails — never block success.
   const team = process.env.TEAM_NOTIFY_TO;

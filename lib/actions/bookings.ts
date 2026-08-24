@@ -11,6 +11,7 @@ import {
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { createGoogleCalendarEvent, isGoogleCalendarConfigured, bookingTimeZone } from "@/lib/google/calendar";
 import { sendEmail } from "@/lib/email/resend";
+import { trackServer } from "@/lib/analytics/server";
 import { bookingConfirmation, bookingNotification, getEmailBranding } from "@/lib/email/templates";
 import { checkRateLimit } from "@/lib/security/rateLimit";
 import { verifyTurnstile } from "@/lib/turnstile";
@@ -233,6 +234,14 @@ export async function submitBookingAction(
   revalidatePath("/admin/leads");
   revalidatePath("/admin");
   revalidatePath("/consultation");
+
+  // Counted server-side for the same reason as the lead form: this line is
+  // where a consultation actually exists. Whether a meeting link was minted is
+  // worth knowing — a booking without one is a booking the client cannot join.
+  await trackServer({
+    name: "consultation_booked",
+    params: { has_meeting_link: Boolean(meetLink) },
+  });
 
   return { status: "success", slotLabel: label, meetLink };
 }

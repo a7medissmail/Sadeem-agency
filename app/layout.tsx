@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import { ConsentNotice } from "@/components/analytics/ConsentNotice";
 import { SiteSettingsProvider } from "@/components/SiteSettingsProvider";
 import { getPublicSiteSettings } from "@/lib/site/settings";
 
@@ -68,8 +70,12 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       </head>
       <body>
         <SiteSettingsProvider initialSettings={siteSettings}>{children}</SiteSettingsProvider>
+        {/* Cookieless, and unaffected by the consent choice — so the site is
+            never blind even when a visitor declines measurement. */}
         <Analytics />
         <SpeedInsights />
+        <GoogleAnalytics />
+        <ConsentNotice />
       </body>
     </html>
   );

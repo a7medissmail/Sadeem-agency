@@ -4,6 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { Database, FormFieldType, Json } from "@/types/database";
 import { checkRateLimit } from "@/lib/security/rateLimit";
 import { verifyTurnstile } from "@/lib/turnstile";
+import { trackServer } from "@/lib/analytics/server";
 
 const FORM_BUCKET = "form-attachments";
 const FILE_MAX_BYTES = 5 * 1024 * 1024;
@@ -245,6 +246,10 @@ export async function submitDynamicFormAction(
     const { error: answersError } = await admin.from("form_answers").insert(answerRows);
     if (answersError) return { status: "error", message: "Could not save your answers. Please try again." };
   }
+
+  // Which form was completed, never what was written in it — a brief's answers
+  // are the most confidential thing on the site.
+  await trackServer({ name: "brief_submitted", params: { form_slug: form.slug } });
 
   return {
     status: "success",
