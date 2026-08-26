@@ -57,8 +57,29 @@ export async function requireUser() {
 }
 
 export async function requireRole(allowed: Role[]) {
-  const profile = await getCurrentProfile();
-  if (!profile) redirect("/admin/login");
-  if (!allowed.includes(profile.role)) redirect("/admin?error=forbidden");
-  return profile;
+  if (!envOk()) redirect("/admin/login");
+
+  const supabase = createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // No session at all — the login page is the right answer.
+  if (!user) redirect("/admin/login");
+
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("id, role, full_name, avatar_url")
+    .eq("id", user.id)
+    .single();
+
+  if (error) console.error("[auth] profile read failed:", error.message);
+
+  // Signed in, but not staff (or the profile row is unreadable). This must not
+  // redirect to /admin — that is the page asking the question — and it must not
+  // redirect to /admin/login either, because middleware sends signed-in users
+  // straight back. /admin/no-access is the one exit that terminates.
+  if (!profile || !allowed.includes(profile.role)) redirect("/admin/no-access");
+
+  return { ...profile, email: user.email ?? null };
 }

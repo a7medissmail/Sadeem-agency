@@ -1,5 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
+import {
+  ADMIN_GATE_COOKIE,
+  ADMIN_GATE_MAX_AGE,
+  ADMIN_GATE_PARAM,
+  gateCookieValue,
+  isGatedPath,
+  safeEqual,
+} from "@/lib/security/adminGate";
 
 // ─── Maintenance-mode check ───────────────────────────────────────────────────
 // The flag is stored in site_settings.is_maintenance_mode.
@@ -51,9 +59,50 @@ const MAINTENANCE_PASSTHROUGH = [
   "/q/",   // quotation portal magic links
 ];
 
+// ─── Admin gate ───────────────────────────────────────────────────────────────
+// Runs before anything else touching /admin, so an ungated probe is answered
+// with a 404 rather than a login page that confirms the path exists.
+// See lib/security/adminGate.ts for the full rationale.
+async function adminGate(request: NextRequest): Promise<NextResponse | null> {
+  const secret = process.env.ADMIN_GATE_SECRET;
+  if (!secret) return null; // gate disabled (local dev, e2e)
+  if (!isGatedPath(request.nextUrl.pathname)) return null;
+
+  const expected = await gateCookieValue(secret);
+
+  // Unlock: ?k=<secret> — verified, then immediately traded for a cookie so the
+  // secret does not survive in the URL bar or history.
+  const supplied = request.nextUrl.searchParams.get(ADMIN_GATE_PARAM);
+  if (supplied && safeEqual(supplied, secret)) {
+    const clean = request.nextUrl.clone();
+    clean.searchParams.delete(ADMIN_GATE_PARAM);
+    const unlocked = NextResponse.redirect(clean);
+    unlocked.cookies.set(ADMIN_GATE_COOKIE, expected, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: ADMIN_GATE_MAX_AGE,
+    });
+    return unlocked;
+  }
+
+  const held = request.cookies.get(ADMIN_GATE_COOKIE)?.value;
+  if (held && safeEqual(held, expected)) return null;
+
+  // No key, no cookie: as far as this visitor is concerned, nothing is here.
+  const nowhere = request.nextUrl.clone();
+  nowhere.pathname = "/_gate";
+  nowhere.search = "";
+  return NextResponse.rewrite(nowhere, { status: 404 });
+}
+
 // ─── Main middleware ──────────────────────────────────────────────────────────
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  const gated = await adminGate(request);
+  if (gated) return gated;
 
   const isPassthrough = MAINTENANCE_PASSTHROUGH.some((p) =>
     pathname === p || pathname.startsWith(p + "/") || pathname.startsWith(p),
