@@ -32,7 +32,8 @@ function FieldError({ messages }: { messages?: string[] }) {
 export default function ConsultationBooking() {
   const [state, formAction] = useFormState(submitBookingAction, initial);
   const [slots, setSlots] = useState<ConsultationSlot[]>([]);
-  const [timeZone, setTimeZone] = useState("Asia/Riyadh");
+  // Placeholder until /api/consultation/slots answers with the real zone.
+  const [timeZone, setTimeZone] = useState("Africa/Cairo");
   const [selectedDay, setSelectedDay] = useState("");       // empty = nothing selected
   const [selectedStart, setSelectedStart] = useState("");   // empty = nothing selected
   const [loading, setLoading] = useState(true);

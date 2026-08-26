@@ -44,8 +44,21 @@ function calendarId() {
   return process.env.GOOGLE_CALENDAR_ID?.trim() || "";
 }
 
+/**
+ * The zone the availability window is expressed in.
+ *
+ * This is not a display preference: availability_rules stores wall-clock
+ * strings like "10:00", and this decides whose 10:00 that is. It also stamps
+ * the Google Calendar event and formats the times the visitor picks from.
+ *
+ * Cairo, because that is where the calls are taken. The distinction is
+ * invisible for half the year — Egypt and Saudi are both GMT+3 through the
+ * summer — and then Egypt falls back to GMT+2 in late October while Saudi does
+ * not. Under Asia/Riyadh the window would silently become 09:00-15:00 for the
+ * team every winter. Do not "fix" this back without checking the calendar.
+ */
 export function bookingTimeZone() {
-  return process.env.GOOGLE_BOOKING_TIMEZONE?.trim() || "Asia/Riyadh";
+  return process.env.GOOGLE_BOOKING_TIMEZONE?.trim() || "Africa/Cairo";
 }
 
 export function isGoogleCalendarConfigured() {
