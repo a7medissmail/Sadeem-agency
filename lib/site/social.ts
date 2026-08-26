@@ -27,9 +27,19 @@ export const socialPlatformLabels: Record<SocialPlatform, string> = {
   youtube: "YouTube",
 };
 
+/**
+ * Fallbacks, used only when site_settings carries nothing for a platform.
+ *
+ * Share-sheet tracking parameters (?igsh=, ?_t=, ?share_id=) are stripped on
+ * purpose: they identify the person who copied the link, they expire, and they
+ * add nothing to a public profile URL.
+ *
+ * YouTube is absent because SADEEM has no channel yet — a platform with no URL
+ * here and none in the settings simply doesn't render an icon.
+ */
 export const defaultSocialUrls = {
-  facebook: "https://www.facebook.com/share/1P7UyHXhyr/",
-  instagram: "https://www.instagram.com/sadeem.egy/",
+  facebook: "https://www.facebook.com/sadeem.egy",
+  instagram: "https://www.instagram.com/sadeem.egy",
   tiktok: "https://www.tiktok.com/@sadeem.egy",
   snapchat: "https://www.snapchat.com/add/sadeem.eg",
   x: "https://x.com/sadeemeg",
@@ -45,16 +55,22 @@ function isHttpUrl(value: unknown): value is string {
   return typeof value === "string" && /^https?:\/\//i.test(value);
 }
 
+/**
+ * Settings first, constant second.
+ *
+ * This used to return the constant before it ever looked at site_settings,
+ * which meant every social field in /admin/settings silently did nothing —
+ * you could save a new Instagram URL and the footer would keep the old one.
+ * Only YouTube appeared to work, and only because it had no constant to
+ * shadow it. The constant is a fallback; the settings row is the truth.
+ */
 export function socialUrlForPlatform(value: Json | null | undefined, platform: SocialPlatform) {
-  const defaultUrl = defaultSocialUrls[platform as keyof typeof defaultSocialUrls];
-  if (defaultUrl) return defaultUrl;
-
   if (value && typeof value === "object" && !Array.isArray(value)) {
     const configuredUrl = (value as Record<string, unknown>)[platform];
     if (isHttpUrl(configuredUrl)) return configuredUrl;
   }
 
-  return "";
+  return defaultSocialUrls[platform as keyof typeof defaultSocialUrls] ?? "";
 }
 
 export function normalizeSocialLinks(value: Json | null | undefined): SiteSocialLink[] {

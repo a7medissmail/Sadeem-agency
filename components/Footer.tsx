@@ -100,7 +100,8 @@ export default function Footer() {
           <FooterCol
             title="Get started"
             items={[
-              { label: "Success stories", href: "/success-stories" },
+              // Parked alongside the navbar entry — see components/MainNavbar.tsx.
+              // { label: "Success stories", href: "/success-stories" },
               { label: "Book a consultation", href: "/consultation" },
               { label: "Contact us", href: "/#contact" },
             ]}

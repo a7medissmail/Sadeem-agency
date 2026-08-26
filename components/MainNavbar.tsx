@@ -15,7 +15,10 @@ const allLinks = [
   { label: "Workshops", href: "/courses" },
   { label: "Team", href: "/team" },
   { label: "Careers", href: "/careers" },
-  { label: "Success stories", href: "/success-stories" },
+  // Success stories is parked, not deleted — the homepage section is switched
+  // off in the admin and the page still resolves for anyone holding a link.
+  // Restore it by uncommenting this line.
+  // { label: "Success stories", href: "/success-stories" },
   { label: "Contact", href: "/#contact" },
 ];
 
