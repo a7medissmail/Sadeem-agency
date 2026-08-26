@@ -89,7 +89,7 @@ export default function HeroSlider({ scrollY: scrollYProp, n = "01" }: { scrollY
             <p className="lede">{s.sub}</p>
             {s.forWhom ? <p className="hero-forwhom">{s.forWhom}</p> : null}
             <a className="cta-link" href="/consultation">
-              <span>LET&apos;S TALK</span>
+              <span>BOOK A SESSION</span>
               <Icon.Arrow />
             </a>
           </div>

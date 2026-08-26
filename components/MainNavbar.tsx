@@ -84,8 +84,14 @@ export default function MainNavbar({ overDark }: { overDark: boolean }) {
             );
           })}
         </nav>
+        {/*
+          "Let's talk" described what we wanted, not what the visitor gets, and
+          it hid the commitment — a visitor could not tell whether the click led
+          to a form, a phone call, or a calendar. It leads to live availability
+          for a 45-minute session, so the button says so.
+        */}
         <a className="mainnav-cta" href="/consultation">
-          <span>LET&apos;S TALK</span>
+          <span>BOOK A SESSION</span>
           <Icon.Arrow />
         </a>
         <button
@@ -115,7 +121,13 @@ export default function MainNavbar({ overDark }: { overDark: boolean }) {
           ))}
         </nav>
         <a className="mainnav-mobile-cta" href="/consultation" onClick={() => setMenuOpen(false)}>
-          <span>LET&apos;S TALK</span>
+          <span className="mainnav-mobile-cta-copy">
+            <span>BOOK A SESSION</span>
+            {/* The full-width mobile bar has room the desktop pill does not, and
+                mobile is where hesitation is highest. Every claim here is true on
+                every visit — no "slots open", which the calendar can contradict. */}
+            <span className="mainnav-mobile-cta-note">45 min · online · calendar invite</span>
+          </span>
           <Icon.Arrow />
         </a>
       </div>

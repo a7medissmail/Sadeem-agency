@@ -183,7 +183,7 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
 
               <div className="service-body-cta-row">
                 <Link href="/consultation" className="cta-link dark">
-                  <span>BOOK A CONSULTATION</span>
+                  <span>BOOK A SESSION</span>
                   <Icon.Arrow />
                 </Link>
                 <Link href="/services" className="service-back-link">
@@ -222,7 +222,7 @@ export default async function ServiceDetailPage({ params }: { params: { slug: st
                   Ready to explore this service with us?
                 </p>
                 <Link href="/consultation" className="cta-link on-dark">
-                  <span>START A CONVERSATION</span>
+                  <span>BOOK A SESSION</span>
                   <Icon.Arrow />
                 </Link>
               </div>

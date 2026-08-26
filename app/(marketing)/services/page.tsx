@@ -234,7 +234,7 @@ export default async function ServicesPage() {
               working on and we&apos;ll tell you where we can help.
             </p>
             <Link href="/consultation" className="cta-link on-dark">
-              <span>BOOK A CONSULTATION</span>
+              <span>BOOK A SESSION</span>
               <Icon.Arrow />
             </Link>
           </div>

@@ -219,6 +219,19 @@ body:has(.admin-root) {
   letter-spacing: 0.22em;
   text-transform: uppercase;
 }
+.mainnav-mobile-cta-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  text-align: start;
+}
+/* The bar uppercases its label; the qualifier reads better left alone. */
+.mainnav-mobile-cta-note {
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: none;
+  opacity: 0.78;
+}
 
 /* DARK STATE — over hero/dark sections */
 .mainnav.is-dark {
