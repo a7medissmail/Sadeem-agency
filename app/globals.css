@@ -4775,6 +4775,8 @@ section.team-roster {
   text-transform: uppercase;
   color: var(--accent);
 }
+/* Two office lines share one label cell, so they stack instead of colliding. */
+.contact-meta-stack { display: flex; flex-direction: column; gap: 6px; }
 .contact-meta a { color: var(--black); border-bottom: 1px solid var(--rule); transition: color 0.35s, border-color 0.35s; }
 .contact-meta a:hover { color: var(--accent); border-color: var(--accent); }
 .contact-form { position: relative; }
