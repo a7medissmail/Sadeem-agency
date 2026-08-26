@@ -102,10 +102,32 @@ export default function SettingsForm({ settings }: { settings: SettingsRow }) {
                 <Input name="footer_email" type="email" defaultValue={settings.footer_email} />
               </FieldRow>
               <FieldRow label="Phone">
-                <Input name="footer_phone" defaultValue={settings.footer_phone ?? ""} />
+                <Input
+                  name="footer_phone"
+                  defaultValue={settings.footer_phone ?? ""}
+                  placeholder="+20 2 2414 4266"
+                />
+              </FieldRow>
+              <FieldRow label="WhatsApp (with country code)">
+                <Input
+                  name="footer_whatsapp"
+                  defaultValue={settings.footer_whatsapp ?? ""}
+                  placeholder="+20 102 588 2766"
+                />
               </FieldRow>
               <FieldRow label="Location">
-                <Input name="footer_location" defaultValue={settings.footer_location ?? ""} />
+                <Input
+                  name="footer_location"
+                  defaultValue={settings.footer_location ?? ""}
+                  placeholder="Riyadh - King Abdul Aziz Rd, Al Sahafah 13321"
+                />
+              </FieldRow>
+              <FieldRow label="Second location">
+                <Input
+                  name="footer_location_secondary"
+                  defaultValue={settings.footer_location_secondary ?? ""}
+                  placeholder="Cairo - 5Y Asmaa Fahmy, Dina Tower, Heliopolis"
+                />
               </FieldRow>
             </div>
           </div>

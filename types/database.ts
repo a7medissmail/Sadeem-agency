@@ -511,7 +511,9 @@ export type Database = {
           footer_description: string;
           footer_email: string;
           footer_phone: string | null;
+          footer_whatsapp: string | null;
           footer_location: string | null;
+          footer_location_secondary: string | null;
           social_links: Json;
           updated_at: string;
           is_maintenance_mode: boolean;

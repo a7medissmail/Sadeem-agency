@@ -13,7 +13,9 @@ export type PublicSiteSettings = {
   footerDescription: string;
   footerEmail: string;
   footerPhone: string | null;
+  footerWhatsapp: string | null;
   footerLocation: string | null;
+  footerLocationSecondary: string | null;
   socialLinks: SiteSocialLink[];
 };
 
@@ -24,7 +26,9 @@ export const defaultSiteSettings: PublicSiteSettings = {
   footerDescription: "Strategic growth advisory - helping ambitious companies achieve measurable results.",
   footerEmail: "hello@sadeem.agency",
   footerPhone: null,
+  footerWhatsapp: null,
   footerLocation: null,
+  footerLocationSecondary: null,
   socialLinks: defaultSocialLinks,
 };
 
@@ -41,7 +45,9 @@ export async function getPublicSiteSettings(): Promise<PublicSiteSettings> {
       footerDescription: data.footer_description || defaultSiteSettings.footerDescription,
       footerEmail: data.footer_email || defaultSiteSettings.footerEmail,
       footerPhone: data.footer_phone,
+      footerWhatsapp: data.footer_whatsapp,
       footerLocation: data.footer_location,
+      footerLocationSecondary: data.footer_location_secondary,
       socialLinks: normalizeSocialLinks(data.social_links),
     };
   } catch {

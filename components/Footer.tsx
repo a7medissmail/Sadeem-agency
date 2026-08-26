@@ -11,6 +11,7 @@ import {
   FaXTwitter,
   FaYoutube,
 } from "react-icons/fa6";
+import { telHref, whatsappHref } from "@/lib/site/contact";
 import { socialPlatformLabels, type SiteSocialLink, type SocialPlatform } from "@/lib/site/social";
 import { SadeemMark } from "./marks";
 import { useSiteSettings } from "./SiteSettingsProvider";
@@ -54,9 +55,49 @@ function SocialDot({ link }: { link: SiteSocialLink }) {
   );
 }
 
+/**
+ * A contact line, and the href that makes it actionable.
+ *
+ * These used to render as bare <li> text. On a phone — where most of this
+ * site's traffic reads the footer — that means a visitor who wants to call has
+ * to select the number by hand, and one who wants WhatsApp has to copy it into
+ * another app. Both are places a lead quietly gives up, so every line that can
+ * carry a destination now does.
+ *
+ * A number that does not parse falls back to plain text rather than a link
+ * that goes nowhere.
+ */
+type ContactLine = { key: string; text: string; href: string | null; external?: boolean };
+
+function contactLines(settings: ReturnType<typeof useSiteSettings>): ContactLine[] {
+  const lines: ContactLine[] = [];
+
+  if (settings.footerEmail) {
+    lines.push({ key: "email", text: settings.footerEmail, href: `mailto:${settings.footerEmail}` });
+  }
+  if (settings.footerPhone) {
+    lines.push({ key: "phone", text: settings.footerPhone, href: telHref(settings.footerPhone) });
+  }
+  if (settings.footerWhatsapp) {
+    lines.push({
+      key: "whatsapp",
+      text: `WhatsApp ${settings.footerWhatsapp}`,
+      href: whatsappHref(settings.footerWhatsapp),
+      external: true,
+    });
+  }
+  // Addresses stay plain text — a map link is a different decision, and a
+  // wrong pin is worse than none.
+  for (const [index, place] of [settings.footerLocation, settings.footerLocationSecondary].entries()) {
+    if (place) lines.push({ key: `place-${index}`, text: place, href: null });
+  }
+
+  return lines;
+}
+
 export default function Footer() {
   const settings = useSiteSettings();
-  const contactItems = [settings.footerEmail, settings.footerPhone, settings.footerLocation].filter(Boolean) as string[];
+  const contact = contactLines(settings);
 
   return (
     <footer className="footer dark">
@@ -109,8 +150,19 @@ export default function Footer() {
           <div className="footer-col">
             <div className="footer-title">Contact</div>
             <ul className="footer-list">
-              {contactItems.map((item) => (
-                <li key={item}>{item}</li>
+              {contact.map((line) => (
+                <li key={line.key}>
+                  {line.href ? (
+                    <a
+                      href={line.href}
+                      {...(line.external ? { target: "_blank", rel: "noreferrer" } : {})}
+                    >
+                      {line.text}
+                    </a>
+                  ) : (
+                    line.text
+                  )}
+                </li>
               ))}
             </ul>
           </div>

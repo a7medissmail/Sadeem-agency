@@ -11,7 +11,9 @@ const fallback: PublicSiteSettings = {
   footerDescription: "Strategic growth advisory - helping ambitious companies achieve measurable results.",
   footerEmail: "hello@sadeem.agency",
   footerPhone: null,
+  footerWhatsapp: null,
   footerLocation: null,
+  footerLocationSecondary: null,
   socialLinks: defaultSocialLinks,
 };
 

@@ -56,7 +56,9 @@ function readForm(formData: FormData) {
     footer_description: formData.get("footer_description") ?? "",
     footer_email: formData.get("footer_email") ?? "",
     footer_phone: formData.get("footer_phone") ?? "",
+    footer_whatsapp: formData.get("footer_whatsapp") ?? "",
     footer_location: formData.get("footer_location") ?? "",
+    footer_location_secondary: formData.get("footer_location_secondary") ?? "",
     social_links: {
       linkedin: formData.get("social_linkedin") ?? "",
       x: formData.get("social_x") ?? "",

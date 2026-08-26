@@ -30,7 +30,9 @@ export const siteSettingsSchema = z.object({
     .transform((value) => value.trim())
     .pipe(z.string().email("Footer email must be valid").max(180, "Footer email is too long")),
   footer_phone: nullableText("Footer phone", 80),
+  footer_whatsapp: nullableText("Footer WhatsApp", 80),
   footer_location: nullableText("Footer location", 140),
+  footer_location_secondary: nullableText("Footer second location", 140),
   social_links: z.object({
     linkedin: nullableUrl("LinkedIn"),
     x: nullableUrl("X"),
