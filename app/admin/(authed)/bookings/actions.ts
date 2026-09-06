@@ -82,36 +82,32 @@ export async function createBookingAction(formData: FormData): Promise<void> {
   revalidatePath("/admin");
 }
 
-export async function updateBookingStatusAction(formData: FormData): Promise<void> {
+/**
+ * One write for the two things the dossier edits together: what state the
+ * meeting is in, and where it happens. They used to be two actions behind two
+ * separate forms with two identical Save buttons, so setting a link on a call
+ * you were also marking completed cost two round trips.
+ */
+export async function updateBookingMeetingAction(formData: FormData): Promise<void> {
   await requireRole(["admin", "editor"]);
   const id = formData.get("id") as string;
   const status = formData.get("status") as BookingStatus;
   if (!id) throw new Error("Missing booking id");
   if (!bookingStatuses.includes(status)) throw new Error("Invalid booking status");
 
-  const admin = getSupabaseAdmin();
-  const { error } = await admin.from("bookings").update({ status }).eq("id", id);
-  if (error) throw new Error(error.message);
-
-  revalidatePath("/admin/bookings");
-  revalidatePath("/admin");
-}
-
-export async function updateBookingDetailsAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
-  const id = formData.get("id") as string;
-  if (!id) throw new Error("Missing booking id");
-
-  const parsed = bookingDetailsSchema.safeParse({
-    meet_link: formData.get("meet_link"),
-  });
+  const parsed = bookingDetailsSchema.safeParse({ meet_link: formData.get("meet_link") });
   if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? "Invalid booking details");
 
   const admin = getSupabaseAdmin();
-  const { error } = await admin.from("bookings").update(parsed.data).eq("id", id);
+  const { error } = await admin
+    .from("bookings")
+    .update({ status, ...parsed.data })
+    .eq("id", id);
   if (error) throw new Error(error.message);
 
   revalidatePath("/admin/bookings");
+  // The dashboard counts scheduled consultations.
+  revalidatePath("/admin");
 }
 
 export async function sendBookingDetailsAction(formData: FormData): Promise<void> {

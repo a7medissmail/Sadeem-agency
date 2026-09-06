@@ -4,23 +4,36 @@ import { AdminPagination } from "@/components/admin/ui/AdminPagination";
 import { Button } from "@/components/admin/ui/Button";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import { SearchBar } from "@/components/admin/ui/SearchBar";
+import { InlineAlert } from "@/components/admin/ui/Feedback";
 import { requireRole } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { bookingTimeZone } from "@/lib/google/calendar";
 import { defaultBookingSettings } from "@/lib/booking/settings";
-import {
-  BookingsBoard,
-  type AvailabilityRuleRow,
-  type BookingBlackoutRow,
-  type BookingBoardRow,
-  type BookingSettingsRow,
-} from "./BookingsBoard";
 import type { BriefFormLite } from "@/components/admin/ui/QuickBrief";
-import { InlineAlert } from "@/components/admin/ui/Feedback";
+import { ScheduleBoard } from "./ScheduleBoard";
+import { AvailabilityPanel } from "./AvailabilityPanel";
+import type {
+  AvailabilityRuleRow,
+  BookingBlackoutRow,
+  BookingBoardRow,
+  BookingSettingsRow,
+} from "./types";
 
 export const metadata = { title: "Bookings - SADEEM Admin" };
 
 const PAGE_SIZE = 50;
+
+/**
+ * Two jobs, two tabs.
+ *
+ * This page used to stack the day's consultations, the weekly availability
+ * editor, the capacity caps and the blackout calendar into one scroll — eight
+ * top-level sections, seven stat tiles and, with five availability rules, more
+ * than forty form controls on first paint. Running a meeting and configuring
+ * the booking engine are different jobs at different cadences, so they are
+ * separate views and each one loads only what it needs.
+ */
+type Tab = "schedule" | "availability";
 
 function sp(val: string | string[] | undefined): string {
   return Array.isArray(val) ? (val[0] ?? "") : (val ?? "");
@@ -35,7 +48,7 @@ const fallbackSettings: BookingSettingsRow = {
   week_starts_on: defaultBookingSettings.weekStartsOn,
 };
 
-async function loadData(q: string, page: number) {
+async function loadSchedule(q: string, page: number) {
   try {
     const admin = getSupabaseAdmin();
     const from = (page - 1) * PAGE_SIZE;
@@ -51,23 +64,56 @@ async function loadData(q: string, page: number) {
       .range(from, to);
 
     if (q) {
-      bookingsQuery = bookingsQuery.or(
-        `name.ilike.%${q}%,email.ilike.%${q}%,topic.ilike.%${q}%`,
-      );
+      bookingsQuery = bookingsQuery.or(`name.ilike.%${q}%,email.ilike.%${q}%,topic.ilike.%${q}%`);
     }
 
-    const [bookingsResult, rulesResult, formsResult, settingsResult, blackoutsResult] = await Promise.all([
+    const [bookingsResult, formsResult] = await Promise.all([
       bookingsQuery,
-      admin
-        .from("availability_rules")
-        .select("id, weekday, start_time, end_time, slot_minutes, buffer_minutes, active")
-        .order("weekday", { ascending: true })
-        .order("start_time", { ascending: true }),
       admin
         .from("forms")
         .select("id, name")
         .eq("purpose", "proposal")
         .order("name", { ascending: true }),
+    ]);
+
+    if (bookingsResult.error) throw bookingsResult.error;
+
+    const totalCount = bookingsResult.count ?? 0;
+    return {
+      bookings: (bookingsResult.data ?? []) as BookingBoardRow[],
+      forms: (formsResult.data ?? []) as BriefFormLite[],
+      totalCount,
+      totalPages: Math.max(1, Math.ceil(totalCount / PAGE_SIZE)),
+      error: null as string | null,
+    };
+  } catch (err) {
+    return {
+      bookings: [] as BookingBoardRow[],
+      forms: [] as BriefFormLite[],
+      totalCount: 0,
+      totalPages: 1,
+      error: err instanceof Error ? err.message : "Unknown error",
+    };
+  }
+}
+
+async function loadAvailability() {
+  try {
+    const admin = getSupabaseAdmin();
+
+    // The cap readout used to count whatever happened to be on the current page
+    // of the bookings list, so a search or page 2 quietly changed the numbers.
+    // It gets its own window instead: everything still scheduled from the start
+    // of last week to five weeks out.
+    const windowStart = new Date(Date.now() - 7 * 86_400_000).toISOString();
+    const windowEnd = new Date(Date.now() + 35 * 86_400_000).toISOString();
+
+    const [rulesResult, settingsResult, blackoutsResult, slotsResult] = await Promise.all([
+      admin
+        .from("availability_rules")
+        .select("id, weekday, start_time, end_time, slot_minutes, buffer_minutes, active")
+        .order("weekday", { ascending: true })
+        .order("start_time", { ascending: true }),
       admin
         .from("booking_settings")
         .select("max_per_week, max_per_day, min_notice_hours, max_advance_days, week_starts_on")
@@ -77,38 +123,50 @@ async function loadData(q: string, page: number) {
         .from("booking_blackouts")
         .select("id, starts_on, ends_on, reason")
         .order("starts_on", { ascending: true }),
+      admin
+        .from("bookings")
+        .select("slot_start")
+        .eq("status", "scheduled")
+        .gte("slot_start", windowStart)
+        .lte("slot_start", windowEnd),
     ]);
 
-    if (bookingsResult.error) throw bookingsResult.error;
     if (rulesResult.error) throw rulesResult.error;
 
-    const totalCount = bookingsResult.count ?? 0;
-    const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
-
     return {
-      bookings: (bookingsResult.data ?? []) as BookingBoardRow[],
       rules: (rulesResult.data ?? []) as AvailabilityRuleRow[],
-      forms: (formsResult.data ?? []) as BriefFormLite[],
       // Capacity config is optional — an un-pushed migration 0035 must not take
       // the whole bookings page down.
       settings: (settingsResult.data as BookingSettingsRow | null) ?? fallbackSettings,
       blackouts: (blackoutsResult.data ?? []) as BookingBlackoutRow[],
-      totalCount,
-      totalPages,
+      upcomingSlots: (slotsResult.data ?? []).map((row) => row.slot_start as string),
       error: null as string | null,
     };
   } catch (err) {
     return {
-      bookings: [] as BookingBoardRow[],
       rules: [] as AvailabilityRuleRow[],
-      forms: [] as BriefFormLite[],
       settings: fallbackSettings,
       blackouts: [] as BookingBlackoutRow[],
-      totalCount: 0,
-      totalPages: 1,
+      upcomingSlots: [] as string[],
       error: err instanceof Error ? err.message : "Unknown error",
     };
   }
+}
+
+function TabLink({ tab, active, children }: { tab: Tab; active: boolean; children: string }) {
+  return (
+    <Link
+      href={tab === "schedule" ? "/admin/bookings" : `/admin/bookings?tab=${tab}`}
+      aria-current={active ? "page" : undefined}
+      className={`sdm-nav-item -mb-px border-b-2 px-1 py-3 transition-colors ${
+        active
+          ? "border-[var(--admin-accent)] text-[var(--admin-text)]"
+          : "border-transparent text-[var(--admin-muted)] hover:text-[var(--admin-text)]"
+      }`}
+    >
+      {children}
+    </Link>
+  );
 }
 
 export default async function BookingsAdminPage({
@@ -117,22 +175,26 @@ export default async function BookingsAdminPage({
   searchParams: Record<string, string | string[] | undefined>;
 }) {
   await requireRole(["admin", "editor", "viewer"]);
+  const tab: Tab = sp(searchParams.tab) === "availability" ? "availability" : "schedule";
   const q = sp(searchParams.q).trim();
   const page = Math.max(1, parseInt(sp(searchParams.page) || "1", 10));
+  const timeZone = bookingTimeZone();
 
-  const { bookings, rules, forms, settings, blackouts, totalCount, totalPages, error } = await loadData(q, page);
+  const schedule = tab === "schedule" ? await loadSchedule(q, page) : null;
+  const availability = tab === "availability" ? await loadAvailability() : null;
+  const error = schedule?.error ?? availability?.error ?? null;
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       <PageHeader
         eyebrow="CONSULTATION"
         title="Bookings"
-        description="Manage consultation requests, calendar readiness, and public availability windows."
+        description="Run the consultations that are booked, and set what the public calendar is allowed to offer."
         actions={
           <div className="flex items-center gap-2">
             <a
               href="/api/admin/export/bookings"
-              className="inline-flex items-center justify-center gap-2.5 sdm-eyebrow transition-colors border border-[var(--admin-accent)] text-[var(--admin-accent)] hover:bg-[var(--admin-accent-soft)] px-3 py-1.5 text-[10px]"
+              className="sdm-button-label inline-flex h-[var(--sdm-control-md)] items-center justify-center rounded-[var(--sdm-radius-md)] border border-[var(--sdm-border-default)] px-4 text-[var(--sdm-text-secondary)] transition-colors hover:bg-[var(--sdm-surface-hover)] hover:text-[var(--admin-text)]"
             >
               Export CSV
             </a>
@@ -143,43 +205,61 @@ export default async function BookingsAdminPage({
         }
       />
 
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--sdm-border-default)]">
+        <nav className="flex items-center gap-6" aria-label="Bookings views">
+          <TabLink tab="schedule" active={tab === "schedule"}>
+            Schedule
+          </TabLink>
+          <TabLink tab="availability" active={tab === "availability"}>
+            Availability
+          </TabLink>
+        </nav>
+        {/* Every time on this page is in the booking zone, not the viewer's. */}
+        <span className="sdm-metadata pb-3 text-[var(--sdm-text-tertiary)]">
+          Times in {timeZone.replace("_", " ")}
+        </span>
+      </div>
+
       {error ? (
         <InlineAlert tone="warning">
           Couldn&apos;t load bookings: <code>{error}</code>
         </InlineAlert>
       ) : null}
 
-      {/* Server-side search — debounced URL update triggers full page re-fetch */}
-      <Suspense>
-        <SearchBar placeholder="Name, email, topic…" />
-      </Suspense>
-
-      {/* The count and the page position moved into the pagination itself, which
-          is where someone looks for them — this line said the same thing twice. */}
-      {totalCount > 0 && q ? (
-        <p className="sdm-metadata text-[var(--admin-muted)]">
-          Matching &ldquo;{q}&rdquo;
-        </p>
+      {tab === "schedule" && schedule ? (
+        <>
+          <ScheduleBoard
+            bookings={schedule.bookings}
+            forms={schedule.forms}
+            timeZone={timeZone}
+            query={q}
+            search={
+              <Suspense>
+                <SearchBar placeholder="Name, email, topic…" />
+              </Suspense>
+            }
+          />
+          <AdminPagination
+            page={page}
+            totalPages={schedule.totalPages}
+            basePath="/admin/bookings"
+            total={schedule.totalCount}
+            pageSize={PAGE_SIZE}
+            unit="consultations"
+            queryParams={q ? { q } : {}}
+          />
+        </>
       ) : null}
 
-      <BookingsBoard
-        bookings={bookings}
-        rules={rules}
-        forms={forms}
-        settings={settings}
-        blackouts={blackouts}
-        timeZone={bookingTimeZone()}
-      />
-
-      <AdminPagination
-        page={page}
-        totalPages={totalPages}
-        basePath="/admin/bookings"
-        total={totalCount}
-        pageSize={PAGE_SIZE}
-        unit="consultations"
-        queryParams={q ? { q } : {}}
-      />
+      {tab === "availability" && availability ? (
+        <AvailabilityPanel
+          rules={availability.rules}
+          settings={availability.settings}
+          blackouts={availability.blackouts}
+          upcomingSlots={availability.upcomingSlots}
+          timeZone={timeZone}
+        />
+      ) : null}
     </div>
   );
 }
