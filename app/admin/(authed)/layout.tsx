@@ -69,7 +69,7 @@ export default async function AuthedAdminLayout({ children }: { children: ReactN
             </div>
             <div className="min-w-0">
               <div className="admin-profile-name">{profileLabel}</div>
-              <div className="admin-profile-role">{profile?.role ?? "viewer"}</div>
+              <div className="admin-profile-role">{profile?.role ?? "employee"}</div>
             </div>
           </div>
           <form action={signOutAction}>
@@ -83,7 +83,7 @@ export default async function AuthedAdminLayout({ children }: { children: ReactN
       <main className="admin-main">
         <header className="admin-topbar">
           <AdminCommandCenter
-            role={profile?.role ?? "viewer"}
+            role={profile?.role ?? "employee"}
             profileLabel={profileLabel}
             initialSignals={signals}
           />

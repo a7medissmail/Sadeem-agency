@@ -4,7 +4,8 @@
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
-export type Role = "admin" | "editor" | "viewer";
+export type Role = "super_admin" | "admin" | "employee";
+export type DataScope = "all" | "assigned";
 export type LeadSource = "homepage" | "course" | "consultation" | "other";
 export type LeadStatus = "new" | "contacted" | "qualified" | "won" | "lost";
 export type BookingStatus = "scheduled" | "completed" | "cancelled" | "no_show";
@@ -53,11 +54,52 @@ export type Database = {
           role: Role;
           full_name: string | null;
           avatar_url: string | null;
+          job_role_id: string | null;
+          extra_perms: string[];
+          denied_perms: string[];
+          is_active: boolean;
           created_at: string;
         };
-        Insert: { id: string; role?: Role; full_name?: string | null; avatar_url?: string | null };
+        Insert: {
+          id: string;
+          role?: Role;
+          full_name?: string | null;
+          avatar_url?: string | null;
+          job_role_id?: string | null;
+          extra_perms?: string[];
+          denied_perms?: string[];
+          is_active?: boolean;
+        };
         Relationships: [];
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
+      };
+      staff_roles: {
+        Row: {
+          id: string;
+          key: string;
+          name_ar: string;
+          name_en: string;
+          description: string | null;
+          permissions: string[];
+          data_scope: DataScope;
+          is_system: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          key: string;
+          name_ar: string;
+          name_en: string;
+          description?: string | null;
+          permissions?: string[];
+          data_scope?: DataScope;
+          is_system?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+        Update: Partial<Database["public"]["Tables"]["staff_roles"]["Insert"]>;
       };
       courses: {
         Row: {

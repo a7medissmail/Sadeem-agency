@@ -100,7 +100,7 @@ async function loadApplications(q: string) {
     const { data: staff, error: staffError } = await admin
       .from("profiles")
       .select("id, full_name, role")
-      .in("role", ["admin", "editor"])
+      .eq("is_active", true)
       .order("full_name", { ascending: true });
     if (staffError) throw staffError;
     for (const member of (staff ?? []) as StaffRow[]) staffById.set(member.id, member);

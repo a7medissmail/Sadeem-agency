@@ -3,6 +3,7 @@ import { Button } from "@/components/admin/ui/Button";
 import { Input, Select } from "@/components/admin/ui/Field";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import { requireRole } from "@/lib/auth";
+import type { Role } from "@/types/database";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import InviteForm from "./InviteForm";
 import { deleteUserAction, updateUserAction } from "./actions";
@@ -17,7 +18,7 @@ type Row = {
   id: string;
   email: string | null;
   full_name: string | null;
-  role: "admin" | "editor" | "viewer";
+  role: Role;
   created_at: string;
 };
 
@@ -54,16 +55,16 @@ async function loadUsers(): Promise<{ users: Row[]; error: string | null }> {
 }
 
 function roleTone(role: Row["role"]) {
-  if (role === "admin") return "orange" as const;
-  if (role === "editor") return "blue" as const;
+  if (role === "super_admin") return "orange" as const;
+  if (role === "admin") return "blue" as const;
   return "neutral" as const;
 }
 
 export default async function UsersPage() {
   const me = await requireRole(["admin"]);
   const { users, error: loadError } = await loadUsers();
+  const superAdminCount = users.filter((user) => user.role === "super_admin").length;
   const adminCount = users.filter((user) => user.role === "admin").length;
-  const editorCount = users.filter((user) => user.role === "editor").length;
 
   return (
     <div className="flex flex-col gap-8">
@@ -81,8 +82,8 @@ export default async function UsersPage() {
 
       <section className="grid grid-cols-2 gap-3 xl:grid-cols-3">
         <MetricCard label="Users" value={users.length} hint="Staff profiles" />
-        <MetricCard label="Admins" value={adminCount} hint="Full access" />
-        <MetricCard label="Editors" value={editorCount} hint="Content operators" />
+        <MetricCard label="Super admins" value={superAdminCount} hint="Full access" />
+        <MetricCard label="Admins" value={adminCount} hint="Run operations" />
       </section>
 
       <InviteForm />
@@ -107,9 +108,9 @@ export default async function UsersPage() {
                   <Badge tone={roleTone(user.role)}>{user.role}</Badge>
                 </div>
                 <Select name="role" defaultValue={user.role} disabled={user.id === me.id}>
-                  <option value="viewer">Viewer</option>
-                  <option value="editor">Editor</option>
+                  <option value="employee">Employee</option>
                   <option value="admin">Admin</option>
+                  <option value="super_admin">Super admin</option>
                 </Select>
                 <div className="flex items-center gap-2 xl:justify-end">
                   <Button type="submit" variant="outline" size="sm" disabled={user.id === me.id}>Save</Button>

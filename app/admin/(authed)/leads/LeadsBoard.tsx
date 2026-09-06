@@ -17,7 +17,7 @@ import { Badge } from "@/components/admin/ui/Badge";
 import { Button } from "@/components/admin/ui/Button";
 import { Select } from "@/components/admin/ui/Field";
 import { FilterChip, MetricCard } from "@/components/admin/ui/Stats";
-import type { Database, LeadSource, LeadStatus } from "@/types/database";
+import type { Database, LeadSource, LeadStatus, Role } from "@/types/database";
 import {
   addLeadNoteAction,
   assignLeadOwnerAction,
@@ -53,7 +53,7 @@ export type LeadBoardRow = Pick<
 export type StaffRow = {
   id: string;
   full_name: string | null;
-  role: "admin" | "editor" | "viewer";
+  role: Role;
 };
 
 const statuses: LeadStatus[] = ["new", "contacted", "qualified", "won", "lost"];

@@ -45,7 +45,7 @@ async function loadData(q: string) {
       admin
         .from("profiles")
         .select("id, full_name, role")
-        .in("role", ["admin", "editor"])
+        .eq("is_active", true)
         .order("full_name", { ascending: true }),
       admin
         .from("forms")

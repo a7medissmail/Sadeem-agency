@@ -46,10 +46,10 @@ export default function InviteForm() {
 
       <div className="max-w-[260px]">
         <FieldRow label="Role">
-          <Select name="role" defaultValue="viewer">
-            <option value="viewer">Viewer</option>
-            <option value="editor">Editor</option>
+          <Select name="role" defaultValue="employee">
+            <option value="employee">Employee</option>
             <option value="admin">Admin</option>
+            <option value="super_admin">Super admin</option>
           </Select>
         </FieldRow>
       </div>

@@ -1,11 +1,14 @@
 import { z } from "zod";
+import { TIERS } from "@/lib/auth/permissions";
 
-export const roleSchema = z.enum(["admin", "editor", "viewer"]);
+// Tier only. What someone may actually *do* comes from their job role, which is
+// validated separately — a tier is just where they stand in the hierarchy.
+export const roleSchema = z.enum(TIERS);
 
 export const inviteUserSchema = z.object({
   email: z.string().trim().email().max(180),
   full_name: z.string().trim().min(2).max(120),
-  role: roleSchema.default("viewer"),
+  role: roleSchema.default("employee"),
 });
 
 export const updateUserSchema = z.object({

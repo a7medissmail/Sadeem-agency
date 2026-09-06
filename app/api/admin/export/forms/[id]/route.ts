@@ -1,19 +1,17 @@
 import { NextResponse } from "next/server";
-import { getCurrentProfile } from "@/lib/auth";
+import { can, getSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { toCsv, csvResponse } from "@/lib/export/csv";
 
-const ALLOWED_ROLES = ["admin", "editor"] as const;
-
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const profile = await getCurrentProfile();
-  if (!profile) return new NextResponse("Unauthorized", { status: 401 });
-  if (!ALLOWED_ROLES.includes(profile.role as (typeof ALLOWED_ROLES)[number])) {
+  const session = await getSession();
+  if (!session) return new NextResponse("Unauthorized", { status: 401 });
+  if (!can(session, "forms:view")) {
     return new NextResponse("Forbidden", { status: 403 });
   }
 

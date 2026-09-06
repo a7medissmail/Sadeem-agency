@@ -18,7 +18,7 @@ import { Button } from "@/components/admin/ui/Button";
 import { FieldRow, Input, Select, Textarea } from "@/components/admin/ui/Field";
 import { FilterChip, MetricCard } from "@/components/admin/ui/Stats";
 import { applicationStatuses } from "@/lib/validation/careers";
-import type { ApplicationStatus, Json } from "@/types/database";
+import type { ApplicationStatus, Json, Role } from "@/types/database";
 import { statusLadders } from "@/lib/admin/status";
 import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
 import {
@@ -39,7 +39,7 @@ type JobLite = {
 export type StaffRow = {
   id: string;
   full_name: string | null;
-  role: "admin" | "editor" | "viewer";
+  role: Role;
 };
 
 type ApplicationNote = {
