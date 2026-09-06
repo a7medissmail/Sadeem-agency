@@ -1,11 +1,11 @@
 import { PageHeader } from "@/components/admin/ui/PageHeader";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { FormDefinitionForm } from "../FormBuilderForm";
 
 export const metadata = { title: "New Form - SADEEM Admin" };
 
 export default async function NewFormPage() {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("forms:edit");
 
   return (
     <div className="flex flex-col gap-8">

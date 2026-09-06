@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Badge } from "@/components/admin/ui/Badge";
 import { Button } from "@/components/admin/ui/Button";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { Database } from "@/types/database";
 import { deleteFormAction } from "./actions";
@@ -57,7 +57,7 @@ async function loadForms() {
 }
 
 export default async function FormsAdminPage() {
-  await requireRole(["admin", "editor", "viewer"]);
+  await requirePermission("forms:view");
   const { forms, error } = await loadForms();
   const activeCount = forms.filter((form) => form.is_active).length;
   const proposalCount = forms.filter((form) => form.purpose === "proposal").length;

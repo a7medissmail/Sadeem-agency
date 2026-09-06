@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { sendEmail } from "@/lib/email/resend";
 import { proposalInviteClient, getEmailBranding } from "@/lib/email/templates";
@@ -24,7 +24,7 @@ const adminLeadSchema = z.object({
 });
 
 export async function createLeadAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("leads:edit");
   const parsed = adminLeadSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
@@ -58,7 +58,7 @@ export async function createLeadAction(formData: FormData): Promise<void> {
 }
 
 export async function updateLeadStatusAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("leads:edit");
   const id = formData.get("id") as string;
   const status = formData.get("status") as LeadStatus;
   if (!id || !status) throw new Error("Missing id or status");
@@ -75,7 +75,7 @@ export async function updateLeadStatusAction(formData: FormData): Promise<void> 
  * Called client-side after an optimistic status update.
  */
 export async function moveLeadAction(id: string, status: LeadStatus): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("leads:edit");
   const admin = getSupabaseAdmin();
   const { error } = await admin.from("leads").update({ status }).eq("id", id);
   if (error) throw new Error(error.message);
@@ -83,7 +83,7 @@ export async function moveLeadAction(id: string, status: LeadStatus): Promise<vo
 }
 
 export async function assignLeadOwnerAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("leads:edit");
   const id = formData.get("id") as string;
   const owner_id = (formData.get("owner_id") as string) || null;
   if (!id) throw new Error("Missing lead id");
@@ -95,7 +95,7 @@ export async function assignLeadOwnerAction(formData: FormData): Promise<void> {
 }
 
 export async function deleteLeadAction(formData: FormData): Promise<void> {
-  const profile = await requireRole(["admin"]);
+  const profile = await requirePermission("leads:delete");
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing lead id");
 
@@ -116,7 +116,7 @@ export async function createBriefFromLeadAction(
   emailNow: boolean,
   locale: string = "en",
 ): Promise<{ rawToken?: string; error?: string }> {
-  const profile = await requireRole(["admin", "editor"]);
+  const profile = await requirePermission("leads:edit");
 
   const admin = getSupabaseAdmin();
   const { data: lead, error: readError } = await admin
@@ -187,7 +187,7 @@ export async function createBriefFromLeadAction(
 }
 
 export async function addLeadNoteAction(formData: FormData): Promise<void> {
-  const profile = await requireRole(["admin", "editor"]);
+  const profile = await requirePermission("leads:edit");
   const lead_id = formData.get("id") as string;
   const note = (formData.get("note") as string | null)?.trim() ?? "";
   if (!lead_id || !note) throw new Error("Missing lead id or note");

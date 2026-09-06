@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/admin/ui/Button";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { Database } from "@/types/database";
 import { FormBuilderEditor } from "../FormBuilderForm";
@@ -47,7 +47,7 @@ async function loadForm(id: string) {
 }
 
 export default async function EditFormPage({ params }: { params: { id: string } }) {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("forms:edit");
   const { id } = params;
   const { form, fields, error } = await loadForm(id);
   if (!form && !error) notFound();

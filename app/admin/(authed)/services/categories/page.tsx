@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import { Button } from "@/components/admin/ui/Button";
@@ -40,7 +40,7 @@ async function loadServiceCountByCategory() {
 }
 
 export default async function CategoriesAdminPage() {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("services:view");
   const [{ categories, error }, serviceCounts] = await Promise.all([
     loadCategories(),
     loadServiceCountByCategory(),

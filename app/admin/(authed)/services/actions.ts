@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { serviceSchema } from "@/lib/validation/service";
@@ -48,7 +48,7 @@ export async function createServiceAction(
   _prev: ServiceFormState,
   formData: FormData,
 ): Promise<ServiceFormState> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("services:edit");
   const raw = parseFormData(formData);
   if (!raw.slug && raw.title) raw.slug = toSlug(raw.title);
 
@@ -86,7 +86,7 @@ export async function updateServiceAction(
   _prev: ServiceFormState,
   formData: FormData,
 ): Promise<ServiceFormState> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("services:edit");
   const raw = parseFormData(formData);
 
   const result = serviceSchema.safeParse(raw);
@@ -123,7 +123,7 @@ export async function updateServiceAction(
 }
 
 export async function deleteServiceAction(formData: FormData): Promise<void> {
-  const profile = await requireRole(["admin"]);
+  const profile = await requirePermission("services:delete");
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing id");
 

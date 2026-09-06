@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Button } from "@/components/admin/ui/Button";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import DynamicFormRenderer from "@/components/DynamicFormRenderer";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { Database } from "@/types/database";
 import { InlineAlert } from "@/components/admin/ui/Feedback";
@@ -43,7 +43,7 @@ async function loadForm(id: string) {
 }
 
 export default async function FormPreviewPage({ params }: { params: Promise<{ id: string }> }) {
-  await requireRole(["admin", "editor", "viewer"]);
+  await requirePermission("forms:view");
   const { id } = await params;
   const { form, fields, error } = await loadForm(id);
   if (!form && !error) notFound();

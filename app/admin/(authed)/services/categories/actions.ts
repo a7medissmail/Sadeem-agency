@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { z } from "zod";
@@ -44,7 +44,7 @@ export async function createCategoryAction(
   _prev: CategoryFormState,
   formData: FormData,
 ): Promise<CategoryFormState> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("services:edit");
   const raw = parseFormData(formData);
   if (!raw.slug && raw.label) raw.slug = toSlug(raw.label);
 
@@ -78,7 +78,7 @@ export async function updateCategoryAction(
   _prev: CategoryFormState,
   formData: FormData,
 ): Promise<CategoryFormState> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("services:edit");
   const raw = parseFormData(formData);
 
   const result = categorySchema.safeParse(raw);
@@ -110,7 +110,7 @@ export async function updateCategoryAction(
 }
 
 export async function deleteCategoryAction(formData: FormData): Promise<void> {
-  const profile = await requireRole(["admin"]);
+  const profile = await requirePermission("services:delete");
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing id");
 

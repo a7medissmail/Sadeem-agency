@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import Link from "next/link";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import { Badge } from "@/components/admin/ui/Badge";
@@ -38,7 +38,7 @@ async function loadData() {
 }
 
 export default async function ServicesAdminPage() {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("services:view");
   const { categories, services, error } = await loadData();
 
   const publishedCount = services.filter((s) => s.is_published).length;

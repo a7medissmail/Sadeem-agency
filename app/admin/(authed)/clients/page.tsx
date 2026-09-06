@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Badge } from "@/components/admin/ui/Badge";
 import { Button } from "@/components/admin/ui/Button";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { defaultClientSection } from "@/lib/site/clients";
 import type { Database } from "@/types/database";
@@ -84,7 +84,7 @@ export default async function ClientsAdminPage({
 }: {
   searchParams: { updated?: string };
 }) {
-  await requireRole(["admin", "editor", "viewer"]);
+  await requirePermission("clients:view");
   const { section, partners, error } = await loadData();
   const anchorCount = partners.filter((p) => p.role === "anchor" && p.is_active).length;
   const activeGrid = partners.filter((p) => p.role === "grid" && p.is_active).length;

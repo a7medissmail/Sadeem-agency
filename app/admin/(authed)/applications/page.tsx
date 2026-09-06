@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import { SearchBar } from "@/components/admin/ui/SearchBar";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { ApplicationStatus, Json } from "@/types/database";
 import { ApplicationsBoard, type ApplicationBoardRow, type StaffRow } from "./ApplicationsBoard";
@@ -190,7 +190,7 @@ export default async function ApplicationsAdminPage({
 }: {
   searchParams: Record<string, string | string[] | undefined>;
 }) {
-  await requireRole(["admin", "editor", "viewer"]);
+  await requirePermission("applications:view");
   const q = sp(searchParams.q).trim();
   const { applications, staff, error, capped } = await loadApplications(q);
 

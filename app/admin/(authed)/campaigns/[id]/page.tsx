@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { Button } from "@/components/admin/ui/Button";
 import { FieldRow, Input, Select, Textarea } from "@/components/admin/ui/Field";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { campaignLeadSources, campaignLeadStatuses } from "@/lib/validation/campaign";
 import type { Database } from "@/types/database";
@@ -36,7 +36,7 @@ function parseAudienceField(value: unknown, key: "status" | "source"): string {
 }
 
 export default async function EditCampaignPage({ params }: { params: { id: string } }) {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("campaigns:edit");
   const { id } = params;
   const { campaign, error } = await loadCampaign(id);
 

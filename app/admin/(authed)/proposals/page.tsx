@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import { SearchBar } from "@/components/admin/ui/SearchBar";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { ProposalBoard, type FormLite, type ProposalRow, type SubmissionLite } from "./ProposalBoard";
 import type { QuotationRow, QuotationItemRow } from "./QuotationBuilder";
@@ -227,7 +227,7 @@ export default async function ProposalsPage({
 }: {
   searchParams: Record<string, string | string[] | undefined>;
 }) {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("proposals:view");
   const q = sp(searchParams.q).trim();
   const { proposals, forms, error, capped } = await loadData(q);
 

@@ -1,11 +1,11 @@
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import PartnerForm from "../PartnerForm";
 
 export const metadata = { title: "New partner - SADEEM Admin" };
 
 export default async function NewPartnerPage() {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("clients:edit");
   return (
     <div className="flex flex-col gap-8">
       <PageHeader

@@ -2,13 +2,13 @@ import Link from "next/link";
 import { Button } from "@/components/admin/ui/Button";
 import { FieldRow, Input, Select, Textarea } from "@/components/admin/ui/Field";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { createLeadAction } from "../actions";
 
 export const metadata = { title: "New Lead - SADEEM Admin" };
 
 export default async function NewLeadPage() {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("leads:edit");
 
   return (
     <div className="flex flex-col gap-8">

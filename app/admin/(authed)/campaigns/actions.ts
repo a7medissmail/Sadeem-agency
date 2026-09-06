@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/resend";
@@ -48,7 +48,7 @@ async function eligibleLeads(audience: CampaignAudience): Promise<LeadRow[]> {
 }
 
 export async function createCampaignAction(formData: FormData): Promise<void> {
-  const profile = await requireRole(["admin", "editor"]);
+  const profile = await requirePermission("campaigns:edit");
   const parsed = campaignSchema.safeParse({
     subject: formData.get("subject"),
     body: formData.get("body"),
@@ -78,7 +78,7 @@ export async function createCampaignAction(formData: FormData): Promise<void> {
 }
 
 export async function sendCampaignAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("campaigns:edit");
   const id = String(formData.get("id") ?? "");
   if (!id) throw new Error("Missing campaign id");
 
@@ -156,7 +156,7 @@ export async function sendCampaignAction(formData: FormData): Promise<void> {
 }
 
 export async function updateCampaignAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("campaigns:edit");
   const id = String(formData.get("id") ?? "");
   if (!id) throw new Error("Missing campaign id");
 
@@ -192,7 +192,7 @@ export async function updateCampaignAction(formData: FormData): Promise<void> {
 }
 
 export async function deleteCampaignAction(formData: FormData): Promise<void> {
-  const profile = await requireRole(["admin"]);
+  const profile = await requirePermission("campaigns:delete");
   const id = String(formData.get("id") ?? "");
   if (!id) throw new Error("Missing campaign id");
 

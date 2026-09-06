@@ -3,7 +3,7 @@
 import crypto from "crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { checkRateLimit } from "@/lib/security/rateLimit";
@@ -32,7 +32,7 @@ export async function createProposalAction(
   _prev: CreateProposalState,
   formData: FormData,
 ): Promise<CreateProposalState> {
-  const profile = await requireRole(["admin", "editor"]);
+  const profile = await requirePermission("proposals:edit");
 
   const title = (formData.get("title") as string | null)?.trim() ?? "";
   const client_name = (formData.get("client_name") as string | null)?.trim() ?? "";
@@ -76,7 +76,7 @@ export async function createProposalAction(
 // ─── Update status ────────────────────────────────────────────────────────────
 
 export async function updateProposalStatusAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("proposals:edit");
   const id = formData.get("id") as string;
   const status = formData.get("status") as ProposalStatus;
   if (!id || !status) throw new Error("Missing id or status");
@@ -90,7 +90,7 @@ export async function updateProposalStatusAction(formData: FormData): Promise<vo
 // ─── Update internal notes ────────────────────────────────────────────────────
 
 export async function updateProposalNotesAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("proposals:edit");
   const id = formData.get("id") as string;
   const internal_notes = (formData.get("internal_notes") as string | null)?.trim() || null;
   if (!id) throw new Error("Missing proposal id");
@@ -104,7 +104,7 @@ export async function updateProposalNotesAction(formData: FormData): Promise<voi
 // ─── Mark as sent ─────────────────────────────────────────────────────────────
 
 export async function markProposalSentAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("proposals:edit");
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing proposal id");
 
@@ -130,7 +130,7 @@ export async function regenerateProposalTokenAction(
   _prev: RegenerateTokenState,
   formData: FormData,
 ): Promise<RegenerateTokenState> {
-  await requireRole(["admin"]);
+  await requirePermission("proposals:delete");
   const id = formData.get("id") as string;
   if (!id) return { error: "Missing proposal id" };
 
@@ -159,7 +159,7 @@ export async function emailProposalAction(
   _prev: EmailProposalState,
   formData: FormData,
 ): Promise<EmailProposalState> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("proposals:edit");
   const id = formData.get("id") as string;
   if (!id) return { error: "Missing proposal id" };
 
@@ -215,7 +215,7 @@ export async function emailProposalAction(
 // ─── Delete ───────────────────────────────────────────────────────────────────
 
 export async function deleteProposalAction(formData: FormData): Promise<void> {
-  const profile = await requireRole(["admin"]);
+  const profile = await requirePermission("proposals:delete");
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing proposal id");
 

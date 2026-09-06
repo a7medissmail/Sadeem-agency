@@ -2,7 +2,7 @@
 
 import crypto from "crypto";
 import { revalidatePath } from "next/cache";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { createBookingIcs } from "@/lib/calendar/ics";
 import { bookingConfirmation, bookingNotification, proposalInviteClient, getEmailBranding } from "@/lib/email/templates";
@@ -43,7 +43,7 @@ function slotLabel(start: string) {
 }
 
 export async function createBookingAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("bookings:edit");
 
   const name = (formData.get("name") as string | null)?.trim() ?? "";
   const email = (formData.get("email") as string | null)?.trim().toLowerCase() ?? "";
@@ -89,7 +89,7 @@ export async function createBookingAction(formData: FormData): Promise<void> {
  * you were also marking completed cost two round trips.
  */
 export async function updateBookingMeetingAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("bookings:edit");
   const id = formData.get("id") as string;
   const status = formData.get("status") as BookingStatus;
   if (!id) throw new Error("Missing booking id");
@@ -111,7 +111,7 @@ export async function updateBookingMeetingAction(formData: FormData): Promise<vo
 }
 
 export async function sendBookingDetailsAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("bookings:edit");
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing booking id");
 
@@ -186,7 +186,7 @@ export async function createBriefFromBookingAction(
   emailNow: boolean,
   locale: string = "en",
 ): Promise<{ rawToken?: string; error?: string }> {
-  const profile = await requireRole(["admin", "editor"]);
+  const profile = await requirePermission("bookings:edit");
 
   const admin = getSupabaseAdmin();
   const { data: booking, error: readError } = await admin
@@ -255,7 +255,7 @@ export async function createBriefFromBookingAction(
 }
 
 export async function createAvailabilityRuleAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("bookings:edit");
   const parsed = availabilityRuleSchema.safeParse(readRule(formData));
   if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? "Invalid availability rule");
 
@@ -268,7 +268,7 @@ export async function createAvailabilityRuleAction(formData: FormData): Promise<
 }
 
 export async function updateAvailabilityRuleAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("bookings:edit");
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing rule id");
 
@@ -284,7 +284,7 @@ export async function updateAvailabilityRuleAction(formData: FormData): Promise<
 }
 
 export async function deleteAvailabilityRuleAction(formData: FormData): Promise<void> {
-  const profile = await requireRole(["admin"]);
+  const profile = await requirePermission("bookings:delete");
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing rule id");
 
@@ -300,7 +300,7 @@ export async function deleteAvailabilityRuleAction(formData: FormData): Promise<
 // ─── Capacity guardrails ──────────────────────────────────────────────────────
 
 export async function saveBookingSettingsAction(formData: FormData): Promise<void> {
-  const profile = await requireRole(["admin", "editor"]);
+  const profile = await requirePermission("bookings:edit");
 
   const parsed = bookingSettingsSchema.safeParse({
     max_per_week: formData.get("max_per_week"),
@@ -331,7 +331,7 @@ export async function saveBookingSettingsAction(formData: FormData): Promise<voi
 }
 
 export async function createBookingBlackoutAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("bookings:edit");
 
   const parsed = bookingBlackoutSchema.safeParse({
     starts_on: formData.get("starts_on"),
@@ -350,7 +350,7 @@ export async function createBookingBlackoutAction(formData: FormData): Promise<v
 }
 
 export async function deleteBookingBlackoutAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("bookings:edit");
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing blackout id");
 

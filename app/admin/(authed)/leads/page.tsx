@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/admin/ui/Button";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import { SearchBar } from "@/components/admin/ui/SearchBar";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { LeadsBoard, type LeadBoardRow, type StaffRow } from "./LeadsBoard";
 import type { BriefFormLite } from "@/components/admin/ui/QuickBrief";
@@ -83,7 +83,7 @@ export default async function LeadsPage({
 }: {
   searchParams: Record<string, string | string[] | undefined>;
 }) {
-  await requireRole(["admin", "editor", "viewer"]);
+  await requirePermission("leads:view");
   const q = sp(searchParams.q).trim();
   const { leads, staff, forms, error, capped } = await loadData(q);
 

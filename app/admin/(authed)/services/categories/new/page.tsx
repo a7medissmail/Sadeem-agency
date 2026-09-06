@@ -1,11 +1,11 @@
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import CategoryForm from "../CategoryForm";
 
 export const metadata = { title: "New category - SADEEM Admin" };
 
 export default async function NewCategoryPage() {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("services:edit");
   return (
     <div className="flex flex-col gap-8">
       <PageHeader

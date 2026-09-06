@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import {
@@ -45,7 +45,7 @@ function databaseErrorMessage(message: string) {
 }
 
 export async function createJobAction(_prev: JobFormState, formData: FormData): Promise<JobFormState> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("jobs:edit");
 
   const parsed = jobSchema.safeParse(readForm(formData));
   if (!parsed.success) return formatJobValidationError(parsed.error);
@@ -60,7 +60,7 @@ export async function createJobAction(_prev: JobFormState, formData: FormData): 
 }
 
 export async function updateJobAction(_prev: JobFormState, formData: FormData): Promise<JobFormState> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("jobs:edit");
   const id = formData.get("id") as string;
   if (!id) return { error: "Missing job id" };
 
@@ -78,7 +78,7 @@ export async function updateJobAction(_prev: JobFormState, formData: FormData): 
 }
 
 export async function toggleJobOpenAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("jobs:edit");
   const id = formData.get("id") as string;
   const next = formData.get("next") === "on";
   if (!id) throw new Error("Missing job id");
@@ -92,7 +92,7 @@ export async function toggleJobOpenAction(formData: FormData): Promise<void> {
 }
 
 export async function deleteJobAction(formData: FormData): Promise<void> {
-  const profile = await requireRole(["admin"]);
+  const profile = await requirePermission("jobs:delete");
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing job id");
 

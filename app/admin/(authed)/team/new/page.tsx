@@ -1,11 +1,11 @@
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import TeamForm from "../TeamForm";
 
 export const metadata = { title: "New team member - SADEEM Admin" };
 
 export default async function NewTeamMemberPage() {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("team:edit");
 
   return (
     <div className="flex flex-col gap-8">

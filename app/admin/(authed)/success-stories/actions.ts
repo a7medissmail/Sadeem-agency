@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import {
@@ -87,7 +87,7 @@ export async function createSuccessStoryAction(
   _prev: SuccessStoryFormState,
   formData: FormData,
 ): Promise<SuccessStoryFormState> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("success_stories:edit");
 
   const parsed = successStorySchema.safeParse(readForm(formData));
   if (!parsed.success) return formatSuccessStoryValidationError(parsed.error);
@@ -114,7 +114,7 @@ export async function updateSuccessStoryAction(
   _prev: SuccessStoryFormState,
   formData: FormData,
 ): Promise<SuccessStoryFormState> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("success_stories:edit");
   const id = formData.get("id") as string;
   if (!id) return { error: "Missing story id" };
 
@@ -141,7 +141,7 @@ export async function updateSuccessStoryAction(
 }
 
 export async function toggleSuccessStoryPublishedAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("success_stories:edit");
   const id = formData.get("id") as string;
   const next = formData.get("next") === "on";
   if (!id) throw new Error("Missing story id");
@@ -155,7 +155,7 @@ export async function toggleSuccessStoryPublishedAction(formData: FormData): Pro
 }
 
 export async function deleteSuccessStoryAction(formData: FormData): Promise<void> {
-  const profile = await requireRole(["admin"]);
+  const profile = await requirePermission("success_stories:delete");
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing story id");
 

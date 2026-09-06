@@ -144,11 +144,47 @@ export const ADMIN_DEFAULT_PERMISSIONS: readonly PermissionKey[] = ALL_PERMISSIO
   (p) => !ADMIN_EXCLUDED.includes(p),
 );
 
+// ─── Implication ──────────────────────────────────────────────────────────────
+//
+// The actions of a module are listed weakest-first, and holding one implies
+// holding every weaker one: you cannot sensibly delete a lead you are not
+// allowed to read, and a template granting `campaigns:edit` alone would let
+// somebody write a campaign they cannot open. Rather than trusting whoever
+// fills in the checkboxes to never leave that gap, close it here.
+//
+// Revocation runs the other way. "This person may not see leads" has to mean
+// they may not edit or delete them either, so a denied permission takes every
+// stronger permission in its module with it.
+
+const IMPLIES_DOWN = new Map<PermissionKey, PermissionKey[]>();
+const IMPLIES_UP = new Map<PermissionKey, PermissionKey[]>();
+for (const [module, actions] of Object.entries(CATALOGUE)) {
+  const keys = (actions as readonly string[]).map((a) => `${module}:${a}` as PermissionKey);
+  keys.forEach((key, i) => {
+    IMPLIES_DOWN.set(key, keys.slice(0, i));
+    IMPLIES_UP.set(key, keys.slice(i + 1));
+  });
+}
+
+function expand(seed: Iterable<PermissionKey>, table: Map<PermissionKey, PermissionKey[]>) {
+  const out = new Set<PermissionKey>();
+  for (const p of seed) {
+    out.add(p);
+    for (const implied of table.get(p) ?? []) out.add(implied);
+  }
+  return out;
+}
+
 /**
  * Resolve what a person can actually do.
- * effective = tier baseline ∪ job template ∪ granted − revoked
+ * effective = (tier baseline ∪ job template ∪ granted, weakened) − (revoked, strengthened)
  * (revocation loses to nothing: a super admin cannot be limited by it, which is
  * the point of the tier.)
+ *
+ * The SQL side (has_permission) deliberately does not repeat this. Its only
+ * caller is the audit_log policy, and audit_log has a single action, so
+ * implication there is a no-op — duplicating the table into Postgres would buy
+ * nothing and give it somewhere to drift.
  */
 export function resolvePermissions(input: {
   role: Tier;
@@ -160,12 +196,14 @@ export function resolvePermissions(input: {
   if (!input.isActive) return new Set();
   if (input.role === "super_admin") return new Set(ALL_PERMISSIONS);
 
-  const granted = new Set<PermissionKey>(
+  const seed = new Set<PermissionKey>(
     input.role === "admin" ? ADMIN_DEFAULT_PERMISSIONS : [],
   );
-  for (const p of sanitizePermissions(input.jobRolePermissions)) granted.add(p);
-  for (const p of sanitizePermissions(input.extraPerms)) granted.add(p);
-  for (const p of sanitizePermissions(input.deniedPerms)) granted.delete(p);
+  for (const p of sanitizePermissions(input.jobRolePermissions)) seed.add(p);
+  for (const p of sanitizePermissions(input.extraPerms)) seed.add(p);
+
+  const granted = expand(seed, IMPLIES_DOWN);
+  for (const p of expand(sanitizePermissions(input.deniedPerms), IMPLIES_UP)) granted.delete(p);
   return granted;
 }
 

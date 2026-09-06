@@ -1,5 +1,5 @@
 import { PageHeader } from "@/components/admin/ui/PageHeader";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import JobForm from "../JobForm";
 
@@ -16,7 +16,7 @@ async function loadApplicationForms() {
 }
 
 export default async function NewJobPage() {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("jobs:edit");
   const forms = await loadApplicationForms();
 
   return (

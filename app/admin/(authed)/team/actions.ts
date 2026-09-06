@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { formatTeamValidationError, teamMemberSchema, type TeamFieldErrors } from "@/lib/validation/team";
@@ -83,7 +83,7 @@ export async function createTeamMemberAction(
   _prev: TeamFormState,
   formData: FormData,
 ): Promise<TeamFormState> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("team:edit");
 
   const parsed = teamMemberSchema.safeParse(readForm(formData));
   if (!parsed.success) return formatTeamValidationError(parsed.error);
@@ -109,7 +109,7 @@ export async function updateTeamMemberAction(
   _prev: TeamFormState,
   formData: FormData,
 ): Promise<TeamFormState> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("team:edit");
   const id = formData.get("id") as string;
   if (!id) return { error: "Missing team member id" };
 
@@ -134,7 +134,7 @@ export async function updateTeamMemberAction(
 }
 
 export async function toggleTeamMemberActiveAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("team:edit");
   const id = formData.get("id") as string;
   const next = formData.get("next") === "on";
   if (!id) throw new Error("Missing team member id");
@@ -148,7 +148,7 @@ export async function toggleTeamMemberActiveAction(formData: FormData): Promise<
 }
 
 export async function deleteTeamMemberAction(formData: FormData): Promise<void> {
-  const profile = await requireRole(["admin"]);
+  const profile = await requirePermission("team:delete");
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing team member id");
 

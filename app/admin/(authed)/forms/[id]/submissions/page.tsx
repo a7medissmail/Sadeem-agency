@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Badge } from "@/components/admin/ui/Badge";
 import { Button } from "@/components/admin/ui/Button";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { Database, FormSubmissionStatus } from "@/types/database";
 import { SubmissionsBoard, type AnswerRow, type FieldMeta, type SubmissionRow } from "./SubmissionsBoard";
@@ -95,7 +95,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 }
 
 export default async function FormSubmissionsPage({ params }: { params: Promise<{ id: string }> }) {
-  await requireRole(["admin", "editor", "viewer"]);
+  await requirePermission("forms:view");
   const { id } = await params;
   const { form, fields, submissions, error } = await loadData(id);
 

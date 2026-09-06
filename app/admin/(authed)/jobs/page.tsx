@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Badge } from "@/components/admin/ui/Badge";
 import { Button } from "@/components/admin/ui/Button";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { deleteJobAction, toggleJobOpenAction } from "./actions";
 import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
@@ -43,7 +43,7 @@ async function loadJobs() {
 }
 
 export default async function JobsAdminPage() {
-  await requireRole(["admin", "editor", "viewer"]);
+  await requirePermission("jobs:view");
   const { jobs, formsById, error } = await loadJobs();
   const openCount = jobs.filter((job) => job.is_open).length;
   const internshipCount = jobs.filter((job) => job.type === "internship").length;

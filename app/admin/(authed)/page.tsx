@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { getCurrentProfile } from "@/lib/auth";
+import { requirePermission, type PermissionKey } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { loadBadgeCounts } from "@/lib/admin/signals";
 import { UserValue } from "@/components/admin/ui/UserValue";
@@ -133,7 +133,9 @@ function CountTile({
 }
 
 export default async function AdminDashboard() {
-  const profile = await getCurrentProfile();
+  // The cockpit carries lead names, booking emails and applicant names, so it
+  // needs a permission of its own rather than riding on the layout's gate.
+  const profile = await requirePermission("dashboard:view");
   let data: Awaited<ReturnType<typeof dashboardData>> | null = null;
   let badgeCounts: Awaited<ReturnType<typeof loadBadgeCounts>> | null = null;
   try {
@@ -143,12 +145,16 @@ export default async function AdminDashboard() {
     badgeCounts = null;
   }
 
-  const actions = [
-    { label: "New lead", href: "/admin/leads/new" },
-    { label: "New booking", href: "/admin/bookings/new" },
-    { label: "New proposal", href: "/admin/proposals" },
-    { label: "Write campaign", href: "/admin/campaigns" },
-  ];
+  // Same rule as the sidebar: a shortcut that lands on /admin/no-access is
+  // worse than no shortcut.
+  const actions = (
+    [
+      { label: "New lead", href: "/admin/leads/new", permission: "leads:edit" },
+      { label: "New booking", href: "/admin/bookings/new", permission: "bookings:edit" },
+      { label: "New proposal", href: "/admin/proposals", permission: "proposals:edit" },
+      { label: "Write campaign", href: "/admin/campaigns", permission: "campaigns:edit" },
+    ] satisfies { label: string; href: string; permission: PermissionKey }[]
+  ).filter((action) => profile.permissions.has(action.permission));
 
   return (
     <div className="flex flex-col gap-6">

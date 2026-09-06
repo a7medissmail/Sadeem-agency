@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/resend";
@@ -17,7 +17,7 @@ import type { ApplicationStatus } from "@/types/database";
 const RESUME_BUCKET = "application-resumes";
 
 export async function updateApplicationStatusAction(formData: FormData): Promise<void> {
-  const profile = await requireRole(["admin", "editor"]);
+  const profile = await requirePermission("applications:edit");
   const id = formData.get("id") as string;
   const status = formData.get("status") as ApplicationStatus;
   const note = String(formData.get("note") ?? "").trim();
@@ -100,7 +100,7 @@ function nullableUrl(value: FormDataEntryValue | null, label: string) {
 }
 
 export async function updateApplicationMetaAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("applications:edit");
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing application id");
 
@@ -125,7 +125,7 @@ export async function updateApplicationMetaAction(formData: FormData): Promise<v
 }
 
 export async function addApplicationNoteAction(formData: FormData): Promise<void> {
-  const profile = await requireRole(["admin", "editor"]);
+  const profile = await requirePermission("applications:edit");
   const id = formData.get("id") as string;
   const note = String(formData.get("note") ?? "").trim();
   if (!id) throw new Error("Missing application id");
@@ -144,7 +144,7 @@ export async function addApplicationNoteAction(formData: FormData): Promise<void
 }
 
 export async function deleteApplicationAction(formData: FormData): Promise<void> {
-  const profile = await requireRole(["admin"]);
+  const profile = await requirePermission("applications:delete");
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing application id");
 
@@ -175,7 +175,7 @@ export async function moveApplicationAction(
   id: string,
   newStatus: ApplicationStatus,
 ): Promise<void> {
-  const profile = await requireRole(["admin", "editor"]);
+  const profile = await requirePermission("applications:edit");
 
   const admin = getSupabaseAdmin();
   const { data: application, error: readError } = await admin

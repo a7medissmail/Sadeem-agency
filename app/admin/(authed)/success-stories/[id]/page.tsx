@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import StoryForm from "../StoryForm";
@@ -7,7 +7,7 @@ import StoryForm from "../StoryForm";
 export const metadata = { title: "Edit success story - SADEEM Admin" };
 
 export default async function EditSuccessStoryPage({ params }: { params: { id: string } }) {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("success_stories:edit");
   const admin = getSupabaseAdmin();
   const { data, error } = await admin
     .from("success_stories")

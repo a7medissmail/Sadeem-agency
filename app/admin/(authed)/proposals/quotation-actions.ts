@@ -2,7 +2,7 @@
 
 import crypto from "crypto";
 import { revalidatePath } from "next/cache";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { checkRateLimit } from "@/lib/security/rateLimit";
 import { sendEmail } from "@/lib/email/resend";
@@ -61,7 +61,7 @@ export async function saveQuotationAction(
   _prev: SaveQuotationState,
   formData: FormData,
 ): Promise<SaveQuotationState> {
-  const profile_id = (await requireRole(["admin", "editor"])).id;
+  const profile_id = (await requirePermission("proposals:edit")).id;
   const id = (formData.get("id") as string | null) || null;
   const proposal_id = (formData.get("proposal_id") as string | null) || null;
   const title = ((formData.get("title") as string | null) ?? "").trim();
@@ -158,7 +158,7 @@ export async function sendQuotationAction(
   _prev: SendQuotationState,
   formData: FormData,
 ): Promise<SendQuotationState> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("proposals:edit");
   const id = formData.get("id") as string;
   if (!id) return { error: "Missing quotation id." };
 
@@ -232,7 +232,7 @@ export async function sendQuotationAction(
 export async function regenerateQuotationLinkAction(
   formData: FormData,
 ): Promise<{ ok?: boolean; rawToken?: string; error?: string }> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("proposals:edit");
   const id = formData.get("id") as string;
   if (!id) return { error: "Missing quotation id." };
 
@@ -251,7 +251,7 @@ export async function regenerateQuotationLinkAction(
 // ─── Update quotation status ──────────────────────────────────────────────────
 
 export async function updateQuotationStatusAction(formData: FormData): Promise<void> {
-  await requireRole(["admin"]);
+  await requirePermission("proposals:delete");
   const id = formData.get("id") as string;
   const status = formData.get("status") as QuotationStatus;
   if (!id || !status) throw new Error("Missing id or status");
@@ -265,7 +265,7 @@ export async function updateQuotationStatusAction(formData: FormData): Promise<v
 // ─── Delete quotation ─────────────────────────────────────────────────────────
 
 export async function deleteQuotationAction(formData: FormData): Promise<void> {
-  await requireRole(["admin"]);
+  await requirePermission("proposals:delete");
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing quotation id");
 

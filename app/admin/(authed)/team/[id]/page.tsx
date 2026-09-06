@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import TeamForm from "../TeamForm";
@@ -7,7 +7,7 @@ import TeamForm from "../TeamForm";
 export const metadata = { title: "Edit team member - SADEEM Admin" };
 
 export default async function EditTeamMemberPage({ params }: { params: { id: string } }) {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("team:edit");
 
   const admin = getSupabaseAdmin();
   const { data, error } = await admin

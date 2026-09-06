@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import JobForm from "../JobForm";
 
@@ -28,7 +28,7 @@ async function loadApplicationForms() {
 }
 
 export default async function EditJobPage({ params }: { params: { id: string } }) {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("jobs:edit");
   const [job, forms] = await Promise.all([loadJob(params.id), loadApplicationForms()]);
   if (!job) notFound();
 

@@ -5,7 +5,7 @@ import { Button } from "@/components/admin/ui/Button";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import { SearchBar } from "@/components/admin/ui/SearchBar";
 import { InlineAlert } from "@/components/admin/ui/Feedback";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { bookingTimeZone } from "@/lib/google/calendar";
 import { defaultBookingSettings } from "@/lib/booking/settings";
@@ -174,7 +174,7 @@ export default async function BookingsAdminPage({
 }: {
   searchParams: Record<string, string | string[] | undefined>;
 }) {
-  await requireRole(["admin", "editor", "viewer"]);
+  await requirePermission("bookings:view");
   const tab: Tab = sp(searchParams.tab) === "availability" ? "availability" : "schedule";
   const q = sp(searchParams.q).trim();
   const page = Math.max(1, parseInt(sp(searchParams.page) || "1", 10));

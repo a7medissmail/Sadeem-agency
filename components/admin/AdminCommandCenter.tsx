@@ -24,21 +24,23 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { AdminSignal } from "@/lib/admin/signals";
-import { buildPaletteCommands, type PaletteCommand } from "@/lib/admin/navigation";
+import { visiblePaletteCommands, type PaletteCommand } from "@/lib/admin/navigation";
 
 export type { AdminSignal };
 
-// Derived from the single navigation source of truth
-const commands = buildPaletteCommands();
-
 // Build a shortcut lookup: "D" → "/admin", "L" → "/admin/leads" etc.
-const chordMap: Record<string, string> = {};
-for (const cmd of commands) {
-  if (!cmd.shortcut) continue;
-  const parts = cmd.shortcut.split(" ");
-  if (parts[0] === "G" && parts[1]) {
-    chordMap[parts[1].toLowerCase()] = cmd.href;
+// Built from the same filtered list as the palette, so a chord cannot take
+// somebody to a page their permissions would bounce them off.
+function buildChordMap(commands: PaletteCommand[]): Record<string, string> {
+  const map: Record<string, string> = {};
+  for (const cmd of commands) {
+    if (!cmd.shortcut) continue;
+    const parts = cmd.shortcut.split(" ");
+    if (parts[0] === "G" && parts[1]) {
+      map[parts[1].toLowerCase()] = cmd.href;
+    }
   }
+  return map;
 }
 
 function matchesCommand(item: PaletteCommand, query: string) {
@@ -53,12 +55,20 @@ export function AdminCommandCenter({
   role,
   profileLabel,
   initialSignals,
+  permissions,
 }: {
   role: string;
   profileLabel: string;
   initialSignals: AdminSignal[];
+  permissions: string[];
 }) {
   const router = useRouter();
+
+  // Recomputed only when the permission set changes, which in practice is once
+  // per sign-in — but it has to be per-user, so it cannot live at module scope
+  // the way it did when every signed-in account saw the same seventeen links.
+  const commands = useMemo(() => visiblePaletteCommands(permissions), [permissions]);
+  const chordMap = useMemo(() => buildChordMap(commands), [commands]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // ── Palette state ────────────────────────────────────────────────────────────
@@ -117,7 +127,7 @@ export function AdminCommandCenter({
       ? commands.filter((item) => matchesCommand(item, query.trim()))
       : commands;
     return next.slice(0, 12);
-  }, [query]);
+  }, [commands, query]);
 
   // ── Global keyboard handler (capture phase so Ctrl+K beats Chrome) ────────
   useEffect(() => {
@@ -174,7 +184,7 @@ export function AdminCommandCenter({
       window.removeEventListener("keydown", onKey, { capture: true });
       clearTimeout(chordTimerRef.current);
     };
-  }, [router]);
+  }, [router, chordMap]);
 
   // ── Palette-specific keyboard handler (Escape / Arrow / Enter) ───────────
   useEffect(() => {

@@ -4,7 +4,7 @@ import { Button } from "@/components/admin/ui/Button";
 import { FieldRow, Input, Select, Textarea } from "@/components/admin/ui/Field";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import { MetricCard } from "@/components/admin/ui/Stats";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import {
   campaignAudienceLabel,
@@ -81,7 +81,7 @@ async function loadData() {
 }
 
 export default async function CampaignsAdminPage() {
-  await requireRole(["admin", "editor", "viewer"]);
+  await requirePermission("campaigns:view");
   const { campaigns, sends, leads, error } = await loadData();
   const dateFmt = new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short" });
   const sendsByCampaign = new Map<string, Send[]>();

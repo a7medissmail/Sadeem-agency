@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Badge } from "@/components/admin/ui/Badge";
 import { Button } from "@/components/admin/ui/Button";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { deleteSuccessStoryAction, toggleSuccessStoryPublishedAction } from "./actions";
 import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
@@ -29,7 +29,7 @@ async function loadStories() {
 }
 
 export default async function SuccessStoriesAdminPage() {
-  await requireRole(["admin", "editor", "viewer"]);
+  await requirePermission("success_stories:view");
   const { stories, error } = await loadStories();
   const liveCount = stories.filter((story) => story.is_published).length;
   const metricCount = stories.filter((story) => story.metric_value).length;

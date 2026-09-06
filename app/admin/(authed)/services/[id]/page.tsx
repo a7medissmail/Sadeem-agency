@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import ServiceForm from "../ServiceForm";
@@ -9,7 +9,7 @@ import ServiceForm from "../ServiceForm";
 export const metadata = { title: "Edit service - SADEEM Admin" };
 
 export default async function EditServicePage({ params }: { params: { id: string } }) {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("services:edit");
 
   const admin = getSupabaseAdmin();
   const [{ data: service }, { data: categories }] = await Promise.all([

@@ -1,3 +1,4 @@
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { InlineAlert } from "@/components/admin/ui/Feedback";
 
@@ -18,6 +19,12 @@ const actionColors: Record<string, string> = {
 };
 
 export default async function AuditLogPage() {
+  // This page had no check of its own and leaned entirely on the layout gate.
+  // That was survivable while the layout admitted only admins and editors; now
+  // that it admits every employee, the page has to state its own terms — and it
+  // reads with the service role, so RLS is not a second line of defence here.
+  await requirePermission("audit_log:view");
+
   const admin = getSupabaseAdmin();
   const { data: entries, error } = await admin
     .from("audit_log")

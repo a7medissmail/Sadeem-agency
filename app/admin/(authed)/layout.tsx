@@ -1,16 +1,21 @@
 import type { ReactNode } from "react";
-import { requireRole } from "@/lib/auth";
+import { requireStaff } from "@/lib/auth";
 import { signOutAction } from "@/app/admin/login/actions";
 import { AdminCommandCenter } from "@/components/admin/AdminCommandCenter";
 import { AdminNavLink } from "@/components/admin/AdminNavLink";
 import { loadAdminSignals, loadBadgeCounts } from "@/lib/admin/signals";
-import { navGroups } from "@/lib/admin/navigation";
+import { visibleNavGroups } from "@/lib/admin/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function AuthedAdminLayout({ children }: { children: ReactNode }) {
-  const profile = await requireRole(["admin", "editor"]);
+  // Anyone holding a permission belongs inside the shell. The gate used to ask
+  // for admin-or-editor, which meant a read-only account could not reach a
+  // single page even though a dozen of them were written to allow it.
+  const profile = await requireStaff();
   const profileLabel = profile?.full_name || profile?.email || "SADEEM";
+  const permissions = [...profile.permissions];
+  const groups = visibleNavGroups(permissions);
 
   // Load signals and badge counts in parallel
   const [signals, badgeCounts] = await Promise.all([
@@ -45,7 +50,7 @@ export default async function AuthedAdminLayout({ children }: { children: ReactN
         </div>
 
         <nav className="admin-nav" aria-label="Admin navigation">
-          {navGroups.map((group) => (
+          {groups.map((group) => (
             <div key={group.label} className="admin-nav-group">
               <p className="admin-nav-group-label">{group.label}</p>
               <div className="admin-nav-group-links">
@@ -86,6 +91,7 @@ export default async function AuthedAdminLayout({ children }: { children: ReactN
             role={profile?.role ?? "employee"}
             profileLabel={profileLabel}
             initialSignals={signals}
+            permissions={permissions}
           />
         </header>
         <div className="admin-content">{children}</div>

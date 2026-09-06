@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Badge } from "@/components/admin/ui/Badge";
 import { Button } from "@/components/admin/ui/Button";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { deleteTeamMemberAction, toggleTeamMemberActiveAction } from "./actions";
 import { DeleteConfirmButton } from "@/components/admin/ui/DeleteConfirmButton";
@@ -28,7 +28,7 @@ async function loadTeamMembers() {
 }
 
 export default async function TeamAdminPage() {
-  await requireRole(["admin", "editor", "viewer"]);
+  await requirePermission("team:view");
   const { members, error } = await loadTeamMembers();
   const activeCount = members.filter((member) => member.is_active).length;
   const photographedCount = members.filter((member) => member.photo_url).length;

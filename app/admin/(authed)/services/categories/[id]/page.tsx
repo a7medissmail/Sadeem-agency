@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { notFound } from "next/navigation";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
 import CategoryForm from "../CategoryForm";
@@ -9,7 +9,7 @@ import CategoryForm from "../CategoryForm";
 export const metadata = { title: "Edit category - SADEEM Admin" };
 
 export default async function EditCategoryPage({ params }: { params: { id: string } }) {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("services:edit");
 
   const admin = getSupabaseAdmin();
   const { data: category } = await admin

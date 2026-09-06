@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import {
   courseSchema,
@@ -95,7 +95,7 @@ export async function createCourseAction(
   _prev: CourseFormState,
   formData: FormData,
 ): Promise<CourseFormState> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("courses:edit");
 
   const parsed = courseSchema.safeParse(readForm(formData));
   if (!parsed.success) return formatCourseValidationError(parsed.error);
@@ -121,7 +121,7 @@ export async function updateCourseAction(
   _prev: CourseFormState,
   formData: FormData,
 ): Promise<CourseFormState> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("courses:edit");
   const id = formData.get("id") as string;
   if (!id) return { error: "Missing course id" };
 
@@ -147,7 +147,7 @@ export async function updateCourseAction(
 }
 
 export async function toggleCourseActiveAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("courses:edit");
   const id = formData.get("id") as string;
   const next = formData.get("next") === "on";
   if (!id) throw new Error("Missing course id");
@@ -160,7 +160,7 @@ export async function toggleCourseActiveAction(formData: FormData): Promise<void
 }
 
 export async function deleteCourseAction(formData: FormData): Promise<void> {
-  const profile = await requireRole(["admin"]);
+  const profile = await requirePermission("courses:delete");
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing course id");
 

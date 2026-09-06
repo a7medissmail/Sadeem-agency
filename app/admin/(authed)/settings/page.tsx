@@ -1,5 +1,5 @@
 import { PageHeader } from "@/components/admin/ui/PageHeader";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { defaultSocialUrls } from "@/lib/site/social";
 import type { Database } from "@/types/database";
@@ -43,7 +43,7 @@ async function loadSettings() {
 }
 
 export default async function SettingsPage() {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("settings:view");
   const [{ settings, error }, homeSections] = await Promise.all([loadSettings(), getHomeSectionLayout()]);
 
   return (

@@ -2,7 +2,7 @@ import { Badge } from "@/components/admin/ui/Badge";
 import { Button } from "@/components/admin/ui/Button";
 import { Input, Select } from "@/components/admin/ui/Field";
 import { PageHeader } from "@/components/admin/ui/PageHeader";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import type { Role } from "@/types/database";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import InviteForm from "./InviteForm";
@@ -61,7 +61,7 @@ function roleTone(role: Row["role"]) {
 }
 
 export default async function UsersPage() {
-  const me = await requireRole(["admin"]);
+  const me = await requirePermission("users:view");
   const { users, error: loadError } = await loadUsers();
   const superAdminCount = users.filter((user) => user.role === "super_admin").length;
   const adminCount = users.filter((user) => user.role === "admin").length;

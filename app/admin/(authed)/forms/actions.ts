@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import {
@@ -65,7 +65,7 @@ function formDatabaseError(message: string) {
 }
 
 export async function createFormAction(_prev: FormBuilderState, formData: FormData): Promise<FormBuilderState> {
-  const profile = await requireRole(["admin", "editor"]);
+  const profile = await requirePermission("forms:edit");
   const parsed = formDefinitionSchema.safeParse(readDefinition(formData));
   if (!parsed.success) return formatFormDefinitionValidationError(parsed.error);
 
@@ -82,7 +82,7 @@ export async function createFormAction(_prev: FormBuilderState, formData: FormDa
 }
 
 export async function updateFormAction(_prev: FormBuilderState, formData: FormData): Promise<FormBuilderState> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("forms:edit");
   const id = formData.get("id") as string;
   if (!id) return { error: "Missing form id" };
 
@@ -99,7 +99,7 @@ export async function updateFormAction(_prev: FormBuilderState, formData: FormDa
 }
 
 export async function addFieldAction(_prev: FormFieldState, formData: FormData): Promise<FormFieldState> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("forms:edit");
   const form_id = formData.get("form_id") as string;
   if (!form_id) return { error: "Missing form id" };
 
@@ -121,7 +121,7 @@ export async function addFieldAction(_prev: FormFieldState, formData: FormData):
 }
 
 export async function updateFieldAction(_prev: FormFieldState, formData: FormData): Promise<FormFieldState> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("forms:edit");
   const id = formData.get("id") as string;
   const form_id = formData.get("form_id") as string;
   if (!id || !form_id) return { error: "Missing field id" };
@@ -142,7 +142,7 @@ export async function updateFieldAction(_prev: FormFieldState, formData: FormDat
 }
 
 export async function deleteFieldAction(formData: FormData): Promise<void> {
-  const profile = await requireRole(["admin", "editor"]);
+  const profile = await requirePermission("forms:edit");
   const id = formData.get("id") as string;
   const form_id = formData.get("form_id") as string;
   if (!id || !form_id) throw new Error("Missing field id");
@@ -155,7 +155,7 @@ export async function deleteFieldAction(formData: FormData): Promise<void> {
 }
 
 export async function deleteFormAction(formData: FormData): Promise<void> {
-  const profile = await requireRole(["admin"]);
+  const profile = await requirePermission("forms:delete");
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing form id");
 
@@ -172,7 +172,7 @@ export async function reorderFieldsAction(
   formId: string,
   updates: { id: string; sort_order: number }[],
 ): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("forms:edit");
   const admin = getSupabaseAdmin();
   await Promise.all(
     updates.map(({ id, sort_order }) =>
@@ -185,7 +185,7 @@ export async function reorderFieldsAction(
 // ─── Submission status ────────────────────────────────────────────────────────
 
 export async function updateSubmissionStatusAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("forms:edit");
   const id = formData.get("id") as string;
   const form_id = formData.get("form_id") as string;
   const status = formData.get("status") as import("@/types/database").FormSubmissionStatus;

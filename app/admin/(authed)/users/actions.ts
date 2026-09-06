@@ -2,14 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { inviteUserSchema, updateUserSchema } from "@/lib/validation/user";
 
 export type ActionResult = { ok?: true; error?: string };
 
 export async function inviteUserAction(_prev: ActionResult, formData: FormData): Promise<ActionResult> {
-  await requireRole(["admin"]);
+  await requirePermission("users:manage");
 
   const parsed = inviteUserSchema.safeParse({
     email: formData.get("email"),
@@ -39,7 +39,7 @@ export async function inviteUserAction(_prev: ActionResult, formData: FormData):
 }
 
 export async function updateUserAction(formData: FormData): Promise<void> {
-  const profile = await requireRole(["admin"]);
+  const profile = await requirePermission("users:manage");
   const parsed = updateUserSchema.safeParse({
     id: formData.get("id"),
     full_name: (formData.get("full_name") as string) || undefined,
@@ -59,7 +59,7 @@ export async function updateUserAction(formData: FormData): Promise<void> {
 }
 
 export async function deleteUserAction(formData: FormData): Promise<void> {
-  const me = await requireRole(["admin"]);
+  const me = await requirePermission("users:manage");
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing user id");
   if (id === me.id) throw new Error("You can't delete your own account here");

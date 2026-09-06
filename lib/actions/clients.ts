@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import {
   clientPartnerSchema,
@@ -83,7 +83,7 @@ export async function updateClientSectionAction(
   _prev: ClientSectionFormState,
   formData: FormData,
 ): Promise<ClientSectionFormState> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("clients:edit");
 
   const parsed = clientSectionSchema.safeParse(readSectionForm(formData));
   if (!parsed.success) return formatClientSectionError(parsed.error);
@@ -129,7 +129,7 @@ export async function createClientPartnerAction(
   _prev: ClientPartnerFormState,
   formData: FormData,
 ): Promise<ClientPartnerFormState> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("clients:edit");
 
   const parsed = clientPartnerSchema.safeParse(readPartnerForm(formData));
   if (!parsed.success) return formatClientPartnerError(parsed.error);
@@ -176,7 +176,7 @@ export async function updateClientPartnerAction(
   _prev: ClientPartnerFormState,
   formData: FormData,
 ): Promise<ClientPartnerFormState> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("clients:edit");
   const id = formData.get("id") as string;
   if (!id) return { error: "Missing partner id" };
 
@@ -222,7 +222,7 @@ export async function updateClientPartnerAction(
 }
 
 export async function deleteClientPartnerAction(formData: FormData): Promise<void> {
-  await requireRole(["admin"]);
+  await requirePermission("clients:delete");
   const id = formData.get("id") as string;
   if (!id) throw new Error("Missing partner id");
 
@@ -235,7 +235,7 @@ export async function deleteClientPartnerAction(formData: FormData): Promise<voi
 }
 
 export async function toggleClientPartnerActiveAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("clients:edit");
   const id = formData.get("id") as string;
   const next = formData.get("next") === "on";
   if (!id) throw new Error("Missing partner id");
@@ -249,7 +249,7 @@ export async function toggleClientPartnerActiveAction(formData: FormData): Promi
 }
 
 export async function setSortOrderAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("clients:edit");
   const id = formData.get("id") as string;
   const raw = Number(formData.get("sort_order"));
   if (!id) throw new Error("Missing partner id");
@@ -267,7 +267,7 @@ export async function setSortOrderAction(formData: FormData): Promise<void> {
 }
 
 export async function reorderClientPartnerAction(formData: FormData): Promise<void> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("clients:edit");
   const id = formData.get("id") as string;
   const direction = formData.get("direction") === "up" ? -1 : 1;
   if (!id) throw new Error("Missing partner id");

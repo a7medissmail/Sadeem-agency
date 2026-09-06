@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import {
   formatSiteSettingsError,
@@ -75,7 +75,7 @@ export async function updateSiteSettingsAction(
   _prev: SiteSettingsState,
   formData: FormData,
 ): Promise<SiteSettingsState> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("settings:edit");
   const parsed = siteSettingsSchema.safeParse(readForm(formData));
   if (!parsed.success) return formatSiteSettingsError(parsed.error);
 
@@ -122,7 +122,7 @@ export async function updateSiteSettingsAction(
 export async function saveHomeSectionsAction(
   layout: { key: string; enabled: boolean }[],
 ): Promise<{ ok?: boolean; error?: string }> {
-  await requireRole(["admin", "editor"]);
+  await requirePermission("settings:edit");
 
   const known = new Map(HOME_SECTION_REGISTRY.map((meta) => [meta.key as string, meta]));
   const rows = layout
@@ -150,7 +150,7 @@ export async function saveHomeSectionsAction(
 // ─── Maintenance mode toggle ──────────────────────────────────────────────────
 
 export async function saveMaintenanceMessageAction(formData: FormData): Promise<void> {
-  await requireRole(["admin"]);
+  await requirePermission("settings:manage");
   const message = (formData.get("maintenance_message") as string | null)?.trim() || null;
 
   const admin = getSupabaseAdmin();
@@ -165,7 +165,7 @@ export async function saveMaintenanceMessageAction(formData: FormData): Promise<
 }
 
 export async function toggleMaintenanceModeAction(formData: FormData): Promise<void> {
-  await requireRole(["admin"]);
+  await requirePermission("settings:manage");
   const enable = formData.get("enable") === "true";
   const message = (formData.get("maintenance_message") as string | null)?.trim() || null;
 

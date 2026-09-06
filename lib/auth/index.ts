@@ -227,34 +227,8 @@ export async function requireUser() {
   return user;
 }
 
-/** Legacy role names, as they were used before permissions existed. */
-type LegacyRole = "admin" | "editor" | "viewer";
-
-/**
- * @deprecated Compatibility shim. Use `requirePermission`.
- *
- * The 120 call sites written against the old enum are being converted module by
- * module; until then they keep working by asking the same question in the new
- * vocabulary:
- *
- *   "admin"  — the tier that runs the system
- *   "editor" — anyone who may write something
- *   "viewer" — anyone who may read something
- *
- * That reproduces today's behaviour for every account this migration touched,
- * but it is an approximation, not a translation: it cannot tell `leads:delete`
- * from `settings:manage`, because the old enum could not either. That precision
- * is exactly what the per-call conversion adds, so nothing new should be
- * written against this.
- */
-export async function requireRole(allowed: LegacyRole[]): Promise<Session> {
-  const session = await requireSession();
-
-  const ok =
-    (allowed.includes("admin") && (session.role === "super_admin" || session.role === "admin")) ||
-    (allowed.includes("editor") && canWrite(session)) ||
-    (allowed.includes("viewer") && session.permissions.size > 0);
-
-  if (!ok) redirect("/admin/no-access");
-  return session;
-}
+// requireRole() lived here as a shim over the old admin/editor/viewer enum
+// while the call sites were converted. All 119 now ask for a permission by
+// name, so the shim is gone: it could not tell `leads:delete` from
+// `settings:manage` — the old enum could not either — and leaving it available
+// would have let the next page written reintroduce that blindness.
