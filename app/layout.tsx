@@ -3,8 +3,6 @@ import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
-import { ConsentNotice } from "@/components/analytics/ConsentNotice";
 import { SiteSettingsProvider } from "@/components/SiteSettingsProvider";
 import { getPublicSiteSettings } from "@/lib/site/settings";
 
@@ -70,12 +68,20 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       </head>
       <body>
         <SiteSettingsProvider initialSettings={siteSettings}>{children}</SiteSettingsProvider>
-        {/* Cookieless, and unaffected by the consent choice — so the site is
-            never blind even when a visitor declines measurement. */}
+        {/*
+          Vercel's two only. Google Analytics and the consent notice moved down
+          to the marketing layout, because this layout also wraps /admin and the
+          client portals — and gtag reports the full URL as page_location, so a
+          /q/<token> magic link was being handed to Google as a page path. An
+          allow-list beats a deny-list here: a future route that carries a secret
+          gets no measurement by default rather than leaking until someone
+          remembers to exclude it.
+
+          These two stay: they are cookieless, and the paths they see are paths
+          Vercel already logs as the host.
+        */}
         <Analytics />
         <SpeedInsights />
-        <GoogleAnalytics />
-        <ConsentNotice />
       </body>
     </html>
   );

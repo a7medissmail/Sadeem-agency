@@ -3,6 +3,8 @@ import { SiteSettingsProvider } from "@/components/SiteSettingsProvider";
 import MainNavbar from "@/components/MainNavbar";
 import Footer from "@/components/Footer";
 import NotFoundContent from "./_not-found-content";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import { ConsentNotice } from "@/components/analytics/ConsentNotice";
 
 /**
  * Server component — fetches site settings before streaming so the real
@@ -16,6 +18,11 @@ export default async function NotFound() {
       <MainNavbar overDark={true} />
       <NotFoundContent />
       <Footer />
+      {/* 404s are worth measuring — broken inbound links are an SEO signal —
+          and this page renders outside the (marketing) group, so it carries its
+          own copy rather than being tracked from the root layout. */}
+      <GoogleAnalytics />
+      <ConsentNotice />
     </SiteSettingsProvider>
   );
 }
