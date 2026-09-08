@@ -7,6 +7,8 @@ export type BookingSettings = {
   /** 0 = unlimited */
   maxPerDay: number;
   minNoticeHours: number;
+  /** Whole days between today and the first bookable day. 0 = same-day allowed. */
+  minLeadDays: number;
   maxAdvanceDays: number;
   /** 0 = Sunday (Riyadh business week), 1 = Monday */
   weekStartsOn: number;
@@ -20,14 +22,14 @@ export type BookingBlackout = {
 };
 
 /**
- * Matches the column defaults in migration 0035 — and the values that were
- * hardcoded in slots.ts before it. If the table is missing (migration not yet
- * pushed) the calendar behaves exactly as it did before.
+ * Matches the column defaults in migrations 0035 and 0040. If the table is
+ * missing (migration not yet pushed) the calendar falls back to these.
  */
 export const defaultBookingSettings: BookingSettings = {
   maxPerWeek: 0,
   maxPerDay: 0,
   minNoticeHours: 2,
+  minLeadDays: 2,
   maxAdvanceDays: 21,
   weekStartsOn: 0,
 };
@@ -37,7 +39,7 @@ export async function getBookingSettings(): Promise<BookingSettings> {
     const admin = getSupabaseAdmin();
     const { data, error } = await admin
       .from("booking_settings")
-      .select("max_per_week, max_per_day, min_notice_hours, max_advance_days, week_starts_on")
+      .select("max_per_week, max_per_day, min_notice_hours, min_lead_days, max_advance_days, week_starts_on")
       .eq("id", true)
       .maybeSingle();
 
@@ -47,6 +49,7 @@ export async function getBookingSettings(): Promise<BookingSettings> {
       maxPerWeek: data.max_per_week ?? defaultBookingSettings.maxPerWeek,
       maxPerDay: data.max_per_day ?? defaultBookingSettings.maxPerDay,
       minNoticeHours: data.min_notice_hours ?? defaultBookingSettings.minNoticeHours,
+      minLeadDays: data.min_lead_days ?? defaultBookingSettings.minLeadDays,
       maxAdvanceDays: data.max_advance_days ?? defaultBookingSettings.maxAdvanceDays,
       weekStartsOn: data.week_starts_on ?? defaultBookingSettings.weekStartsOn,
     };

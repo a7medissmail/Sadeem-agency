@@ -218,6 +218,10 @@ export async function getConsultationSlots(daysOverride?: number): Promise<{ tim
   const now = new Date();
   const minimumStart = new Date(now.getTime() + settings.minNoticeHours * 60 * 60 * 1000);
   const today = dateKeyInZone(now, timeZone);
+  // The first bookable calendar day. minLeadDays = 2 closes today and tomorrow;
+  // the horizon is still counted from today, so a long lead shortens the window
+  // rather than sliding it forward.
+  const firstDay = Math.min(settings.minLeadDays, days);
   const lastDay = addDays(today, days);
   const windowStart = zonedTimeToUtc(today, "00:00", timeZone);
   const windowEnd = zonedTimeToUtc(lastDay, "23:59", timeZone);
@@ -233,7 +237,7 @@ export async function getConsultationSlots(daysOverride?: number): Promise<{ tim
   const busy = [...localBusy, ...googleBusy];
   const slots: ConsultationSlot[] = [];
 
-  for (let dayOffset = 0; dayOffset < days; dayOffset += 1) {
+  for (let dayOffset = firstDay; dayOffset < days; dayOffset += 1) {
     const dayKey = addDays(today, dayOffset);
     if (isBlackedOut(dayKey, blackouts)) continue;
     if (atCapacity(dayKey, settings, usage)) continue;

@@ -306,6 +306,7 @@ export async function saveBookingSettingsAction(formData: FormData): Promise<voi
     max_per_week: formData.get("max_per_week"),
     max_per_day: formData.get("max_per_day"),
     min_notice_hours: formData.get("min_notice_hours"),
+    min_lead_days: formData.get("min_lead_days"),
     max_advance_days: formData.get("max_advance_days"),
     week_starts_on: formData.get("week_starts_on"),
   });

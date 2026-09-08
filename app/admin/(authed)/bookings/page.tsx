@@ -44,6 +44,7 @@ const fallbackSettings: BookingSettingsRow = {
   max_per_week: defaultBookingSettings.maxPerWeek,
   max_per_day: defaultBookingSettings.maxPerDay,
   min_notice_hours: defaultBookingSettings.minNoticeHours,
+  min_lead_days: defaultBookingSettings.minLeadDays,
   max_advance_days: defaultBookingSettings.maxAdvanceDays,
   week_starts_on: defaultBookingSettings.weekStartsOn,
 };
@@ -116,7 +117,7 @@ async function loadAvailability() {
         .order("start_time", { ascending: true }),
       admin
         .from("booking_settings")
-        .select("max_per_week, max_per_day, min_notice_hours, max_advance_days, week_starts_on")
+        .select("max_per_week, max_per_day, min_notice_hours, min_lead_days, max_advance_days, week_starts_on")
         .eq("id", true)
         .maybeSingle(),
       admin

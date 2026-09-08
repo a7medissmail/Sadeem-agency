@@ -359,7 +359,7 @@ function CapsSection({
 
       <form
         action={saveBookingSettingsAction}
-        className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-[repeat(5,1fr)_auto] xl:items-end"
+        className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-[repeat(6,1fr)_auto] xl:items-end"
       >
         <label className="flex flex-col gap-1.5">
           <span className="sdm-form-label text-[var(--sdm-text-secondary)]">Max / week</span>
@@ -372,6 +372,10 @@ function CapsSection({
         <label className="flex flex-col gap-1.5">
           <span className="sdm-form-label text-[var(--sdm-text-secondary)]">Min notice (h)</span>
           <Input name="min_notice_hours" type="number" min={0} max={720} defaultValue={settings.min_notice_hours} required />
+        </label>
+        <label className="flex flex-col gap-1.5">
+          <span className="sdm-form-label text-[var(--sdm-text-secondary)]">Lead (days)</span>
+          <Input name="min_lead_days" type="number" min={0} max={30} defaultValue={settings.min_lead_days} required />
         </label>
         <label className="flex flex-col gap-1.5">
           <span className="sdm-form-label text-[var(--sdm-text-secondary)]">Horizon (days)</span>
@@ -391,7 +395,9 @@ function CapsSection({
           Save limits
         </Button>
         <p className="sdm-helper-text text-[var(--admin-muted)] sm:col-span-2 xl:col-span-full">
-          Use <strong className="text-[var(--admin-text)]">0</strong> for no limit.
+          Use <strong className="text-[var(--admin-text)]">0</strong> for no limit.{" "}
+          <strong className="text-[var(--admin-text)]">Lead</strong> is how many whole days ahead the first bookable
+          day is — 2 closes today and tomorrow.
         </p>
       </form>
     </SectionCard>

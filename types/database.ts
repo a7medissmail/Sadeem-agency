@@ -244,6 +244,7 @@ export type Database = {
           max_per_week: number; // 0 = unlimited
           max_per_day: number; // 0 = unlimited
           min_notice_hours: number;
+          min_lead_days: number;
           max_advance_days: number;
           week_starts_on: number; // 0..6 (Sun..Sat)
           updated_at: string;

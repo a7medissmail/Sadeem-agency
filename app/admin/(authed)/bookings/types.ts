@@ -28,6 +28,7 @@ export type BookingSettingsRow = {
   max_per_week: number;
   max_per_day: number;
   min_notice_hours: number;
+  min_lead_days: number;
   max_advance_days: number;
   week_starts_on: number;
 };
