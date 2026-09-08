@@ -718,7 +718,19 @@ export function ApplicationsBoard({ applications, staff }: { applications: Appli
         </DragOverlay>
       </DndContext>
 
-      <CandidateDrawer application={selected} staff={staff} onClose={() => setSelectedId(null)} />
+      {/*
+        Keyed by candidate id for the same reason the bookings dossier is: the
+        drawer's review form is uncontrolled, so defaultValue only lands on
+        mount. Reusing the instance across candidates carried the previous one's
+        owner, score, status and links into the next one's fields — and Save
+        wrote them there for real.
+      */}
+      <CandidateDrawer
+        key={selected?.id ?? "closed"}
+        application={selected}
+        staff={staff}
+        onClose={() => setSelectedId(null)}
+      />
     </div>
   );
 }

@@ -699,8 +699,11 @@ export function ProposalBoard({
         </div>
       )}
 
-      {/* Drawer */}
+      {/* Drawer. Keyed by proposal id: status and the internal notes textarea
+          are uncontrolled, so without it the notes you read on one proposal are
+          the notes you were writing on the last one. */}
       <ProposalDrawer
+        key={selected?.id ?? "closed"}
         proposal={selected}
         forms={forms}
         onClose={() => setSelectedId(null)}

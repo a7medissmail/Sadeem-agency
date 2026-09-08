@@ -739,7 +739,16 @@ export function LeadsBoard({ leads, staff, forms }: { leads: LeadBoardRow[]; sta
       </DndContext>
       )}
 
-      <LeadDrawer lead={selected} staff={staff} forms={forms} onClose={() => setSelectedId(null)} />
+      {/* Keyed by lead id — the drawer's status and owner selects are
+          uncontrolled, so an unkeyed instance carries the previous lead's
+          values into the next one and Save persists them. */}
+      <LeadDrawer
+        key={selected?.id ?? "closed"}
+        lead={selected}
+        staff={staff}
+        forms={forms}
+        onClose={() => setSelectedId(null)}
+      />
     </div>
   );
 }

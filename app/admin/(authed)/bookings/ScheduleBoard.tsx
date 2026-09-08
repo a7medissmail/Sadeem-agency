@@ -526,7 +526,16 @@ export function ScheduleBoard({
         </div>
 
         {selected ? (
+          /*
+            Keyed by booking id on purpose. The dossier's form is uncontrolled —
+            defaultValue only lands on mount — so without a key React reuses the
+            same inputs when you switch bookings and the previous meeting's link
+            and status stay sitting in the fields. It looked like every booking
+            shared one link, and hitting Save made that true. A new key remounts
+            the panel, so each booking opens on its own values.
+          */
           <BookingDossier
+            key={selected.id}
             booking={selected}
             forms={forms}
             fmt={fmt}
